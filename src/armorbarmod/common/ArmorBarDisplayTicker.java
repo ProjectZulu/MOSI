@@ -1,6 +1,8 @@
 package armorbarmod.common;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -12,46 +14,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.src.ModLoader;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Point;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
 public class ArmorBarDisplayTicker implements ITickHandler{
-	public static long inGameTicks = 0;
+	public static int inGameTicks = 0;
 	protected float zLevel = 10.0F;
 	private int maxBuffLength;
 
-	public boolean displayFeet = mod_ArmorBarMod.displayFeet;
-	public int horizontalOffsetFromMiddleFeet = mod_ArmorBarMod.horizontalOffsetFromMiddleFeet;
-	public int verticalOffsetFromBottomFeet = mod_ArmorBarMod.verticalOffsetFromBottomFeet;
-	public int displayStyleFeet = mod_ArmorBarMod.displayStyleFeet;
-	public int fontColorFeet = mod_ArmorBarMod.fontColorFeet;
-	public int horizontalStringOffsetFeet = mod_ArmorBarMod.horizontalStringOffsetFeet;
-	public int verticalStringOffsetFeet = mod_ArmorBarMod.verticalStringOffsetFeet;
-
-	public boolean displayLegs = mod_ArmorBarMod.displayLegs;
-	public int horizontalOffsetFromMiddleLegs = mod_ArmorBarMod.horizontalOffsetFromMiddleLegs;
-	public int verticalOffsetFromBottomLegs = mod_ArmorBarMod.verticalOffsetFromBottomLegs;
-	public int displayStyleLegs = mod_ArmorBarMod.displayStyleLegs;
-	public int fontColorLegs = mod_ArmorBarMod.fontColorLegs;
-	public int horizontalStringOffsetLegs = mod_ArmorBarMod.horizontalStringOffsetLegs;
-	public int verticalStringOffsetLegs = mod_ArmorBarMod.verticalStringOffsetLegs;
-
-	public boolean displayChest = mod_ArmorBarMod.displayChest;
-	public int horizontalOffsetFromMiddleChest = mod_ArmorBarMod.horizontalOffsetFromMiddleChest;
-	public int verticalOffsetFromBottomChest = mod_ArmorBarMod.verticalOffsetFromBottomChest;
-	public int displayStyleChest = mod_ArmorBarMod.displayStyleChest;
-	public int fontColorChest = mod_ArmorBarMod.fontColorChest;
-	public int horizontalStringOffsetChest = mod_ArmorBarMod.horizontalStringOffsetChest;
-	public int verticalStringOffsetChest = mod_ArmorBarMod.verticalStringOffsetChest;
-
-	public boolean displayHead = mod_ArmorBarMod.displayHead;
-	public int horizontalOffsetFromMiddleHead = mod_ArmorBarMod.horizontalOffsetFromMiddleHead;
-	public int verticalOffsetFromBottomHead = mod_ArmorBarMod.verticalOffsetFromBottomHead;
-	public int displayStyleHead = mod_ArmorBarMod.displayStyleHead;
-	public int fontColorHead = mod_ArmorBarMod.fontColorHead;
-	public int horizontalStringOffsetHead = mod_ArmorBarMod.horizontalStringOffsetHead;
-	public int verticalStringOffsetHead = mod_ArmorBarMod.verticalStringOffsetHead;
+	static List<DisplayUnit> displayList = new ArrayList();
 
 	public boolean displayArrow = mod_ArmorBarMod.displayArrow;
 	public int horizontalOffsetFromMiddleArrow = mod_ArmorBarMod.horizontalOffsetFromMiddleArrow;
@@ -100,297 +73,31 @@ public class ArmorBarDisplayTicker implements ITickHandler{
 	public int maxOfGenericItem3 = mod_ArmorBarMod.maxOfGenericItem3;
 
 	@Override
-	public EnumSet<TickType> ticks() {
-		// TODO Auto-generated method stub
-		return EnumSet.of(TickType.RENDER);
-	}
+	public EnumSet<TickType> ticks() { return EnumSet.of(TickType.RENDER); }
 	@Override
-	public String getLabel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public String getLabel() { return null;	}
 
-	public void tickStart(EnumSet<TickType> type, Object... tickData)
-	{
-	}
-	public void tickEnd(EnumSet<TickType> type, Object... tickData)
-	{
+	public void tickStart(EnumSet<TickType> type, Object... tickData){}
+	
+	public void tickEnd(EnumSet<TickType> type, Object... tickData){
 		if(ModLoader.getMinecraftInstance().thePlayer != null){
+			
 			EntityPlayer player = ModLoader.getMinecraftInstance().thePlayer;
 			Minecraft mc = ModLoader.getMinecraftInstance();
 			FontRenderer var2 = mc.fontRenderer;
 			ScaledResolution var3 = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-			int buffNumber = 0;
 			int scalewidth = var3.getScaledWidth();
 			int scaleHeight = var3.getScaledHeight();
-			int buffsToShow = 8;
-			int maxDuration = 60;
-			short lengthOfBuffBar = (short)(18*buffsToShow);			
-
-			//Render Feets
-			if(displayFeet && player.inventory.armorInventory[0] != null){
-				ItemStack itemStackToRender = player.inventory.armorInventory[0];
-				Item itemToRender = itemStackToRender.getItem();
-				int iconIndex = itemStackToRender.getIconIndex();
-				String textureLocation = itemToRender.getTextureFile();
-				int currentDamage = itemStackToRender.getItemDamage();
-				int maxDamage = itemToRender.getMaxDamage();
-				int health = mapDamagetoHealthto16(currentDamage, maxDamage);
-
-				int iconXCoord = 0;
-				int iconYCoord = 0;
-				int tempIndex = iconIndex;
-				while(tempIndex > 15){
-					tempIndex-=16;
-					iconYCoord += 1;
-				}
-				iconXCoord = tempIndex;
-
-				iconXCoord*=16;
-				iconYCoord*=16;
-
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
-				this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleFeet, scaleHeight-(16+verticalOffsetFromBottomFeet), iconXCoord, iconYCoord, 16, 16);
-
-				if(displayStyleFeet == 0 || displayStyleFeet == 2){
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/ArmorBarMod_Countdown.png"));
-					this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleFeet, scaleHeight-verticalOffsetFromBottomFeet, 0, 0, 16, 3);
-					
-					if(health > 9){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleFeet, scaleHeight-verticalOffsetFromBottomFeet, 0, 3, health, 3);
-					}else if(health > 4){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleFeet, scaleHeight-verticalOffsetFromBottomFeet, 0, 6, health, 3);
-					}else{
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleFeet, scaleHeight-verticalOffsetFromBottomFeet, 0, 9, health, 3);
-					}
-				}
-
-				if(displayStyleFeet == 1 || displayStyleFeet == 2){
-					String var9 = Integer.toString(maxDamage - currentDamage);
-					var2.drawString(var9, 
-							scalewidth/2+horizontalOffsetFromMiddleFeet + var2.getStringWidth(var9) + horizontalStringOffsetFeet / 2,
-							scaleHeight-(8+verticalOffsetFromBottomFeet) - verticalStringOffsetFeet,
-							fontColorFeet);
-				}
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			}
-
-			//Render Legs
-			if(displayLegs && player.inventory.armorInventory[1] != null){
-				ItemStack itemStackToRender = player.inventory.armorInventory[1];
-				Item itemToRender = itemStackToRender.getItem();
-				int iconIndex = itemStackToRender.getIconIndex();
-				String textureLocation = itemToRender.getTextureFile();
-				int currentDamage = itemStackToRender.getItemDamage();
-				int maxDamage = itemToRender.getMaxDamage();
-				int health = mapDamagetoHealthto16(currentDamage, maxDamage);
-
-				int iconXCoord = 0;
-				int iconYCoord = 0;
-				int tempIndex = iconIndex;
-				while(tempIndex > 15){
-					tempIndex-=16;
-					iconYCoord += 1;
-				}
-				iconXCoord = tempIndex;
-
-				iconXCoord*=16;
-				iconYCoord*=16;
-
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
-				this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleLegs, scaleHeight-(16+verticalOffsetFromBottomLegs), iconXCoord, iconYCoord, 16, 16);
-
-				if(displayStyleLegs == 0 || displayStyleLegs == 2){
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/ArmorBarMod_Countdown.png"));
-					this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleLegs, scaleHeight-verticalOffsetFromBottomLegs, 0, 0, 16, 3);
-					
-					if(health > 9){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleLegs, scaleHeight-verticalOffsetFromBottomLegs, 0, 3, health, 3);
-					}else if(health > 4){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleLegs, scaleHeight-verticalOffsetFromBottomLegs, 0, 6, health, 3);
-					}else{
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleLegs, scaleHeight-verticalOffsetFromBottomLegs, 0, 9, health, 3);
-					}
-
-				}
-
-				if(displayStyleLegs == 1 || displayStyleLegs == 2){
-					String var9 = Integer.toString(maxDamage - currentDamage);
-					var2.drawString(var9, 
-							scalewidth/2+horizontalOffsetFromMiddleLegs + var2.getStringWidth(var9) + horizontalStringOffsetLegs / 2,
-							scaleHeight-(8+verticalOffsetFromBottomLegs) - verticalStringOffsetLegs,
-							fontColorLegs);
-				}
-
-
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			}
-
-			//Render Chest
-			if(displayChest && player.inventory.armorInventory[2] != null){
-				ItemStack itemStackToRender = player.inventory.armorInventory[2];
-				Item itemToRender = itemStackToRender.getItem();
-				int iconIndex = itemStackToRender.getIconIndex();
-				String textureLocation = itemToRender.getTextureFile();
-				int currentDamage = itemStackToRender.getItemDamage();
-				int maxDamage = itemToRender.getMaxDamage();
-				int health = mapDamagetoHealthto16(currentDamage, maxDamage);
-
-				int iconXCoord = 0;
-				int iconYCoord = 0;
-				int tempIndex = iconIndex;
-				while(tempIndex > 15){
-					tempIndex-=16;
-					iconYCoord += 1;
-				}
-				iconXCoord = tempIndex;
-
-				iconXCoord*=16;
-				iconYCoord*=16;
-
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
-				this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleChest, scaleHeight-(16+verticalOffsetFromBottomChest), iconXCoord, iconYCoord, 16, 16);
-
-				if(displayStyleChest == 0 || displayStyleChest == 2){
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/ArmorBarMod_Countdown.png"));
-					this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleChest, scaleHeight-verticalOffsetFromBottomChest, 0, 0, 16, 3);
-
-					if(health > 9){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleChest, scaleHeight-verticalOffsetFromBottomChest, 0, 3, health, 3);
-					}else if(health > 4){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleChest, scaleHeight-verticalOffsetFromBottomChest, 0, 6, health, 3);
-					}else{
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleChest, scaleHeight-verticalOffsetFromBottomChest, 0, 9, health, 3);
-					}
-				}
-
-				if(displayStyleChest == 1 || displayStyleChest == 2){
-					String var9 = Integer.toString(maxDamage - currentDamage);
-					var2.drawString(var9, 
-							scalewidth/2+horizontalOffsetFromMiddleChest + var2.getStringWidth(var9) + horizontalStringOffsetChest / 2,
-							scaleHeight-(8+verticalOffsetFromBottomChest) - verticalStringOffsetChest,
-							fontColorChest);
-				}
-
-
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			}
-
-			//Render Head
-			if(displayHead && player.inventory.armorInventory[3] != null){
-				ItemStack itemStackToRender = player.inventory.armorInventory[3];
-				Item itemToRender = itemStackToRender.getItem();
-				int iconIndex = itemStackToRender.getIconIndex();
-				String textureLocation = itemToRender.getTextureFile();
-				int currentDamage = itemStackToRender.getItemDamage();
-				int maxDamage = itemToRender.getMaxDamage();
-				int health = mapDamagetoHealthto16(currentDamage, maxDamage);
-
-				int iconXCoord = 0;
-				int iconYCoord = 0;
-				int tempIndex = iconIndex;
-				while(tempIndex > 15){
-					tempIndex-=16;
-					iconYCoord += 1;
-				}
-				iconXCoord = tempIndex;
-
-				iconXCoord*=16;
-				iconYCoord*=16;
-
-
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
-				this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleHead, scaleHeight-(16+verticalOffsetFromBottomHead), iconXCoord, iconYCoord, 16, 16);
-
-				if(displayStyleHead == 0 || displayStyleHead == 2){
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/ArmorBarMod_Countdown.png"));
-					this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleHead, scaleHeight-verticalOffsetFromBottomHead, 0, 0, 16, 3);
-					
-					if(health > 9){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleHead, scaleHeight-verticalOffsetFromBottomHead, 0, 3, health, 3);
-					}else if(health > 4){
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleHead, scaleHeight-verticalOffsetFromBottomHead, 0, 6, health, 3);
-					}else{
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleHead, scaleHeight-verticalOffsetFromBottomHead, 0, 9, health, 3);
-					}
-
-				}
-
-				if(displayStyleHead == 1 || displayStyleHead == 2){
-					String var9 = Integer.toString(maxDamage - currentDamage);
-					var2.drawString(var9, 
-							scalewidth/2+horizontalOffsetFromMiddleHead + var2.getStringWidth(var9) + horizontalStringOffsetHead / 2,
-							scaleHeight-(8+verticalOffsetFromBottomHead) - verticalStringOffsetHead,
-							fontColorHead);
-				}
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			}
 			
-			//Render Arrow Counter
-			if(displayArrow){
-				
-				this.numberOfArrows = 0;
-				/* Variable That will hold the Item we want to render, which We find based on ItemID.*/
-				ItemStack itemStackToRender = null;
-
-				//Count Number of Item in Inventory
-				ItemStack[] inventory = player.inventory.mainInventory;
-				for (int i = 0; i < inventory.length; i++) {
-					if(inventory[i] != null && inventory[i].getItem().shiftedIndex == Item.arrow.shiftedIndex){
-						numberOfArrows += inventory[i].stackSize;
-						itemStackToRender = itemStackToRender == null ? inventory[i] : itemStackToRender ;
-					}
-				}
-				if(itemStackToRender != null){
-					Item itemToRender = itemStackToRender.getItem();
-					int iconIndex = itemStackToRender.getIconIndex();
-					String textureLocation = itemToRender.getTextureFile();
-
-					int health = mapAmounttoMaxto16(numberOfArrows, maxOfArrows);
-
-					int iconXCoord = 0;
-					int iconYCoord = 0;
-					int tempIndex = iconIndex;
-					while(tempIndex > 15){
-						tempIndex-=16;
-						iconYCoord += 1;
-					}
-					iconXCoord = tempIndex;
-
-					iconXCoord*=16;
-					iconYCoord*=16;
-
-
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
-					this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleArrow, scaleHeight-(16+verticalOffsetFromBottomArrow), iconXCoord, iconYCoord, 16, 16);
-
-					if(displayStyleArrow == 0 || displayStyleArrow == 2){
-						GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/ArmorBarMod_Countdown.png"));
-						this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleArrow, scaleHeight-verticalOffsetFromBottomArrow, 0, 0, 16, 3);
-						
-						if(health > 9){
-							this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleArrow, scaleHeight-verticalOffsetFromBottomArrow, 0, 3, health, 3);
-						}else if(health > 4){
-							this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleArrow, scaleHeight-verticalOffsetFromBottomArrow, 0, 6, health, 3);
-						}else{
-							this.drawTexturedModalRect(scalewidth/2+horizontalOffsetFromMiddleArrow, scaleHeight-verticalOffsetFromBottomArrow, 0, 9, health, 3);
-						}
-					}
-
-					if(displayStyleArrow == 1 || displayStyleArrow == 2){
-						String var9 = Integer.toString(numberOfArrows);
-						var2.drawString(var9, 
-								scalewidth/2+horizontalOffsetFromMiddleArrow + var2.getStringWidth(var9) + horizontalStringOffsetArrow / 2,
-								scaleHeight-(8+verticalOffsetFromBottomArrow) - verticalStringOffsetArrow,
-								fontColorArrow);
-					}
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			for (DisplayUnit displayUnit : displayList) {
+				displayUnit.onUpdate(mc, inGameTicks);
+				if(displayUnit.shouldRender(mc)){
+					displayUnit.renderDisplay(mc);
 				}
 			}
 			
 			//Render GenericItem1 Counter
 			if(displayGenericItem1){
-				
 				this.numberOfGenericItem1 = 0;
 				/* Variable That will hold the Item we want to render, which We find based on ItemID.*/
 				ItemStack itemStackToRender = null;
@@ -398,7 +105,7 @@ public class ArmorBarDisplayTicker implements ITickHandler{
 				//Count Number of Item in Inventory
 				ItemStack[] inventory = player.inventory.mainInventory;
 				for (int i = 0; i < inventory.length; i++) {
-					if(inventory[i] != null && inventory[i].getItem().shiftedIndex == genericItem1ShiftedID){
+					if(inventory[i] != null && inventory[i].getItem().itemID == genericItem1ShiftedID){
 						numberOfGenericItem1 += inventory[i].stackSize;
 						itemStackToRender = itemStackToRender == null ? inventory[i] : itemStackToRender ;
 					}
@@ -472,7 +179,7 @@ public class ArmorBarDisplayTicker implements ITickHandler{
 				//Count Number of Item in Inventory
 				ItemStack[] inventory = player.inventory.mainInventory;
 				for (int i = 0; i < inventory.length; i++) {
-					if(inventory[i] != null && inventory[i].getItem().shiftedIndex == genericItem2ShiftedID){
+					if(inventory[i] != null && inventory[i].getItem().itemID == genericItem2ShiftedID){
 						numberOfGenericItem2 += inventory[i].stackSize;
 						itemStackToRender = itemStackToRender == null ? inventory[i] : itemStackToRender ;
 					}
@@ -547,7 +254,7 @@ public class ArmorBarDisplayTicker implements ITickHandler{
 				//Count Number of Item in Inventory
 				ItemStack[] inventory = player.inventory.mainInventory;
 				for (int i = 0; i < inventory.length; i++) {
-					if(inventory[i] != null && inventory[i].getItem().shiftedIndex == genericItem3ShiftedID){
+					if(inventory[i] != null && inventory[i].getItem().itemID == genericItem3ShiftedID){
 						numberOfGenericItem3 += inventory[i].stackSize;
 						itemStackToRender = itemStackToRender == null ? inventory[i] : itemStackToRender ;
 					}
