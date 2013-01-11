@@ -1,5 +1,7 @@
 package armorbarmod.common;
 
+import java.util.EnumSet;
+
 import org.lwjgl.util.Point;
 
 import net.minecraft.item.Item;
@@ -8,64 +10,83 @@ import net.minecraftforge.common.Configuration;
 public enum DisplayBuilder {
 	Feet {
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = new DisplayUnitArmorSlot(this.toString(), 0, true, 1030655, new Point(95, (16*0+4)+16), new Point(0, 16), new Point(16, 4-8));
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitArmorSlot(this.toString(), 0, true, 1030655, new Point(95, (16*0+4)+16));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DisplayWhenEmpty));
 		}
 	},
 	Legs{
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = new DisplayUnitArmorSlot(this.toString(), 1, true, 1030655, new Point(95, (16*1+4+2)+16), new Point(0, 16), new Point(16, 4-8));
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitArmorSlot(this.toString(), 1, true, 1030655, new Point(95, (16*1+4+2)+16));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DisplayWhenEmpty));
 		}
 	},
 	Chest{
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = new DisplayUnitArmorSlot(this.toString(), 2, true, 1030655, new Point(-111, (16*0+4)+16), new Point(0, 16), new Point(-16, 4-8));
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitArmorSlot(this.toString(), 2, true, 1030655, new Point(-111, (16*0+4)+16));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowLeft, Setting.AnalogBar, Setting.DisplayWhenEmpty));
 		}
 	},
 	Head{
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = new DisplayUnitArmorSlot(this.toString(), 3, true, 1030655,
-					new Point(-111, (16*1+4+2)+16), new Point(0, 16), new Point(-16, 4-8));
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitArmorSlot(this.toString(), 3, true, 1030655, new Point(-111, (16*1+4+2)+16));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowLeft, Setting.AnalogBar, Setting.DisplayWhenEmpty));
 		}
 	},
 	Arrow{
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.arrow.itemID, true, 1030655, 
-					new Point(-111-32-16, (16*0+4)+16), new Point(0, 16), new Point(-16, 4-8));
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.arrow.itemID, true, 1030655,  new Point(-111-32-16, (16+4)*0+20));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DigitalCounter, Setting.DisplayWhenEmpty, Setting.trackAmount));
 		}
 	},
-	OtherItem1{
+	GenericDurabilityCounter1{
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = (new DisplayUnitTrackItem(this.toString(), Item.swordWood.itemID, true, 1030655, 
-					new Point(-111-32-16, (16*1+4)+16), new Point(0, 16), new Point(-16, 4-8))).devTestingMethod();
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordWood.itemID, true, 1030655, new Point(-111-32-16, (16+4)*1+20));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DisplayWhenEmpty, Setting.trackDurability));
 		}
 	},
-	OtherItem2{
+	GenericDurabilityCounter2{
 		@Override
-		void loadDisplayUnit(Configuration config) {
-			displayUnit = (new DisplayUnitTrackItem(this.toString(), Item.swordWood.itemID, true, 1030655, 
-					new Point(-111-32-16, (16*2+4)+16), new Point(0, 16), new Point(-16, 4-8)));
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordSteel.itemID, true, 1030655, new Point(-111-32-16, (16+4)*2+20));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DisplayWhenEmpty, Setting.trackDurability));
 		}
-	}
-	;
+	},
+	GenericAmountCounter1{
+		@Override
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.coal.itemID, true, 1030655, new Point(-111-32-16, (16+4)*3+20));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DigitalCounter, Setting.DisplayWhenEmpty, Setting.trackAmount, 
+					Setting.equalItemMeta));
+		}
+	},
+	GenericAmountCounter2{
+		@Override
+		void createDisplayUnit() {
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.diamond.itemID, true, 1030655, new Point(-111-32-16, (16+4)*4+20));
+			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DigitalCounter, Setting.DisplayWhenEmpty, Setting.trackAmount, 
+					Setting.equalItemMeta));
+		}
+	};
 	
-	abstract void loadDisplayUnit(Configuration config);
+	abstract void createDisplayUnit();
 	protected DisplayUnit displayUnit;
 	
 	public static void loadDisplayFromConfig(Configuration config){
-		for (DisplayBuilder displayUnit : DisplayBuilder.values()){
-			displayUnit.loadDisplayUnit(config);
+		for (DisplayBuilder displayBuilderUnit : DisplayBuilder.values()){
+			displayBuilderUnit.createDisplayUnit();
+			displayBuilderUnit.displayUnit.getFromConfig(config);
 		}
 	}
 	
 	public static void buildDisplay(){
-		for (DisplayBuilder displayUnit : DisplayBuilder.values()){
-			ArmorBarDisplayTicker.displayList.add(displayUnit.displayUnit);
+		for (DisplayBuilder displayBuilderUnit : DisplayBuilder.values()){
+			ArmorBarDisplayTicker.displayList.add(displayBuilderUnit.displayUnit);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package armorbarmod.common;
 
+import java.util.EnumSet;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 
@@ -9,8 +11,8 @@ import net.minecraft.item.ItemStack;
 
 public abstract class DisplayUnitItem extends DisplayUnit{
 
-	public DisplayUnitItem(String name, boolean shouldDisplay, int displayColor, Point displayOffset, Point displayAnalogOffset, Point displayCounterOffset) {
-		super(name, shouldDisplay, displayColor, displayOffset, displayAnalogOffset, displayCounterOffset);
+	public DisplayUnitItem(String name, boolean shouldDisplay, int displayColor, Point displayOffset) {
+		super(name, shouldDisplay, displayColor, displayOffset);
 	}
 	
 	/**
@@ -28,6 +30,9 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 		/* Get Image and Size */
 		int iconIndex = itemStackToRender.getIconIndex();
 		Point iconCoord = getIconCoordFromIndex(iconIndex);
+		
+        GL11.glPushMatrix();
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
 
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
 		this.drawTexturedModalRect(centerOfDisplay.getX(), centerOfDisplay.getY(), iconCoord.getX(), iconCoord.getY(), 16, 16);
@@ -39,7 +44,9 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 		if(displayNumericCounter){
 			renderCounterBar(mc, centerOfDisplay, counterAmount);
 		}
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+        GL11.glPopMatrix();
+
 	}
 
 	/**
@@ -50,7 +57,7 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 	 * @param analogMax The value that represents the width of the full bar. 
 	 */
 	protected void renderAnalogBar(Minecraft mc, Point centerOfDisplay, int analogValue, int analogMax){
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/ArmorBarMod_Countdown.png"));
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/armorbarresources/ArmorBarMod_Countdown.png"));
 		drawTexturedModalRect(centerOfDisplay.getX(), centerOfDisplay.getY()+16, 0, 0, analogMax, 3);
 		if(analogValue > 9){
 			drawTexturedModalRect(centerOfDisplay.getX()+displayAnalogOffset.getX(), centerOfDisplay.getY()+displayAnalogOffset.getY(), 0, 3, analogValue, 3);

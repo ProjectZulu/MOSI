@@ -1,5 +1,7 @@
 package armorbarmod.common;
 
+import java.util.EnumSet;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -17,7 +19,7 @@ public abstract class DisplayUnit {
 	int displayColor;
 	boolean displayAnalogBar; public void setDisplayAnalogBar(boolean displayAnalogBar){ this.displayAnalogBar = displayAnalogBar; }
 	boolean displayNumericCounter; public void setDisplayNumericCounter(boolean displayNumericCounter){ this.displayNumericCounter = displayNumericCounter; }
-	
+
 	/* 
 	 * Offset For Display: 
 	 * Horizontal is referenced from Middle of Screen, - is To The Left
@@ -30,27 +32,60 @@ public abstract class DisplayUnit {
 	Point displayCounterOffset;
 	protected float zLevel = 10.0F;
 
-	public DisplayUnit(String name, boolean shouldDisplay, int displayColor, Point displayOffset, Point displayAnalogOffset, Point displayCounterOffset){
+	int fadeRate = 0;
+	float opacity = 1;
+	int prevTrackedValue;
+	
+	public DisplayUnit(String name, boolean shouldDisplay, int displayColor, Point displayOffset){
 		super();
 		this.name = name;
 		this.shouldDisplay = shouldDisplay;
 		this.displayColor = displayColor;
 		this.displayOffset = displayOffset;
-		this.displayAnalogOffset = displayAnalogOffset;
-		this.displayCounterOffset = displayCounterOffset;
-		setDefaultDisplay();
 	}
 	
-	protected void setDefaultDisplay(){
-		this.displayAnalogBar = true;
-		this.displayNumericCounter = true;
-	}
-	
-	public abstract void onUpdate(Minecraft mc, int ticks);
+	protected abstract int getTrackedValueForFade();
 	public abstract void renderDisplay(Minecraft mc);
-
+	
 	public boolean shouldRender(Minecraft mc){
-		return shouldDisplay;
+		return shouldDisplay && opacity > 0;
+	}
+	
+	public void onUpdate(Minecraft mc, int ticks) {
+		if(prevTrackedValue != getTrackedValueForFade() ){
+			opacity = 1;
+			prevTrackedValue = getTrackedValueForFade();
+		}else{
+			opacity -= fadeRate > 0 ? 1.0f/fadeRate : 0;
+			opacity = Math.max(opacity, 0);
+		}
+	}
+	
+	/**
+	 * Used to Set default values in accordance to a certain type
+	 * @param profile
+	 */	
+	public void loadProfile(EnumSet<Setting> defaultSettings){
+		for (Setting setting : defaultSettings) {
+			switch (setting) {
+			case FlowRight:
+				displayAnalogOffset = new Point(0, 16);
+				displayCounterOffset = new Point(16, 4-8);
+				break;
+			case FlowLeft:
+				displayAnalogOffset = new Point(0, 16);
+				displayCounterOffset = new Point(-16, 4-8);
+				break;
+			case AnalogBar:
+				displayAnalogBar = true;
+				break;
+			case DigitalCounter:
+				displayNumericCounter = true;
+				break;
+			default: 
+				break;
+			}
+		}
 	}
 	
 	/**
