@@ -70,11 +70,11 @@ public abstract class DisplayUnit {
 			switch (setting) {
 			case FlowRight:
 				displayAnalogOffset = new Point(0, 16);
-				displayCounterOffset = new Point(16, 4-8);
+				displayCounterOffset = new Point(14, -6);
 				break;
 			case FlowLeft:
 				displayAnalogOffset = new Point(0, 16);
-				displayCounterOffset = new Point(-16, 4-8);
+				displayCounterOffset = new Point(-14, -6);
 				break;
 			case AnalogBar:
 				displayAnalogBar = true;
