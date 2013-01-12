@@ -103,9 +103,6 @@ public class DisplayUnitTrackItem extends DisplayUnitItem{
 
 		for (Setting setting : defaultSettings) {
 			switch (setting) {
-			case FullStack:
-				analogUpperLimit = 64;
-				break;
 			case DisplayWhenEmpty:
 				displayWhenEmpty = true;
 				break;
@@ -130,13 +127,13 @@ public class DisplayUnitTrackItem extends DisplayUnitItem{
 	@Override
 	public void getFromConfig(Configuration config) {
 		super.getFromConfig(config);
-		itemIDToTrack = config.get("Display Unit."+name, Integer.toString(itemIDToTrack), itemIDToTrack, "ItemID of desired Item to track").getInt(itemIDToTrack);
-		itemDamageToTrack = config.get("Display Unit."+name, Integer.toString(itemDamageToTrack), itemDamageToTrack).getInt(itemDamageToTrack);
-		analogUpperLimit = config.get("Display Unit."+name, Integer.toString(analogUpperLimit), analogUpperLimit).getInt(analogUpperLimit);
-		updateFrequency = config.get("Display Unit."+name, Integer.toString(updateFrequency), updateFrequency).getInt(updateFrequency);
+		itemIDToTrack = config.get("ArmorBar."+name, "ItemID To Track", itemIDToTrack, "ItemID of desired Item to track.").getInt(itemIDToTrack);
+		itemDamageToTrack = config.get("ArmorBar."+name, "Item Damage To Track", itemDamageToTrack, "Damage of Item For Matching").getInt(itemDamageToTrack);
+		analogUpperLimit = config.get("ArmorBar."+name, "Analog Upper Limit", analogUpperLimit, "Represents Full Bar for the Analog Display Bar when tracking Quantity").getInt(analogUpperLimit);
+		updateFrequency = config.get("ArmorBar."+name, "Update Frequency", updateFrequency, "Controls how often this DisplayUnit will Update").getInt(updateFrequency);
 
-		displayWhenEmpty = config.get("Display Unit."+name, Boolean.toString(displayWhenEmpty), displayWhenEmpty).getBoolean(displayWhenEmpty);
-		trackingTypeDurability = config.get("Display Unit."+name, Boolean.toString(trackingTypeDurability), trackingTypeDurability).getBoolean(trackingTypeDurability);	
-		shouldItemsHaveSameMeta = config.get("Display Unit."+name, Boolean.toString(shouldItemsHaveSameMeta), shouldItemsHaveSameMeta).getBoolean(shouldItemsHaveSameMeta);	
+		displayWhenEmpty = config.get("ArmorBar."+name, "Display When Empty", displayWhenEmpty, "Toggle if the DisplayUnit should Continue displaying the Item if it is empty or absent").getBoolean(displayWhenEmpty);
+		trackingTypeDurability = config.get("ArmorBar."+name, "Tracking Type Durability", trackingTypeDurability, "Toggles if the DisplayUnit should track the Items Durability or the amount").getBoolean(trackingTypeDurability);	
+		shouldItemsHaveSameMeta = config.get("ArmorBar."+name, "Should Items Have Same Damage", shouldItemsHaveSameMeta, "Toggles if the damage should be considered when searching inventory for a matching item").getBoolean(shouldItemsHaveSameMeta);	
 	}	
 }

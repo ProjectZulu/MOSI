@@ -67,8 +67,7 @@ public class DisplayUnitArmorSlot extends DisplayUnitItem{
 	@Override
 	public void getFromConfig(Configuration config) {
 		super.getFromConfig(config);
-		armorSlot = config.get("Display Unit."+name, Integer.toString(armorSlot), armorSlot).getInt(armorSlot);
-		updateFrequency = config.get("Display Unit."+name, Integer.toString(updateFrequency), updateFrequency).getInt(updateFrequency);
+		updateFrequency = config.get("ArmorBar."+name, "Update Frequency", updateFrequency, "Controls how often this DisplayUnit will Update").getInt(updateFrequency);
 	}
 	
 }

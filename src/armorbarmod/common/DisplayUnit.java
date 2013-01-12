@@ -20,7 +20,7 @@ public abstract class DisplayUnit {
 	boolean displayAnalogBar; public void setDisplayAnalogBar(boolean displayAnalogBar){ this.displayAnalogBar = displayAnalogBar; }
 	boolean displayNumericCounter; public void setDisplayNumericCounter(boolean displayNumericCounter){ this.displayNumericCounter = displayNumericCounter; }
 
-	/* 
+	/*
 	 * Offset For Display: 
 	 * Horizontal is referenced from Middle of Screen, - is To The Left
 	 * Vertical is referenced from Bottom of Screen, + is Upwards
@@ -48,10 +48,10 @@ public abstract class DisplayUnit {
 	public abstract void renderDisplay(Minecraft mc);
 	
 	public boolean shouldRender(Minecraft mc){
-		return shouldDisplay && opacity > 0;
+		return shouldDisplay && opacity > 0 && mc.currentScreen == null;
 	}
 	
-	public void onUpdate(Minecraft mc, int ticks) {
+	public void onUpdate(Minecraft mc, int ticks){
 		if(prevTrackedValue != getTrackedValueForFade() ){
 			opacity = 1;
 			prevTrackedValue = getTrackedValueForFade();
@@ -93,17 +93,18 @@ public abstract class DisplayUnit {
 	 * @param config
 	 */
 	public void getFromConfig(Configuration config){
-		shouldDisplay = config.get("Display Unit."+name, Boolean.toString(shouldDisplay), shouldDisplay).getBoolean(shouldDisplay);
-		displayColor = config.get("Display Unit."+name, Integer.toString(displayColor), displayColor).getInt(displayColor);
-		displayAnalogBar = config.get("Display Unit."+name, Boolean.toString(displayAnalogBar), displayAnalogBar).getBoolean(displayAnalogBar);
-		displayNumericCounter = config.get("Display Unit."+name, Boolean.toString(displayNumericCounter), displayNumericCounter).getBoolean(displayNumericCounter);
-		
-		displayOffset.setX(config.get("Display Unit."+name, displayOffset.toString()+".X", displayOffset.getX()).getInt(displayOffset.getX()));
-		displayOffset.setY(config.get("Display Unit."+name, displayOffset.toString()+".Y", displayOffset.getY()).getInt(displayOffset.getY()));
-		displayAnalogOffset.setX(config.get("Display Unit."+name, displayAnalogOffset.toString()+".X", displayAnalogOffset.getX()).getInt(displayAnalogOffset.getX()));
-		displayAnalogOffset.setY(config.get("Display Unit."+name, displayAnalogOffset.toString()+".Y", displayAnalogOffset.getY()).getInt(displayAnalogOffset.getY()));
-		displayCounterOffset.setX(config.get("Display Unit."+name, displayCounterOffset.toString()+".X", displayCounterOffset.getX()).getInt(displayCounterOffset.getX()));
-		displayCounterOffset.setY(config.get("Display Unit."+name, displayCounterOffset.toString()+".Y", displayCounterOffset.getY()).getInt(displayCounterOffset.getY()));
+		shouldDisplay = config.get("ArmorBar."+name, "Should Display", shouldDisplay, "Controls if this DisplayUnit is enabled").getBoolean(shouldDisplay);
+		displayColor = config.get("ArmorBar."+name, "Display Color", displayColor, "Controls the Color of the Numeric Counter Font").getInt(displayColor);
+		displayAnalogBar = config.get("ArmorBar."+name, "Display Analog Bar", displayAnalogBar, "Toggles whether the analog bar is enabled").getBoolean(displayAnalogBar);
+		displayNumericCounter = config.get("ArmorBar."+name, "Display Numeric Counter", displayNumericCounter, "Toggles whether the digital counter is enabled").getBoolean(displayNumericCounter);
+		fadeRate = config.get("ArmorBar."+name, "Fade Rate", fadeRate, "Controls the amount of time [in ticks] that are required for the Display to Fade. 0 = Disabled").getInt(fadeRate);
+
+		displayOffset.setX(config.get("ArmorBar."+name, "Main Offset X", displayOffset.getX(), "Offset for the Entire DisplayUnit. X is pos to the right").getInt(displayOffset.getX()));
+		displayOffset.setY(config.get("ArmorBar."+name, "Main Offset Y", displayOffset.getY(), "Offset for the Entire DisplayUnit. Y is pos upwards").getInt(displayOffset.getY()));
+		displayAnalogOffset.setX(config.get("ArmorBar."+name, "Analog Display Offset X", displayAnalogOffset.getX(), "Offset for the Analog Display Bar relative to Main").getInt(displayAnalogOffset.getX()));
+		displayAnalogOffset.setY(config.get("ArmorBar."+name, "Analog Display Offset Y", displayAnalogOffset.getY(), "Offset for the Analog Display Bar relative to Main").getInt(displayAnalogOffset.getY()));
+		displayCounterOffset.setX(config.get("ArmorBar."+name, "Counter Display Offset X", displayCounterOffset.getX(), "Offset for the Digital Display Bar relative to Main").getInt(displayCounterOffset.getX()));
+		displayCounterOffset.setY(config.get("ArmorBar."+name, "Counter Display Offset Y", displayCounterOffset.getY(), "Offset for the Digital Display Bar relative to Main").getInt(displayCounterOffset.getY()));
 	}
 	
 	/**

@@ -13,17 +13,16 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid = "mod_ArmorBarMod", name = "Armor Bar Mod", version = "0.5.0")
+@Mod(modid = DefaultProps.modId, name = "Armor Bar Mod", version = DefaultProps.VERSION_STRING)
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 
 public class mod_ArmorBarMod {
 	
-	@Instance("mod_ArmorBarMod")
+	@Instance(DefaultProps.modId)
 	public static mod_ArmorBarMod modInstance;
 	
 	@SidedProxy(clientSide = "armorbarmod.client.ClientProxyArmorBarMod", serverSide = "armorbarmod.common.CommonProxyArmorBarMod")
 	public static CommonProxyArmorBarMod proxy;
-
 	
 	@PreInit
 	public void preInit(FMLPreInitializationEvent event){
@@ -41,8 +40,5 @@ public class mod_ArmorBarMod {
 	}
 	
 	@PostInit
-	public void postInit(FMLPostInitializationEvent event){
-
-		
-	}
+	public void postInit(FMLPostInitializationEvent event){}
 }

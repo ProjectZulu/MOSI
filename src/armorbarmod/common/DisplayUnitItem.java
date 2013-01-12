@@ -52,7 +52,7 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 	/**
 	 * Used to Draw Analog Bar.
 	 * @param mc The Minecraft Instance
-	 * @param centerOfDisplay The Center Position where the bar is offset From.
+	 * @param centerOfDisplay The Center Position where the bar needs to be offset From.
 	 * @param analogValue The value representing how full the Bar is
 	 * @param analogMax The value that represents the width of the full bar. 
 	 */

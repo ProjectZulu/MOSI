@@ -19,10 +19,7 @@ public enum Setting {
 	 * Mutually Exclusive, if Both Declared one will override the other */
 	trackDurability,
 	trackAmount,
-	
-	/* Analog Maximum representing Full Bar */
-	FullStack,
-	
+		
 	/* Whether the item damage should be considered for matching when tracking item */
 	equalItemMeta,
 }

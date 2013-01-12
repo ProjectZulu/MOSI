@@ -19,7 +19,7 @@ import org.lwjgl.util.Point;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
-public class ArmorBarDisplayTicker implements ITickHandler{
+public class MOSIDisplayTicker implements ITickHandler{
 	public static int inGameTicks = 0;
 	protected float zLevel = 10.0F;
 	private int maxBuffLength;
@@ -35,7 +35,6 @@ public class ArmorBarDisplayTicker implements ITickHandler{
 	
 	public void tickEnd(EnumSet<TickType> type, Object... tickData){
 		if(Minecraft.getMinecraft().thePlayer != null){
-			
 			Minecraft mc = Minecraft.getMinecraft();
 			for (DisplayUnit displayUnit : displayList) {
 				displayUnit.onUpdate(mc, inGameTicks);
@@ -44,7 +43,6 @@ public class ArmorBarDisplayTicker implements ITickHandler{
 				}
 			}			
 		}
-
 		inGameTicks++;
 	}
 }

@@ -2,10 +2,10 @@ package armorbarmod.common;
 
 import java.util.EnumSet;
 
-import org.lwjgl.util.Point;
-
 import net.minecraft.item.Item;
 import net.minecraftforge.common.Configuration;
+
+import org.lwjgl.util.Point;
 
 public enum DisplayBuilder {
 	Feet {
@@ -86,7 +86,7 @@ public enum DisplayBuilder {
 	
 	public static void buildDisplay(){
 		for (DisplayBuilder displayBuilderUnit : DisplayBuilder.values()){
-			ArmorBarDisplayTicker.displayList.add(displayBuilderUnit.displayUnit);
+			MOSIDisplayTicker.displayList.add(displayBuilderUnit.displayUnit);
 		}
 	}
 }
