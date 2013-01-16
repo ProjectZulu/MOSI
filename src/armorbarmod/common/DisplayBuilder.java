@@ -46,21 +46,21 @@ public enum DisplayBuilder {
 	GenericDurabilityCounter1{
 		@Override
 		void createDisplayUnit() {
-			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordWood.itemID, true, 1030655, new Point(-119-16, (16+4)*0+20));
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordWood.itemID, false, 1030655, new Point(-119-16, (16+4)*0+20));
 			displayUnit.loadProfile(EnumSet.of(Setting.FlowLeft, Setting.AnalogBar, Setting.DisplayWhenEmpty, Setting.trackDurability));
 		}
 	},
 	GenericDurabilityCounter2{
 		@Override
 		void createDisplayUnit() {
-			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordSteel.itemID, true, 1030655, new Point(-119-16, (16+4)*1+20));
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordSteel.itemID, false, 1030655, new Point(-119-16, (16+4)*1+20));
 			displayUnit.loadProfile(EnumSet.of(Setting.FlowLeft, Setting.AnalogBar, Setting.DisplayWhenEmpty, Setting.trackDurability));
 		}
 	},
 	GenericAmountCounter1{
 		@Override
 		void createDisplayUnit() {
-			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.coal.itemID, true, 1030655, new Point(119, (16+4)*1+20));
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.coal.itemID, false, 1030655, new Point(119, (16+4)*1+20));
 			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DigitalCounter, Setting.DisplayWhenEmpty, Setting.trackAmount, 
 					Setting.equalItemMeta));
 		}
@@ -68,7 +68,7 @@ public enum DisplayBuilder {
 	GenericAmountCounter2{
 		@Override
 		void createDisplayUnit() {
-			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.diamond.itemID, true, 1030655, new Point(119, (16+4)*2+20));
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.diamond.itemID, false, 1030655, new Point(119, (16+4)*2+20));
 			displayUnit.loadProfile(EnumSet.of(Setting.FlowRight, Setting.AnalogBar, Setting.DigitalCounter, Setting.DisplayWhenEmpty, Setting.trackAmount, 
 					Setting.equalItemMeta));
 		}
@@ -80,7 +80,7 @@ public enum DisplayBuilder {
 	public static void loadDisplayFromConfig(Configuration config){
 		for (DisplayBuilder displayBuilderUnit : DisplayBuilder.values()){
 			displayBuilderUnit.createDisplayUnit();
-//			displayBuilderUnit.displayUnit.getFromConfig(config);
+			displayBuilderUnit.displayUnit.getFromConfig(config);
 		}
 	}
 	
