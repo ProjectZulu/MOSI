@@ -1,13 +1,18 @@
 package armorbarmod.common;
 
-import java.util.EnumSet;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureStitched;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class DisplayUnitItem extends DisplayUnit{
 
@@ -23,20 +28,21 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 	 * @param analogAmount	The scaled value for the analog counter
 	 * @param counterAmount The scaled value for the digital counter
 	 */
-	protected void renderSpecifics(Minecraft mc, ItemStack itemStackToRender, String textureLocation, int analogAmount, int counterAmount) {
+	protected void renderSpecifics(Minecraft mc, ItemStack itemStackToRender, Icon textureLocation, int analogAmount, int counterAmount) {
 		ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		Point centerOfDisplay = new Point(scaledResolition.getScaledWidth()/2+displayOffset.getX(), scaledResolition.getScaledHeight()-displayOffset.getY());
 		
-		/* Get Image and Size */
-		int iconIndex = itemStackToRender.getIconIndex();
-		Point iconCoord = getIconCoordFromIndex(iconIndex);
-		
         GL11.glPushMatrix();
         GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
-
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture( textureLocation ));
-		this.drawTexturedModalRect(centerOfDisplay.getX(), centerOfDisplay.getY(), iconCoord.getX(), iconCoord.getY(), 16, 16);
-
+        
+        if(itemStackToRender.getItem() instanceof ItemBlock){
+    		mc.renderEngine.func_98187_b("/terrain.png");
+        }else{
+        	mc.renderEngine.func_98187_b("/gui/items.png");
+        }
+        	
+        drawTextureModelFromIcon(textureLocation, centerOfDisplay);
+        
 		if(displayAnalogBar){
 			renderAnalogBar(mc, centerOfDisplay, analogAmount, 16);
 		}
@@ -44,9 +50,8 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 		if(displayNumericCounter){
 			renderCounterBar(mc, centerOfDisplay, counterAmount);
 		}
-
+		
         GL11.glPopMatrix();
-
 	}
 
 	/**
@@ -94,8 +99,8 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 	protected Point getIconCoordFromIndex(int iconIndex){
 		Point point = new Point();
 		int tempIndex = iconIndex;
-		while(tempIndex > 15){
-			tempIndex-=16;
+		while(tempIndex > (32-1)){
+			tempIndex-=(32-1);
 			point.setY(point.getY() + 1);
 		}
 		

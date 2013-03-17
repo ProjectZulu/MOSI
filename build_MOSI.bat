@@ -6,7 +6,7 @@ echo Backing up src
 XCOPY forge\mcp\src forge\mcp\src-bak /E /I /Q /y
 echo.
 echo Copying source 
-XCOPY "MOSI Source\src" "forge\mcp\src\minecraft" /E /Q /y
+XCOPY "MOSI\src" "forge\mcp\src\minecraft" /E /Q /y
 echo.
 echo Recompile
 pushd forge\mcp
@@ -20,8 +20,8 @@ popd
 echo.
 
 echo Moving Art Assets to Setup Folder
-XCOPY "MOSI Source\buffbarresources" forge\mcp\reobf\minecraft\SETUP\BuffBarMod\buffbarresources /E /I /Q /y
-XCOPY "MOSI Source\armorbarresources" forge\mcp\reobf\minecraft\SETUP\ArmorBarMod\armorbarresources /E /I /Q /y
+XCOPY "MOSI\buffbarresources" forge\mcp\reobf\minecraft\SETUP\BuffBarMod\buffbarresources /E /I /Q /y
+XCOPY "MOSI\armorbarresources" forge\mcp\reobf\minecraft\SETUP\ArmorBarMod\armorbarresources /E /I /Q /y
 
 echo Copy Buff Bar into Buff Bar Module in Setup 
 XCOPY forge\mcp\reobf\minecraft\buffbarmod forge\mcp\reobf\minecraft\SETUP\BuffBarMod\buffbarmod /E /I /Q /y

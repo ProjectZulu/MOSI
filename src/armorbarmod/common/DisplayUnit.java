@@ -8,6 +8,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import net.minecraftforge.common.Configuration;
 
 import org.lwjgl.opengl.GL11;
@@ -121,6 +122,23 @@ public abstract class DisplayUnit {
 		var9.addVertexWithUV((double)(par1 + par5), (double)(par2 + 0), (double)this.zLevel, (double)((float)(par3 + par5) * var7), (double)((float)(par4 + 0) * var8));
 		var9.addVertexWithUV((double)(par1 + 0), (double)(par2 + 0), (double)this.zLevel, (double)((float)(par3 + 0) * var7), (double)((float)(par4 + 0) * var8));
 		var9.draw();        	
+	}
+	
+	protected void drawTextureModelFromIcon(Icon icon, Point screenPosition){
+        final float var13 = icon.func_94209_e();
+        final float var15 = icon.func_94212_f();
+        final float var17 = icon.func_94206_g();
+        final float var19 = icon.func_94210_h();
+    	final float zLevel = 10.0F;
+
+    	Tessellator tessellator = Tessellator.instance;
+		tessellator.startDrawingQuads();
+        
+        tessellator.addVertexWithUV(screenPosition.getX() + 00.0D, screenPosition.getY() + 16.0D, zLevel, var13, var19);
+        tessellator.addVertexWithUV(screenPosition.getX() + 16.0D, screenPosition.getY() + 16.0D, zLevel, var15, var19);
+        tessellator.addVertexWithUV(screenPosition.getX() + 16.0D, screenPosition.getY() + 00.0D, zLevel, var15, var17);
+        tessellator.addVertexWithUV(screenPosition.getX() + 00.0D, screenPosition.getY() + 00.0D, zLevel, var13, var17);
+        tessellator.draw();
 	}
 	
 	/** Helper method that Maps the real value provided (representing damage typically) to a different scale (typically resolution, 16)

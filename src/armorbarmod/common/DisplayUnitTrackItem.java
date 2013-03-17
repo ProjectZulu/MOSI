@@ -7,6 +7,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import net.minecraftforge.common.Configuration;
 
 import org.lwjgl.opengl.GL11;
@@ -79,8 +80,9 @@ public class DisplayUnitTrackItem extends DisplayUnitItem{
 	@Override
 	public void renderDisplay(Minecraft mc) {
 		/* Variable That will hold the Item we want to render */
+		//TODO: Commented
 		ItemStack itemStackToRender = findTrackableItem(mc);
-		String textureLocation = itemStackToRender.getItem().getTextureFile();
+		Icon textureLocation = itemStackToRender.getItem().getIconIndex(itemStackToRender);
 		int analogMax = trackingTypeDurability ? itemStackToRender.getItem().getMaxDamage() : analogUpperLimit;
 		int scaledAmount = mapValueToScale(trackedValue, analogMax, 16);
 		renderSpecifics(mc, itemStackToRender,	textureLocation, scaledAmount, trackedValue);

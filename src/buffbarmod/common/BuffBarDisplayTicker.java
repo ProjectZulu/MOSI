@@ -17,7 +17,7 @@ import cpw.mods.fml.common.TickType;
 
 public class BuffBarDisplayTicker implements ITickHandler{
 	public static long inGameTicks = 0;
-	protected float zLevel = 10.0F;
+	protected float zLevel = 9.0F;
 	private boolean isInCreative = false;
 	
 	public static int xOffset = mod_BuffBarMod.xOffset;
@@ -196,9 +196,10 @@ public class BuffBarDisplayTicker implements ITickHandler{
 			int scaledDuration, int duration, int maxDuration, int iconXCoord, int iconYCoord, int xOffset, int yOffset){
 		int xAxisPadding = 5;
 		yOffset = isInCreative ? yOffset + creativeYOffSet : yOffset;
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/gui/inventory.png"));
 		this.drawTexturedModalRect(scalewidth/2-lengthOfBuffBar/2+(18+xAxisPadding)*buffNumber+xOffset, scaleHeight-18*3-7+yOffset, iconXCoord, iconYCoord, 18, 18);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/mods/BuffBar_Countdown.png"));
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/buffbarresources/BuffBar_Countdown.png"));
 		
 		if(displayType == 0 || displayType == 2){
 			//Draw BackGround of CountDown Bar
@@ -241,7 +242,6 @@ public class BuffBarDisplayTicker implements ITickHandler{
 		}
 		
 		//Foreground of CountdownBar
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 }
