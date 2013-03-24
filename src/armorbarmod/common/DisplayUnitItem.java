@@ -36,9 +36,9 @@ public abstract class DisplayUnitItem extends DisplayUnit{
         GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
         
         if(itemStackToRender.getItem() instanceof ItemBlock){
-    		mc.renderEngine.func_98187_b("/terrain.png");
+    		mc.renderEngine.bindTexture("/terrain.png");
         }else{
-        	mc.renderEngine.func_98187_b("/gui/items.png");
+        	mc.renderEngine.bindTexture("/gui/items.png");
         }
         	
         drawTextureModelFromIcon(textureLocation, centerOfDisplay);

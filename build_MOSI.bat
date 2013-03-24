@@ -14,7 +14,7 @@ echo | call recompile.bat
 echo Done.
 echo.
 echo Reobfuscate
-echo | call reobfuscate.bat
+echo | call reobfuscate_srg.bat
 echo Done.
 popd
 echo.

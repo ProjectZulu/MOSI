@@ -12,7 +12,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid = "mod_BuffBarMod", name = "Buff Bar Mod", version = "0.7.0")
+@Mod(modid = "mod_BuffBarMod", name = "Buff Bar Mod", version = "0.7.1")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 
 public class mod_BuffBarMod {

@@ -125,10 +125,10 @@ public abstract class DisplayUnit {
 	}
 	
 	protected void drawTextureModelFromIcon(Icon icon, Point screenPosition){
-        final float var13 = icon.func_94209_e();
-        final float var15 = icon.func_94212_f();
-        final float var17 = icon.func_94206_g();
-        final float var19 = icon.func_94210_h();
+        final float var13 = icon.getMinU();
+        final float var15 = icon.getMaxU();
+        final float var17 = icon.getMinV();
+        final float var19 = icon.getMaxV();
     	final float zLevel = 10.0F;
 
     	Tessellator tessellator = Tessellator.instance;
