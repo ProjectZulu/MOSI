@@ -20,8 +20,8 @@ popd
 echo.
 
 echo Moving Art Assets to Setup Folder
-XCOPY "MOSI\buffbarresources" forge\mcp\reobf\minecraft\SETUP\BuffBarMod\buffbarresources /E /I /Q /y
-XCOPY "MOSI\armorbarresources" forge\mcp\reobf\minecraft\SETUP\ArmorBarMod\armorbarresources /E /I /Q /y
+XCOPY "MOSI\assets\buffbar" forge\mcp\reobf\minecraft\SETUP\BuffBarMod\assets\buffbar /E /I /Q /y
+XCOPY "MOSI\assets\armorbar" forge\mcp\reobf\minecraft\SETUP\ArmorBarMod\assets\armorbar /E /I /Q /y
 
 echo Copy Buff Bar into Buff Bar Module in Setup 
 XCOPY forge\mcp\reobf\minecraft\buffbarmod forge\mcp\reobf\minecraft\SETUP\BuffBarMod\buffbarmod /E /I /Q /y
