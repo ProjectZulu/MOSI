@@ -1,6 +1,5 @@
 package armorbarmod.common;
 
-import net.minecraft.item.Item;
 import net.minecraftforge.common.Configuration;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -15,30 +14,29 @@ import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(modid = DefaultProps.modId, name = "Armor Bar Mod", version = DefaultProps.VERSION_STRING)
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
-
 public class mod_ArmorBarMod {
-	
-	@Instance(DefaultProps.modId)
-	public static mod_ArmorBarMod modInstance;
-	
-	@SidedProxy(clientSide = "armorbarmod.client.ClientProxyArmorBarMod", serverSide = "armorbarmod.common.CommonProxyArmorBarMod")
-	public static CommonProxyArmorBarMod proxy;
-	
-	@PreInit
-	public void preInit(FMLPreInitializationEvent event){
+
+    @Instance(DefaultProps.modId)
+    public static mod_ArmorBarMod modInstance;
+
+    @SidedProxy(clientSide = "armorbarmod.client.ClientProxyArmorBarMod", serverSide = "armorbarmod.common.CommonProxyArmorBarMod")
+    public static CommonProxyArmorBarMod proxy;
+
+    @PreInit
+    public void preInit(FMLPreInitializationEvent event) {
         Configuration armorConfig = new Configuration(event.getSuggestedConfigurationFile());
         armorConfig.load();
         DisplayBuilder.loadDisplayFromConfig(armorConfig);
         armorConfig.save();
-		proxy.registerTickers();
-	}
-	
-	@Init
-	public void load(FMLInitializationEvent event){
+        proxy.registerDisplay();
+    }
+
+    @Init
+    public void load(FMLInitializationEvent event) {
         DisplayBuilder.buildDisplay();
-		proxy.registerRenderThings();
-	}
-	
-	@PostInit
-	public void postInit(FMLPostInitializationEvent event){}
+    }
+
+    @PostInit
+    public void postInit(FMLPostInitializationEvent event) {
+    }
 }

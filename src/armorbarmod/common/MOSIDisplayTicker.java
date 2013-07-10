@@ -1,48 +1,34 @@
 package armorbarmod.common;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.src.ModLoader;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.Post;
+import net.minecraftforge.event.ForgeSubscribe;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.Point;
+public class MOSIDisplayTicker {
+    public static int inGameTicks = 0;
+    protected float zLevel = 10.0F;
 
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
+    private static List<DisplayUnit> displayList = new ArrayList<DisplayUnit>();
 
-public class MOSIDisplayTicker implements ITickHandler{
-	public static int inGameTicks = 0;
-	protected float zLevel = 10.0F;
-	private int maxBuffLength;
+    public static void addDisplay(DisplayUnit displayUnit) {
+        displayList.add(displayUnit);
+    }
 
-	static List<DisplayUnit> displayList = new ArrayList();
-
-	@Override
-	public EnumSet<TickType> ticks() { return EnumSet.of(TickType.RENDER); }
-	@Override
-	public String getLabel() { return null;	}
-
-	public void tickStart(EnumSet<TickType> type, Object... tickData){}
-	
-	public void tickEnd(EnumSet<TickType> type, Object... tickData){
-		if(Minecraft.getMinecraft().thePlayer != null){
-			Minecraft mc = Minecraft.getMinecraft();
-			for (DisplayUnit displayUnit : displayList) {
-				displayUnit.onUpdate(mc, inGameTicks);
-				if(displayUnit.shouldRender(mc)){
-					displayUnit.renderDisplay(mc);
-				}
-			}			
-		}
-		inGameTicks++;
-	}
+    @ForgeSubscribe
+    public void onRender(Post event) {
+        if (event.type != null && event.type == ElementType.HOTBAR) {
+            Minecraft mc = Minecraft.getMinecraft();
+            for (DisplayUnit displayUnit : displayList) {
+                displayUnit.onUpdate(mc, inGameTicks);
+                if (displayUnit.shouldRender(mc)) {
+                    displayUnit.renderDisplay(mc);
+                }
+            }
+            inGameTicks++;
+        }
+    }
 }

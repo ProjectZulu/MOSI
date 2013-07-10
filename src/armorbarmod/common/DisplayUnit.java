@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 
 public abstract class DisplayUnit {
-	String name;
+	public final String name;
 	boolean shouldDisplay;
 	int displayColor;
 	boolean displayAnalogBar; public void setDisplayAnalogBar(boolean displayAnalogBar){ this.displayAnalogBar = displayAnalogBar; }
@@ -38,7 +38,6 @@ public abstract class DisplayUnit {
 	int prevTrackedValue;
 	
 	public DisplayUnit(String name, boolean shouldDisplay, int displayColor, Point displayOffset){
-		super();
 		this.name = name;
 		this.shouldDisplay = shouldDisplay;
 		this.displayColor = displayColor;

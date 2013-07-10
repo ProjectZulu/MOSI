@@ -86,7 +86,7 @@ public enum DisplayBuilder {
 	
 	public static void buildDisplay(){
 		for (DisplayBuilder displayBuilderUnit : DisplayBuilder.values()){
-			MOSIDisplayTicker.displayList.add(displayBuilderUnit.displayUnit);
+			MOSIDisplayTicker.addDisplay(displayBuilderUnit.displayUnit);
 		}
 	}
 }
