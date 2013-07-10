@@ -6,11 +6,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.resources.ResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.StringUtils;
 
 import org.lwjgl.opengl.GL11;
+
+import armorbarmod.common.DefaultProps;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
@@ -28,6 +31,10 @@ public class BuffBarDisplayTicker implements ITickHandler{
 	
 	public static int analogMaxDurationLength = mod_BuffBarMod.analogMaxDurationLength;
 
+    protected static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
+    protected static final ResourceLocation countdown = new ResourceLocation(DefaultProps.buffBarKey,
+            "countdown.png");
+	
 	@Override
 	public EnumSet<TickType> ticks() {
 		return EnumSet.of(TickType.RENDER);
@@ -191,15 +198,16 @@ public class BuffBarDisplayTicker implements ITickHandler{
 		}		
 		return (int)( (float)(duration)/(float)(maxDuration)*18 ); 
 	}
-	
+
 	public void drawPotionBuffAndDuration(Minecraft mc, EntityPlayer player, int scalewidth, int scaleHeight, int lengthOfBuffBar, int buffNumber,
 			int scaledDuration, int duration, int maxDuration, int iconXCoord, int iconYCoord, int xOffset, int yOffset){
 		int xAxisPadding = 5;
 		yOffset = isInCreative ? yOffset + creativeYOffSet : yOffset;
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/gui/inventory.png"));
+		  
+		mc.renderEngine.func_110577_a(inventory);
 		this.drawTexturedModalRect(scalewidth/2-lengthOfBuffBar/2+(18+xAxisPadding)*buffNumber+xOffset, scaleHeight-18*3-7+yOffset, iconXCoord, iconYCoord, 18, 18);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, mc.renderEngine.getTexture("/buffbarresources/BuffBar_Countdown.png"));
+        mc.renderEngine.func_110577_a(countdown);
 		
 		if(displayType == 0 || displayType == 2){
 			//Draw BackGround of CountDown Bar

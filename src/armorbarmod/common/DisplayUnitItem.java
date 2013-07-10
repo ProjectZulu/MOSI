@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.resources.ResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 
@@ -19,6 +20,9 @@ public abstract class DisplayUnitItem extends DisplayUnit {
 
     RenderItem renderItem = new RenderItem();
 
+    protected static final ResourceLocation countdown = new ResourceLocation(DefaultProps.armorBarKey,
+            "countdown.png");
+    
     public DisplayUnitItem(String name, boolean shouldDisplay, int displayColor, Point displayOffset) {
         super(name, shouldDisplay, displayColor, displayOffset);
     }
@@ -38,7 +42,6 @@ public abstract class DisplayUnitItem extends DisplayUnit {
         Point centerOfDisplay = new Point(scaledResolition.getScaledWidth() / 2 + displayOffset.getX(),
                 scaledResolition.getScaledHeight() - displayOffset.getY());
 
-        mc.renderEngine.resetBoundTexture();
         GL11.glPushMatrix();
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         RenderHelper.enableGUIStandardItemLighting();
@@ -73,8 +76,7 @@ public abstract class DisplayUnitItem extends DisplayUnit {
      * @param analogMax The value that represents the width of the full bar.
      */
     protected void renderAnalogBar(Minecraft mc, Point centerOfDisplay, int analogValue, int analogMax) {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,
-                mc.renderEngine.getTexture("/armorbarresources/ArmorBarMod_Countdown.png"));
+        mc.renderEngine.func_110577_a(countdown);
         drawTexturedModalRect(centerOfDisplay.getX(), centerOfDisplay.getY() + 16, 0, 0, analogMax, 3);
         if (analogValue > 9) {
             drawTexturedModalRect(centerOfDisplay.getX() + displayAnalogOffset.getX(), centerOfDisplay.getY()
