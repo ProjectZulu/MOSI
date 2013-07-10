@@ -2,20 +2,19 @@ package armorbarmod.common;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureStitched;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.util.Point;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class DisplayUnitItem extends DisplayUnit{
 
+    RenderItem renderItem = new RenderItem();
+    
 	public DisplayUnitItem(String name, boolean shouldDisplay, int displayColor, Point displayOffset) {
 		super(name, shouldDisplay, displayColor, displayOffset);
 	}
@@ -34,14 +33,13 @@ public abstract class DisplayUnitItem extends DisplayUnit{
 		
         GL11.glPushMatrix();
         GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
-        
-        if(itemStackToRender.getItem() instanceof ItemBlock){
-    		mc.renderEngine.bindTexture("/terrain.png");
-        }else{
-        	mc.renderEngine.bindTexture("/gui/items.png");
-        }
-        	
-        drawTextureModelFromIcon(textureLocation, centerOfDisplay);
+
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        RenderHelper.enableGUIStandardItemLighting();
+        renderItem.renderWithColor = false;
+        renderItem.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.renderEngine, itemStackToRender,
+                centerOfDisplay.getX(), centerOfDisplay.getY());
+        RenderHelper.disableStandardItemLighting();
         
 		if(displayAnalogBar){
 			renderAnalogBar(mc, centerOfDisplay, analogAmount, 16);

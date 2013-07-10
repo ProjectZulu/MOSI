@@ -53,7 +53,7 @@ public enum DisplayBuilder {
 	GenericDurabilityCounter2{
 		@Override
 		void createDisplayUnit() {
-			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordSteel.itemID, false, 1030655, new Point(-119-16, (16+4)*1+20));
+			displayUnit = new DisplayUnitTrackItem(this.toString(), Item.swordIron.itemID, false, 1030655, new Point(-119-16, (16+4)*1+20));
 			displayUnit.loadProfile(EnumSet.of(Setting.FlowLeft, Setting.AnalogBar, Setting.DisplayWhenEmpty, Setting.trackDurability));
 		}
 	},
