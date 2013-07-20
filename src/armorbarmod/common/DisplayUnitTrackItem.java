@@ -3,14 +3,11 @@ package armorbarmod.common;
 import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraftforge.common.Configuration;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 
 public class DisplayUnitTrackItem extends DisplayUnitItem{
