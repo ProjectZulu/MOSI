@@ -44,9 +44,9 @@ public abstract class DisplayUnitItem extends DisplayUnit {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
+//        GL11.glEnable(GL11.GL_POLYGON_STIPPLE);
         renderItem.zLevel = 200.0F;
-        renderItem.renderWithColor = false;
-        renderItem.renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, itemStackToRender, centerOfDisplay.getX(),
+        renderItem.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.renderEngine, itemStackToRender, centerOfDisplay.getX(),
                 centerOfDisplay.getY());
         GL11.glDisable(GL11.GL_BLEND);
         RenderHelper.disableStandardItemLighting();
