@@ -2,12 +2,10 @@ package mosi;
 
 import java.io.File;
 
-import mosi.display.DisplayTicker;
 import mosi.display.DisplayUnitFactory;
 import mosi.proxy.CommonProxy;
 import mosi.utilities.FileUtilities;
 import mosi.utilities.GsonHelper;
-import net.minecraftforge.common.MinecraftForge;
 
 import com.google.gson.Gson;
 
@@ -30,6 +28,7 @@ public class MOSI {
     public static CommonProxy proxy;
 
     DisplayUnitFactory displayFactory;
+    DisplayUnitRegistry displayRegistry;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -39,11 +38,13 @@ public class MOSI {
         Log jasLog = GsonHelper.readFromGson(FileUtilities.createReader(loggingSettings, false), Log.class, gson);
         Log.setLogger(jasLog);
         displayFactory = new DisplayUnitFactory();
-        MinecraftForge.EVENT_BUS.register(new DisplayTicker());
+        displayRegistry = new DisplayUnitRegistry(displayFactory);
+        proxy.registerDisplayTicker(displayRegistry);
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+
     }
 
     @EventHandler

@@ -49,7 +49,7 @@ public class mod_BuffBarMod {
 	
 	@Init
 	public void load(FMLInitializationEvent event) {
-		proxy.registerRenderThings();
+//		proxy.registerRenderThings();
 	}
 	
 	@PostInit

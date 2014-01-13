@@ -28,7 +28,7 @@ public class mod_ArmorBarMod {
         armorConfig.load();
         DisplayBuilder.loadDisplayFromConfig(armorConfig);
         armorConfig.save();
-        proxy.registerDisplay();
+//        proxy.registerDisplay();
     }
 
     @Init

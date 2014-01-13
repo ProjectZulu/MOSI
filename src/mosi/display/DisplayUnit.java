@@ -16,10 +16,7 @@ public interface DisplayUnit {
 
     public abstract JsonObject saveCustomData(JsonObject jsonObject);
 
-    /**
-     * Create a NEW INSTANCE of this Class from exported customData
-     */
-    public abstract DisplayUnit createFromCustomData(DisplayUnitFactory factory, JsonObject customData);
+    public abstract void loadCustomData(DisplayUnitFactory factory, JsonObject customData);
 
     public void onUpdate(Minecraft mc, int ticks);
 
