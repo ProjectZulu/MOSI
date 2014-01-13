@@ -203,9 +203,9 @@ public class BuffBarDisplayTicker implements ITickHandler{
 		yOffset = isInCreative ? yOffset + creativeYOffSet : yOffset;
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		  
-		mc.renderEngine.func_110577_a(inventory);
+		mc.renderEngine.bindTexture(inventory);
 		this.drawTexturedModalRect(scalewidth/2-lengthOfBuffBar/2+(18+xAxisPadding)*buffNumber+xOffset, scaleHeight-18*3-7+yOffset, iconXCoord, iconYCoord, 18, 18);
-        mc.renderEngine.func_110577_a(countdown);
+        mc.renderEngine.bindTexture(countdown);
 		
 		if(displayType == 0 || displayType == 2){
 			//Draw BackGround of CountDown Bar
