@@ -72,7 +72,7 @@ public abstract class DisplayUnitItem extends DisplayUnit {
      * @param analogMax The value that represents the width of the full bar.
      */
     protected void renderAnalogBar(Minecraft mc, Point centerOfDisplay, int analogValue, int analogMax) {
-        mc.renderEngine.func_110577_a(countdown);
+        mc.renderEngine.bindTexture(countdown);
         drawTexturedModalRect(centerOfDisplay.getX(), centerOfDisplay.getY() + 16, 0, 0, analogMax, 3);
         if (analogValue > 9) {
             drawTexturedModalRect(centerOfDisplay.getX() + displayAnalogOffset.getX(), centerOfDisplay.getY()
