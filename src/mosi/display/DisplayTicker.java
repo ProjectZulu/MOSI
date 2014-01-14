@@ -29,7 +29,7 @@ public class DisplayTicker {
             for (DisplayUnit displayUnit : displayList) {
                 displayUnit.onUpdate(mc, inGameTicks);
                 if (displayUnit.shouldRender(mc)) {
-                    displayUnit.renderDisplay(mc, new Point(0, 0));
+                    displayUnit.renderDisplay(mc, displayUnit.getPosition());
                 }
             }
             inGameTicks++;

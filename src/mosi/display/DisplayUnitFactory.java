@@ -24,12 +24,40 @@ public class DisplayUnitFactory implements JsonSerializer<ArrayList<DisplayUnit>
         return displayTypes.get(type);
     }
 
+    public boolean addDisplayType(Class<? extends DisplayUnit> displayType) {
+        if (displayType == null) {
+            throw new IllegalArgumentException("Cannot register null DisplayType");
+        }
+
+        DisplayUnit displayUnit;
+        try {
+            displayUnit = displayType.newInstance();
+        } catch (InstantiationException e) {
+            Log.log().warning("Type [%s] cannot be registered because it cannot be instantiated.", displayType);
+            e.printStackTrace();
+            return false;
+        } catch (IllegalAccessException e) {
+            Log.log().warning("Type [%s] cannot be registered because it cannot be instantiated.", displayType);
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!displayTypes.containsKey(displayUnit.getType())) {
+
+            return true;
+        } else {
+            Log.log().warning("Type [%s] cannot be registered because TypeId [%s] is already taken.", displayType,
+                    displayUnit.getType());
+            return false;
+        }
+    }
+
     public DisplayUnit createDisplay(String type, JsonObject jsonObject) {
         Class<? extends DisplayUnit> displayType = getDisplayType(type);
+        DisplayUnit displayTicker = null;
         if (displayType != null) {
             try {
-                DisplayUnit displayTicker = displayType.newInstance();
-                return displayTicker;
+                displayTicker = displayType.newInstance();
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -38,11 +66,13 @@ public class DisplayUnitFactory implements JsonSerializer<ArrayList<DisplayUnit>
         } else {
             Log.log().warning("Type [%s] is not defined. Cannot create display.", type);
         }
-        return null;
+        return displayTicker;
     }
 
     public DisplayUnitFactory() {
+        displayTypes = new HashMap<String, Class<? extends DisplayUnit>>();
         // TODO Add display types
+        addDisplayType(DisplayUnitItem.class);
     }
 
     @Override

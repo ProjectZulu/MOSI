@@ -3,8 +3,6 @@ package mosi.display;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
-import org.lwjgl.util.Point;
-
 import com.google.gson.JsonObject;
 
 public interface DisplayUnit {
@@ -15,11 +13,13 @@ public interface DisplayUnit {
 
     public abstract Coord getPosition();
 
+    public abstract Coord getSize();
+
     public void onUpdate(Minecraft mc, int ticks);
 
     public boolean shouldRender(Minecraft mc);
 
-    public void renderDisplay(Minecraft mc, Point Position);
+    public void renderDisplay(Minecraft mc, Coord Position);
 
     public abstract JsonObject saveCustomData(JsonObject jsonObject);
 
