@@ -1,10 +1,9 @@
 package mosi.display;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mosi.DefaultProps;
-import mosi.display.InventoryRule.ItemIdMatch;
+import mosi.display.inventoryrules.InventoryRule;
+import mosi.display.inventoryrules.InventoryRules;
+import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.utilities.Coord;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -34,7 +33,7 @@ public class DisplayUnitItem extends DisplayUnitBase {
     // Display ItemStack used when counting rules do not find an ItemStack
     private ItemStack missingDisplayStack;
     // Matching rules for Counting
-    private List<InventoryRule> countingRules;
+    private InventoryRules countingRules;
 
     private TrackMode trackMode;
 
@@ -45,18 +44,14 @@ public class DisplayUnitItem extends DisplayUnitBase {
         displayOnHud = true;
         nickname = "";
         trackMode = TrackMode.QUANTITY;
-        countingRules = new ArrayList<InventoryRule>();
-        countingRules.add(new ItemIdMatch(2, 2));
+        countingRules = new InventoryRules();
+        countingRules.addRule(new ItemIdMatch(2, 2, true));
         missingDisplayStack = new ItemStack(Block.dirt);
     }
 
     /* Changes the quality that is being counted */
     public enum TrackMode {
-        DURABILITY, QUANTITY, DURATION;
-    }
-
-    public enum AlignMode {
-        LEFT_PERC, LEFT_ABSO, RIGHT_PERC, RIGHT_ABSO, CENTER_PERC, CENTER_ABSO;
+        DURABILITY, QUANTITY, DURATION; // Duration not needed as PotionDisplayUnit will need to be seperate?
     }
 
     public static class DisplayStats {
@@ -78,12 +73,22 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     @Override
     public Coord getPosition() {
-        return new Coord(100, 50);
+        return new Coord(0, 30);
     }
 
     @Override
     public Coord getSize() {
-        return new Coord(16, 16);
+        return new Coord(32, 16);
+    }
+    
+    @Override
+    public VerticalAlignment getVerticalAlignment() {
+        return VerticalAlignment.CENTER_PERC;
+    }
+
+    @Override
+    public HorizontalAlignment getHorizontalAlignment() {
+        return HorizontalAlignment.CENTER_PERC;
     }
 
     @Override
@@ -128,42 +133,46 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     public DisplayStats getDisplayInfo(Minecraft mc) {
         ItemStack stackToDisplay = missingDisplayStack;
-        ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
         int trackedCount = 0;
         boolean foundMatch = false;
-        for (int i = 0; i < inventory.length; i++) {
-            if (inventory[i] == null) {
-                continue;
-            }
-            ItemStack itemStack = inventory[i];
-            for (InventoryRule rule : countingRules) {
+        RULE_LOOP: for (InventoryRule rule : countingRules) {
+            ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
+            for (int i = 0; i < inventory.length; i++) {
+                if (inventory[i] == null) {
+                    continue;
+                }
+                ItemStack itemStack = inventory[i];
                 if (rule.isMatch(itemStack, i, false, mc.thePlayer.inventory.currentItem == i)) {
                     if (!foundMatch) {
                         stackToDisplay = itemStack.copy();
                         foundMatch = true;
                     }
                     trackedCount += countStack(itemStack);
-                    break;
+                    if (!rule.allowMultipleMatches()) {
+                        continue RULE_LOOP;
+                    }
                 }
             }
-        }
-        inventory = mc.thePlayer.inventory.armorInventory;
-        for (int i = 0; i < inventory.length; i++) {
-            if (inventory[i] == null) {
-                continue;
-            }
-            ItemStack itemStack = inventory[i];
-            for (InventoryRule rule : countingRules) {
+
+            inventory = mc.thePlayer.inventory.armorInventory;
+            for (int i = 0; i < inventory.length; i++) {
+                if (inventory[i] == null) {
+                    continue;
+                }
+                ItemStack itemStack = inventory[i];
                 if (rule.isMatch(itemStack, i, true, mc.thePlayer.inventory.currentItem == i)) {
                     if (!foundMatch) {
                         stackToDisplay = itemStack.copy();
                         foundMatch = true;
                     }
                     trackedCount += countStack(itemStack);
-                    break;
+                    if (!rule.allowMultipleMatches()) {
+                        continue RULE_LOOP;
+                    }
                 }
             }
         }
+
         int maximumCount;
         if (trackMode == TrackMode.DURABILITY) {
             maximumCount = stackToDisplay.getMaxDamage();

@@ -15,6 +15,17 @@ public interface DisplayUnit {
 
     public abstract Coord getSize();
 
+    public enum VerticalAlignment {
+        TOP_PECR, TOP_ABSO, BOTTOM_PERC, BOTTOM_ABSO, CENTER_PERC, CENTER_ABSO;
+    }
+
+    public abstract VerticalAlignment getVerticalAlignment();
+
+    public enum HorizontalAlignment {
+        LEFT_PERC, LEFT_ABSO, RIGHT_PERC, RIGHT_ABSO, CENTER_PERC, CENTER_ABSO;
+    }
+    public abstract HorizontalAlignment getHorizontalAlignment();
+
     public void onUpdate(Minecraft mc, int ticks);
 
     public boolean shouldRender(Minecraft mc);
