@@ -1,6 +1,10 @@
 package mosi.display;
 
 import mosi.DefaultProps;
+import mosi.display.hiderules.HideRule.Operator;
+import mosi.display.hiderules.HideRules;
+import mosi.display.hiderules.HideThresholdRule;
+import mosi.display.hiderules.HideUnchangedRule;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
@@ -34,11 +38,15 @@ public class DisplayUnitItem extends DisplayUnitBase {
     private ItemStack missingDisplayStack;
     // Matching rules for Counting
     private InventoryRules countingRules;
-
+    private HideRules hidingRules;
     private TrackMode trackMode;
 
     boolean displayAnalogBar = true;
     boolean displayNumericCounter = true;
+
+    // Information required to display
+    private DisplayStats displayStats;
+    private DisplayStats prevDisplayStat;
 
     public DisplayUnitItem() {
         displayOnHud = true;
@@ -46,6 +54,9 @@ public class DisplayUnitItem extends DisplayUnitBase {
         trackMode = TrackMode.QUANTITY;
         countingRules = new InventoryRules();
         countingRules.addRule(new ItemIdMatch(2, 2, true));
+        hidingRules = new HideRules();
+        hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
+        hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
         missingDisplayStack = new ItemStack(Block.dirt);
     }
 
@@ -80,7 +91,7 @@ public class DisplayUnitItem extends DisplayUnitBase {
     public Coord getSize() {
         return new Coord(32, 16);
     }
-    
+
     @Override
     public VerticalAlignment getVerticalAlignment() {
         return VerticalAlignment.CENTER_PERC;
@@ -94,44 +105,18 @@ public class DisplayUnitItem extends DisplayUnitBase {
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
         if (ticks % updateFrequency == 0) {
-
+            prevDisplayStat = displayStats;
+            displayStats = calculateDisplayStats(mc);
+            hidingRules.update(displayStats, prevDisplayStat);
+            if (displayStats != null) {
+                displayOnHud = !hidingRules.shouldHide(displayStats);
+            } else {
+                displayOnHud = false;
+            }
         }
     }
 
-    @Override
-    public boolean shouldRender(Minecraft mc) {
-        return displayOnHud;
-    }
-
-    @Override
-    public void renderDisplay(Minecraft mc, Coord position) {
-        DisplayStats displayStats = getDisplayInfo(mc);
-        GL11.glPushMatrix();
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        RenderHelper.enableGUIStandardItemLighting();
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        float opacity = 1;
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
-        RenderItem renderItem = new RenderItem();
-        renderItem.zLevel = 200.0F;
-        renderItem.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.renderEngine, displayStats.stackToDisplay,
-                position.x, position.z);
-        GL11.glDisable(GL11.GL_BLEND);
-        RenderHelper.disableStandardItemLighting();
-        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-
-        if (displayAnalogBar) {
-            renderAnalogBar(mc, position, new Coord(16, 13), displayStats.trackedCount, displayStats.maximumCount);
-        }
-
-        if (displayNumericCounter) {
-            renderCounterBar(mc, position, new Coord(16, -4), displayStats.trackedCount);
-        }
-        GL11.glPopMatrix();
-    }
-
-    public DisplayStats getDisplayInfo(Minecraft mc) {
+    private DisplayStats calculateDisplayStats(Minecraft mc) {
         ItemStack stackToDisplay = missingDisplayStack;
         int trackedCount = 0;
         boolean foundMatch = false;
@@ -180,6 +165,46 @@ public class DisplayUnitItem extends DisplayUnitBase {
             maximumCount = 64;
         }
         return new DisplayStats(stackToDisplay, trackedCount, maximumCount);
+    }
+
+    @Override
+    public boolean shouldRender(Minecraft mc) {
+        return displayOnHud;
+    }
+
+    @Override
+    public void renderDisplay(Minecraft mc, Coord position) {
+        DisplayStats displayStats = getDisplayInfo(mc);
+        if (displayStats == null) {
+            return;
+        }
+        GL11.glPushMatrix();
+        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        RenderHelper.enableGUIStandardItemLighting();
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        float opacity = 1;
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, opacity);
+        RenderItem renderItem = new RenderItem();
+        renderItem.zLevel = 200.0F;
+        renderItem.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.renderEngine, displayStats.stackToDisplay,
+                position.x, position.z);
+        GL11.glDisable(GL11.GL_BLEND);
+        RenderHelper.disableStandardItemLighting();
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+
+        if (displayAnalogBar) {
+            renderAnalogBar(mc, position, new Coord(16, 13), displayStats.trackedCount, displayStats.maximumCount);
+        }
+
+        if (displayNumericCounter) {
+            renderCounterBar(mc, position, new Coord(16, -4), displayStats.trackedCount);
+        }
+        GL11.glPopMatrix();
+    }
+
+    public DisplayStats getDisplayInfo(Minecraft mc) {
+        return displayStats;
     }
 
     private int countStack(ItemStack stackToCount) {
