@@ -1,0 +1,2 @@
+#Second half of gitignore to ensure items deep in /gradle/ directory are not ignored
+!*
