@@ -1,0 +1,2 @@
+#Second half of gitignore to ensure items deep in source/resource directory are not ignored
+!*
