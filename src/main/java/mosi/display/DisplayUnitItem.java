@@ -48,8 +48,8 @@ public class DisplayUnitItem extends DisplayUnitBase {
     private DisplayStats displayStats;
     private DisplayStats prevDisplayStat;
 
-	private Coord analogOffset = new Coord(16, 13);
-	private Coord digitalOffset = new Coord(16, -4);
+    private Coord analogOffset = new Coord(16, 13);
+    private Coord digitalOffset = new Coord(16, -4);
 
     public DisplayUnitItem() {
         displayOnHud = true;
@@ -92,40 +92,44 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     @Override
     public Coord getSize() {
-    	return new Coord(largestXDistance(getOffset().x, analogOffset.x, digitalOffset.x),
-    			largestZDistance(getOffset().z, analogOffset.z, digitalOffset.z));
+        return new Coord(largestXDistance(getOffset().x, analogOffset.x, digitalOffset.x), largestZDistance(
+                getOffset().z, analogOffset.z, digitalOffset.z));
     }
-    
+
     private int largestXDistance(int iconCoord, int anaOffset, int digOffset) {
-    	//icon is 16x16 and its base is origin (0,0) for analog and digital offsets
-    	int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 16 : anaOffset;
-    	int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
-		if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
-			return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
-		} else if(farEdgePointAnalog >= 0) {
-			return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog-farEdgePointDigit), 16-farEdgePointDigit);
-		} else if(farEdgePointDigit >= 0) {
-			return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit-farEdgePointAnalog), 16-farEdgePointAnalog);
-		} else { 
-			//Else Case both are < 0
-			return Math.max(16-farEdgePointAnalog, 16-farEdgePointDigit);
-		}
+        // icon is 16x16 and its base is origin (0,0) for analog and digital offsets
+        int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 16 : anaOffset;
+        int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
+        if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
+        } else if (farEdgePointAnalog >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog - farEdgePointDigit),
+                    16 - farEdgePointDigit);
+        } else if (farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit - farEdgePointAnalog),
+                    16 - farEdgePointAnalog);
+        } else {
+            // Else Case both are < 0
+            return Math.max(16 - farEdgePointAnalog, 16 - farEdgePointDigit);
+        }
     }
-    
+
     private int largestZDistance(int iconCoord, int anaOffset, int digOffset) {
-    	//icon is 16x16 and its base is origin (0,0) for analog and digital offsets
-    	int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 4 : anaOffset;
-    	int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
-		if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
-			return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
-		} else if(farEdgePointAnalog >= 0) {
-			return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog-farEdgePointDigit), 16-farEdgePointDigit);
-		} else if(farEdgePointDigit >= 0) {
-			return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit-farEdgePointAnalog), 16-farEdgePointAnalog);
-		} else { 
-			//Else Case both are < 0
-			return Math.max(16-farEdgePointAnalog, 16-farEdgePointDigit);
-		}
+        // icon is 16x16 and its base is origin (0,0) for analog and digital offsets
+        int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 4 : anaOffset;
+        int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
+        if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
+        } else if (farEdgePointAnalog >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog - farEdgePointDigit),
+                    16 - farEdgePointDigit);
+        } else if (farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit - farEdgePointAnalog),
+                    16 - farEdgePointAnalog);
+        } else {
+            // Else Case both are < 0
+            return Math.max(16 - farEdgePointAnalog, 16 - farEdgePointDigit);
+        }
     }
 
     @Override
@@ -135,7 +139,7 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.CENTER_ABSO;
+        return HorizontalAlignment.LEFT_ABSO;
     }
 
     @Override
@@ -229,10 +233,11 @@ public class DisplayUnitItem extends DisplayUnitBase {
         RenderHelper.disableStandardItemLighting();
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 
+        GL11.glEnable(GL11.GL_BLEND);
         if (displayAnalogBar) {
             renderAnalogBar(mc, position, analogOffset, displayStats.trackedCount, displayStats.maximumCount);
         }
-
+        GL11.glDisable(GL11.GL_BLEND);
         if (displayNumericCounter) {
             renderCounterBar(mc, position, digitalOffset, displayStats.trackedCount);
         }
@@ -263,18 +268,33 @@ public class DisplayUnitItem extends DisplayUnitBase {
      */
     protected void renderAnalogBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int analogValue, int analogMax) {
         mc.renderEngine.bindTexture(countdown);
+        int scaledValue = scaleAnalogizeValue(analogValue, analogMax);
         DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                centerOfDisplay.z + offSet.z, 0, 0, analogMax, 3);
-        if (analogValue > 9) {
+                centerOfDisplay.z + offSet.z, 0, 0, 16, 3);
+        if (scaledValue > 9) {
             DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 3, analogValue, 3);
-        } else if (analogValue > 4) {
+                    centerOfDisplay.z + offSet.z, 0, 3, scaledValue, 3);
+        } else if (scaledValue > 4) {
             DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 6, analogValue, 3);
+                    centerOfDisplay.z + offSet.z, 0, 6, scaledValue, 3);
         } else {
             DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 9, analogValue, 3);
+                    centerOfDisplay.z + offSet.z, 0, 9, scaledValue, 3);
         }
+    }
+
+    /**
+     * Scale a tracked value from range [0-analogMax] to fit the display bars resolution of [0-16]
+     */
+    private int scaleAnalogizeValue(int analogValue, int analogMax) {
+        float scaledDuration = analogValue;
+        if (analogValue > analogMax) {
+            return 18;
+        }
+        if (analogValue < 0) {
+            return 0;
+        }
+        return (int) ((float) (analogValue) / (float) (analogMax) * 18);
     }
 
     /**
@@ -288,8 +308,24 @@ public class DisplayUnitItem extends DisplayUnitBase {
      */
     protected void renderCounterBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int counterAmount) {
         String displayAmount = Integer.toString(counterAmount);
-        mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x + 8 - mc.fontRenderer.getStringWidth(displayAmount)
-                / 2 + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
+        switch (getHorizontalAlignment()) {
+        case CENTER_ABSO:
+        case CENTER_PERC:
+            mc.fontRenderer.drawString(displayAmount,
+                    centerOfDisplay.x + 8 - mc.fontRenderer.getStringWidth(displayAmount) / 2 + offSet.x,
+                    centerOfDisplay.z - offSet.z, textDisplayColor);
+            break;
+        case LEFT_ABSO:
+        case LEFT_PERC:
+            mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x + offSet.x, centerOfDisplay.z - offSet.z,
+                    textDisplayColor);
+            break;
+        case RIGHT_ABSO:
+        case RIGHT_PERC:
+            mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x - mc.fontRenderer.getStringWidth(displayAmount)
+                    + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
+            break;
+        }
     }
 
     /**
