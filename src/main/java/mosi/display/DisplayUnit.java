@@ -11,7 +11,7 @@ public interface DisplayUnit {
      */
     public abstract String getType();
 
-    public abstract Coord getPosition();
+    public abstract Coord getOffset();
 
     public abstract Coord getSize();
 

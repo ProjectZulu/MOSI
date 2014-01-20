@@ -48,6 +48,9 @@ public class DisplayUnitItem extends DisplayUnitBase {
     private DisplayStats displayStats;
     private DisplayStats prevDisplayStat;
 
+	private Coord analogOffset = new Coord(16, 13);
+	private Coord digitalOffset = new Coord(16, -4);
+
     public DisplayUnitItem() {
         displayOnHud = true;
         nickname = "";
@@ -83,23 +86,56 @@ public class DisplayUnitItem extends DisplayUnitBase {
     }
 
     @Override
-    public Coord getPosition() {
-        return new Coord(0, 30);
+    public Coord getOffset() {
+        return new Coord(0, 0);
     }
 
     @Override
     public Coord getSize() {
-        return new Coord(32, 16);
+    	return new Coord(largestXDistance(getOffset().x, analogOffset.x, digitalOffset.x),
+    			largestZDistance(getOffset().z, analogOffset.z, digitalOffset.z));
+    }
+    
+    private int largestXDistance(int iconCoord, int anaOffset, int digOffset) {
+    	//icon is 16x16 and its base is origin (0,0) for analog and digital offsets
+    	int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 16 : anaOffset;
+    	int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
+		if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
+			return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
+		} else if(farEdgePointAnalog >= 0) {
+			return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog-farEdgePointDigit), 16-farEdgePointDigit);
+		} else if(farEdgePointDigit >= 0) {
+			return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit-farEdgePointAnalog), 16-farEdgePointAnalog);
+		} else { 
+			//Else Case both are < 0
+			return Math.max(16-farEdgePointAnalog, 16-farEdgePointDigit);
+		}
+    }
+    
+    private int largestZDistance(int iconCoord, int anaOffset, int digOffset) {
+    	//icon is 16x16 and its base is origin (0,0) for analog and digital offsets
+    	int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 4 : anaOffset;
+    	int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
+		if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
+			return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
+		} else if(farEdgePointAnalog >= 0) {
+			return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog-farEdgePointDigit), 16-farEdgePointDigit);
+		} else if(farEdgePointDigit >= 0) {
+			return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit-farEdgePointAnalog), 16-farEdgePointAnalog);
+		} else { 
+			//Else Case both are < 0
+			return Math.max(16-farEdgePointAnalog, 16-farEdgePointDigit);
+		}
     }
 
     @Override
     public VerticalAlignment getVerticalAlignment() {
-        return VerticalAlignment.CENTER_PERC;
+        return VerticalAlignment.CENTER_ABSO;
     }
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.CENTER_PERC;
+        return HorizontalAlignment.CENTER_ABSO;
     }
 
     @Override
@@ -194,11 +230,11 @@ public class DisplayUnitItem extends DisplayUnitBase {
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 
         if (displayAnalogBar) {
-            renderAnalogBar(mc, position, new Coord(16, 13), displayStats.trackedCount, displayStats.maximumCount);
+            renderAnalogBar(mc, position, analogOffset, displayStats.trackedCount, displayStats.maximumCount);
         }
 
         if (displayNumericCounter) {
-            renderCounterBar(mc, position, new Coord(16, -4), displayStats.trackedCount);
+            renderCounterBar(mc, position, digitalOffset, displayStats.trackedCount);
         }
         GL11.glPopMatrix();
     }

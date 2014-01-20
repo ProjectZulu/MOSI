@@ -42,7 +42,7 @@ public class DisplayTicker {
     private Coord determineScreenPosition(Minecraft mc, DisplayUnit display) {
         ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
         Coord displaySize = display.getSize();
-        Coord displayOffset = display.getPosition();
+        Coord displayOffset = display.getOffset();
         VerticalAlignment vertAlign = display.getVerticalAlignment();
         HorizontalAlignment horizonAlign = display.getHorizontalAlignment();
         int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, displayOffset, displaySize);
