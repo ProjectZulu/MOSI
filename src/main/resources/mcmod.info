@@ -1,0 +1,16 @@
+[
+{
+  "modid": "MOSI",
+  "name": "More On Screen Info",
+  "description": "Provides improvements to the default Heads Up Display (HUD).",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authors": ["Crudedragos"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
