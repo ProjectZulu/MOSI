@@ -73,6 +73,7 @@ public class DisplayUnitFactory implements JsonSerializer<ArrayList<DisplayUnit>
         displayTypes = new HashMap<String, Class<? extends DisplayUnit>>();
         // TODO Add display types
         addDisplayType(DisplayUnitItem.class);
+        addDisplayType(DisplayUnitPotion.class);
     }
 
     @Override
