@@ -147,9 +147,11 @@ public class DisplayUnitItem extends DisplayUnitBase {
         if (ticks % updateFrequency == 0) {
             prevDisplayStat = displayStats;
             displayStats = calculateDisplayStats(mc);
-            hidingRules.update(displayStats.trackedCount, prevDisplayStat.trackedCount);
+            Integer count = displayStats != null ? displayStats.trackedCount : null;
+            Integer prevCount = prevDisplayStat != null ? prevDisplayStat.trackedCount : null;
+            hidingRules.update(count, prevCount);
             if (displayStats != null) {
-                displayOnHud = !hidingRules.shouldHide(displayStats.trackedCount);
+                displayOnHud = !hidingRules.shouldHide(count);
             } else {
                 displayOnHud = false;
             }
@@ -287,12 +289,11 @@ public class DisplayUnitItem extends DisplayUnitBase {
      * Scale a tracked value from range [0-analogMax] to fit the display bars resolution of [0-16]
      */
     private int scaleAnalogizeValue(int analogValue, int analogMax) {
-        float scaledDuration = analogValue;
         if (analogValue > analogMax) {
-            return 18;
+            analogValue = analogMax;
         }
         if (analogValue < 0) {
-            return 0;
+            analogValue = 0;
         }
         return (int) ((float) (analogValue) / (float) (analogMax) * 18);
     }

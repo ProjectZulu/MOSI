@@ -6,6 +6,10 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import mosi.DefaultProps;
+import mosi.display.hiderules.HideRules;
+import mosi.display.hiderules.HideThresholdRule;
+import mosi.display.hiderules.HideUnchangedRule;
+import mosi.display.hiderules.HideRule.Operator;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
@@ -31,7 +35,11 @@ public class DisplayUnitPotion implements DisplayUnit {
     private int trackedPotion; // Id of Potion to be tracked
 
     private int trackedCount; // Value of tracked property, always duration for Potions
-    private int maxAnalogDuration;
+    private int prevTrackedCount;
+    private int maxAnalogDuration; // in Ticks
+
+    private HideRules hidingRules;
+    private transient boolean shouldDisplay;
 
     private boolean displayAnalogBar;
     private boolean displayNumericCounter;
@@ -42,11 +50,13 @@ public class DisplayUnitPotion implements DisplayUnit {
         updateFrequency = 20;
         trackedPotion = 1;// Defaults to Speed, choice is arbitrary
         textDisplayColor = 1030655;
-        maxAnalogDuration = 60;
+        maxAnalogDuration = 60 * 20;
         displayAnalogBar = true;
         displayNumericCounter = false;
         analogOffset = new Coord(1, 18);
         digitalOffset = new Coord(1, 18);
+        hidingRules = new HideRules();
+        hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
     }
 
     @Override
@@ -77,16 +87,23 @@ public class DisplayUnitPotion implements DisplayUnit {
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
         if (ticks % updateFrequency == 0) {
+            hidingRules = new HideRules();
+            hidingRules.addRule(new HideThresholdRule(1, false, false, Operator.AND));
+
             Potion potion = Potion.potionTypes[trackedPotion];
             mc.thePlayer.isPotionActive(potion);
             PotionEffect effect = mc.thePlayer.getActivePotionEffect(potion);
             trackedCount = effect != null ? effect.getDuration() : 0;
+            this.prevTrackedCount = trackedCount;
+            hidingRules.update(trackedCount, prevTrackedCount);
+
+            shouldDisplay = Potion.potionTypes[trackedPotion] != null && !hidingRules.shouldHide(trackedCount);
         }
     }
 
     @Override
     public boolean shouldRender(Minecraft mc) {
-        return Potion.potionTypes[trackedPotion] != null;
+        return shouldDisplay;
     }
 
     @Override
@@ -137,12 +154,11 @@ public class DisplayUnitPotion implements DisplayUnit {
      * Scale a tracked value from range [0-analogMax] to fit the display bars resolution of [0-16]
      */
     private int scaleAnalogizeValue(int analogValue, int analogMax) {
-        float scaledDuration = analogValue;
         if (analogValue > analogMax) {
-            return 18;
+            analogValue = analogMax;
         }
         if (analogValue < 0) {
-            return 0;
+            analogValue = 0;
         }
         return (int) ((float) (analogValue) / (float) (analogMax) * 18);
     }
