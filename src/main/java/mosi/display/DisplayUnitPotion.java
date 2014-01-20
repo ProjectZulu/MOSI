@@ -23,24 +23,30 @@ public class DisplayUnitPotion implements DisplayUnit {
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
 
     // User assigned name to item for display. Should only be used for display when necessary and not be null.
-    public String nickname;
+    public String nickname = "";
     // Frequency to search player inventory for updated item statistics, most commonly quantity
-    private int updateFrequency = 20;
+    private int updateFrequency;
     // For display purposes
-    private int textDisplayColor = 1030655;
+    private int textDisplayColor;
     private int trackedPotion; // Id of Potion to be tracked
 
     private int trackedCount; // Value of tracked property, always duration for Potions
     private int maxAnalogDuration;
 
-    private boolean displayAnalogBar = true;
-    private boolean displayNumericCounter = true;
-    private Coord analogOffset = new Coord(16, 13);
-    private Coord digitalOffset = new Coord(16, -4);
+    private boolean displayAnalogBar;
+    private boolean displayNumericCounter;
+    private Coord analogOffset;
+    private Coord digitalOffset;
 
     public DisplayUnitPotion() {
+        updateFrequency = 20;
         trackedPotion = 1;// Defaults to Speed, choice is arbitrary
+        textDisplayColor = 1030655;
         maxAnalogDuration = 60;
+        displayAnalogBar = true;
+        displayNumericCounter = false;
+        analogOffset = new Coord(1, 18);
+        digitalOffset = new Coord(1, 18);
     }
 
     @Override
@@ -70,9 +76,6 @@ public class DisplayUnitPotion implements DisplayUnit {
 
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
-        analogOffset = new Coord(0, 18);
-        digitalOffset = new Coord(0, 23);
-
         if (ticks % updateFrequency == 0) {
             Potion potion = Potion.potionTypes[trackedPotion];
             mc.thePlayer.isPotionActive(potion);
@@ -168,7 +171,7 @@ public class DisplayUnitPotion implements DisplayUnit {
         } else {
             formattedTime = minutes + ":" + String.format("%02d", seconds);
         }
-        
+
         String displayAmount = Integer.toString(counterAmount);
         // 8 is constant chosen by testing to keep the displaystring roughly center. It just works.
         mc.fontRenderer.drawString(formattedTime,
