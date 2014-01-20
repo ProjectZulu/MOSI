@@ -1,9 +1,9 @@
 package mosi.display;
 
-import org.lwjgl.util.Point;
-
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
+
+import org.lwjgl.util.Point;
 
 public class DisplayRenderHelper {
     /**
@@ -26,7 +26,7 @@ public class DisplayRenderHelper {
         tess.draw();
     }
     
-    public static void drawTextureModelFromIcon(Tessellator tess, Icon icon, Point screenPosition) {
+    public static void drawTextureModelFromIcon(Tessellator tess, IIcon icon, Point screenPosition) {
         final float minU = icon.getMinU();
         final float maxU = icon.getMaxU();
         final float minV = icon.getMinV();

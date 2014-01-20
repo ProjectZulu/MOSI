@@ -8,9 +8,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Post;
-import net.minecraftforge.event.ForgeSubscribe;
 
 import com.google.common.collect.ImmutableList;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Passive Displaying of GuiDisplays in Game
@@ -23,7 +24,7 @@ public class DisplayTicker {
         this.displayRegistry = displayRegistry;
     }
 
-    @ForgeSubscribe
+    @SubscribeEvent
     public void onRender(Post event) {
         if (event.type != null && event.type == ElementType.HOTBAR) {
             Minecraft mc = Minecraft.getMinecraft();

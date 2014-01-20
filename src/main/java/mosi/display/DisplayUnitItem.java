@@ -9,11 +9,11 @@ import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.utilities.Coord;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -53,11 +53,11 @@ public class DisplayUnitItem extends DisplayUnitBase {
         nickname = "";
         trackMode = TrackMode.QUANTITY;
         countingRules = new InventoryRules();
-        countingRules.addRule(new ItemIdMatch(2, 2, true));
+        countingRules.addRule(new ItemIdMatch("grass", true));
         hidingRules = new HideRules();
         hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
         hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
-        missingDisplayStack = new ItemStack(Block.dirt);
+        missingDisplayStack = new ItemStack(Blocks.dirt);
     }
 
     /* Changes the quality that is being counted */

@@ -1,29 +1,25 @@
 package mosi.display.inventoryrules;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class ItemIdMatch implements InventoryRule {
-    public final int minItemId;
-    public final int maxItemId;
+    private String itemId;
     public final boolean multipleMatches;
 
-    public ItemIdMatch(int minItemId, int maxItemId, boolean multipleMatches) {
-        this.minItemId = minItemId;
-        this.maxItemId = maxItemId;
+    public ItemIdMatch(String itemId, boolean multipleMatches) {
+        this.itemId = itemId;
         this.multipleMatches = multipleMatches;
     }
 
-    @Override
-    public boolean isMatch(ItemStack itemStack, int slotId, boolean armorSlot, boolean currentItem) {
-        if (itemStack == null) {
-            return false;
-        }
-        if (minItemId <= maxItemId) {
-            return (itemStack.itemID <= maxItemId && itemStack.itemID >= minItemId);
-        } else {
-            return !(itemStack.itemID < minItemId && itemStack.itemID > maxItemId);
-        }
-    }
+	@Override
+	public boolean isMatch(ItemStack itemStack, int slotId, boolean armorSlot, boolean currentItem) {
+		if (itemStack == null) {
+			return false;
+		}		
+		return itemStack.getItem().equals(Item.field_150901_e.getObject(itemId));
+	}
 
     @Override
     public boolean allowMultipleMatches() {

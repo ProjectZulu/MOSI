@@ -1,22 +1,14 @@
 package buffbarmod.common;
 
-import java.util.EnumSet;
-
+import mosi.DefaultProps;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import armorbarmod.common.DefaultProps;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
-
-public class BuffBarDisplayTicker implements ITickHandler{
+public class BuffBarDisplayTicker /*implements ITickHandler*/{
 	public static long inGameTicks = 0;
 	protected float zLevel = 9.0F;
 	private boolean isInCreative = false;
@@ -30,148 +22,147 @@ public class BuffBarDisplayTicker implements ITickHandler{
 	public static int analogMaxDurationLength = mod_BuffBarMod.analogMaxDurationLength;
 
     protected static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
-    protected static final ResourceLocation countdown = new ResourceLocation(DefaultProps.buffBarKey,
-            "countdown.png");
+    public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
 	
-	@Override
-	public EnumSet<TickType> ticks() {
-		return EnumSet.of(TickType.RENDER);
-	}
-	
-	@Override
-	public String getLabel() {
-		return null;
-	}
+//	@Override
+//	public EnumSet<TickType> ticks() {
+//		return EnumSet.of(TickType.RENDER);
+//	}
+//	
+//	@Override
+//	public String getLabel() {
+//		return null;
+//	}
 
-	public void tickStart(EnumSet<TickType> type, Object... tickData){}
+//	public void tickStart(EnumSet<TickType> type, Object... tickData){}
 	
-	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-		if(Minecraft.getMinecraft().thePlayer != null){
-			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-	        Minecraft mc = Minecraft.getMinecraft();
-	        if(mc.currentScreen != null){
-	        	return;
-	        }
-	        isInCreative = player.capabilities.isCreativeMode;
-	        
-			FontRenderer var2 = mc.fontRenderer;
-
-			ScaledResolution var3 = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-			
-			
-			int scalewidth = var3.getScaledWidth();
-			int scaleHeight = var3.getScaledHeight();
-			int buffsToShow = 10;
-			int maxDuration = analogMaxDurationLength;
-			short lengthOfBuffBar = (short)(18*buffsToShow);
-			
-			int buffNumber = 0;
-			if( player.isPotionActive(Potion.moveSpeed) && buffNumber < 10){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.moveSpeed).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.moveSpeed).getDuration(), maxDuration, 0, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.moveSlowdown) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.moveSlowdown).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.moveSlowdown).getDuration(), maxDuration, 0+18*1, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.digSpeed) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.digSpeed).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.digSpeed).getDuration(), maxDuration, 0+18*2, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.digSlowdown) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.digSlowdown).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.digSlowdown).getDuration(), maxDuration, 0+18*3, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.damageBoost) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.damageBoost).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.damageBoost).getDuration(), maxDuration, 0+18*4, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.weakness) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.weakness).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.weakness).getDuration(), maxDuration, 0+18*5, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.poison) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.poison).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.poison).getDuration(), maxDuration, 0+18*6, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.regeneration) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.regeneration).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.regeneration).getDuration(), maxDuration, 0+18*7, 198, xOffset, yOffset);
-				buffNumber++;
-			}
-			
-			if( player.isPotionActive(Potion.invisibility) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.invisibility).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.invisibility).getDuration(), maxDuration, 0, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.hunger) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.hunger).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.hunger).getDuration(), maxDuration, 0+18*1, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.jump) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.jump).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.jump).getDuration(), maxDuration, 0+18*2, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.confusion) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.confusion).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.confusion).getDuration(), maxDuration, 0+18*3, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.nightVision) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.nightVision).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.nightVision).getDuration(), maxDuration, 0+18*4, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.blindness) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.blindness).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.blindness).getDuration(), maxDuration, 0+18*5, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.resistance) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.resistance).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
-						player.getActivePotionEffect(Potion.resistance).getDuration(), maxDuration, 0+18*6, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.fireResistance) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.fireResistance).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration, 
-						player.getActivePotionEffect(Potion.fireResistance).getDuration(), maxDuration, 0+18*7, 198+18*1, xOffset, yOffset);
-				buffNumber++;
-			}
-			if( player.isPotionActive(Potion.waterBreathing) && buffNumber < 10 ){
-				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.waterBreathing).getDuration(),maxDuration*20);
-				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration, 
-						player.getActivePotionEffect(Potion.waterBreathing).getDuration(), maxDuration, 0, 198+18*2, xOffset, yOffset);
-				buffNumber++;
-			}
-		}
-		inGameTicks++;
-	}
+//	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
+//		if(Minecraft.getMinecraft().thePlayer != null){
+//			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+//	        Minecraft mc = Minecraft.getMinecraft();
+//	        if(mc.currentScreen != null){
+//	        	return;
+//	        }
+//	        isInCreative = player.capabilities.isCreativeMode;
+//	        
+//			FontRenderer var2 = mc.fontRenderer;
+//
+//			ScaledResolution var3 = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+//			
+//			
+//			int scalewidth = var3.getScaledWidth();
+//			int scaleHeight = var3.getScaledHeight();
+//			int buffsToShow = 10;
+//			int maxDuration = analogMaxDurationLength;
+//			short lengthOfBuffBar = (short)(18*buffsToShow);
+//			
+//			int buffNumber = 0;
+//			if( player.isPotionActive(Potion.moveSpeed) && buffNumber < 10){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.moveSpeed).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.moveSpeed).getDuration(), maxDuration, 0, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.moveSlowdown) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.moveSlowdown).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.moveSlowdown).getDuration(), maxDuration, 0+18*1, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.digSpeed) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.digSpeed).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.digSpeed).getDuration(), maxDuration, 0+18*2, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.digSlowdown) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.digSlowdown).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.digSlowdown).getDuration(), maxDuration, 0+18*3, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.damageBoost) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.damageBoost).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.damageBoost).getDuration(), maxDuration, 0+18*4, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.weakness) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.weakness).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.weakness).getDuration(), maxDuration, 0+18*5, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.poison) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.poison).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.poison).getDuration(), maxDuration, 0+18*6, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.regeneration) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.regeneration).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.regeneration).getDuration(), maxDuration, 0+18*7, 198, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			
+//			if( player.isPotionActive(Potion.invisibility) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.invisibility).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.invisibility).getDuration(), maxDuration, 0, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.hunger) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.hunger).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.hunger).getDuration(), maxDuration, 0+18*1, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.jump) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.jump).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.jump).getDuration(), maxDuration, 0+18*2, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.confusion) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.confusion).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.confusion).getDuration(), maxDuration, 0+18*3, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.nightVision) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.nightVision).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.nightVision).getDuration(), maxDuration, 0+18*4, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.blindness) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.blindness).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.blindness).getDuration(), maxDuration, 0+18*5, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.resistance) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.resistance).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration,
+//						player.getActivePotionEffect(Potion.resistance).getDuration(), maxDuration, 0+18*6, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.fireResistance) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.fireResistance).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration, 
+//						player.getActivePotionEffect(Potion.fireResistance).getDuration(), maxDuration, 0+18*7, 198+18*1, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//			if( player.isPotionActive(Potion.waterBreathing) && buffNumber < 10 ){
+//				int scaledDuration = mapDurationTo18(player.getActivePotionEffect(Potion.waterBreathing).getDuration(),maxDuration*20);
+//				drawPotionBuffAndDuration(mc, player, scalewidth, scaleHeight, lengthOfBuffBar, buffNumber, scaledDuration, 
+//						player.getActivePotionEffect(Potion.waterBreathing).getDuration(), maxDuration, 0, 198+18*2, xOffset, yOffset);
+//				buffNumber++;
+//			}
+//		}
+//		inGameTicks++;
+//	}
 	
 	public void drawTexturedModalRect(int par1, int par2, int par3, int par4, int par5, int par6) {
 		float var7 = 0.00390625F;

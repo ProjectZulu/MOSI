@@ -23,7 +23,6 @@ public class HideThresholdRule implements HideRule {
 
     @Override
     public boolean shouldHide(int count) {
-        Log.log().info("Hmm %s / %s while %s", count, countThreshold, isInverted);
         boolean shoudlHide = beAbove ? count >= countThreshold : count < countThreshold;
         return !isInverted ? shoudlHide : !shoudlHide;
     }

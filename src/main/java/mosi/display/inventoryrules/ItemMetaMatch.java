@@ -6,12 +6,12 @@ public class ItemMetaMatch extends ItemIdMatch {
     public final int minItemDamage;
     public final int maxItemDamage;
 
-    public ItemMetaMatch(int minItemId, int maxItemId, int itemDamage, boolean multipleMatches) {
-        this(minItemId, maxItemId, itemDamage, itemDamage, multipleMatches);
+    public ItemMetaMatch(String itemId, int itemDamage, boolean multipleMatches) {
+        this(itemId, itemDamage, itemDamage, multipleMatches);
     }
 
-    public ItemMetaMatch(int minItemId, int maxItemId, int minItemDamage, int maxItemDamage, boolean multipleMatches) {
-        super(minItemId, maxItemId, multipleMatches);
+    public ItemMetaMatch(String itemId, int minItemDamage, int maxItemDamage, boolean multipleMatches) {
+        super(itemId, multipleMatches);
         this.minItemDamage = minItemDamage;
         this.maxItemDamage = maxItemDamage;
     }

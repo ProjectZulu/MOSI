@@ -1,20 +1,16 @@
 package buffbarmod.common;
 
-import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.Init;
+import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(modid = "mod_BuffBarMod", name = "Buff Bar Mod", version = "0.7.1")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false)
-
+//@NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class mod_BuffBarMod {
 	
 	@Instance("mod_BuffBarMod")
@@ -30,29 +26,28 @@ public class mod_BuffBarMod {
 	public static int creativeYOffSet = 13;
 	public static int analogMaxDurationLength = 60;
 	
-	@PreInit
+	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		proxy.registerTickers();
-        Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-        config.load();
-        
-        xOffset = config.get("Buff Bar Controls", "Display X Offeset", xOffset).getInt(xOffset);
-        yOffset = config.get("Buff Bar Controls", "Display Y Offeset", yOffset).getInt(yOffset);
-        displayType = config.get("Buff Bar Controls", "Display Type", displayType).getInt(displayType);
-        fontColor = config.get("Buff Bar Controls", "Display Font Color", fontColor).getInt(fontColor);
-        creativeYOffSet = config.get("Buff Bar Controls", "Display YOffSet in Creative", creativeYOffSet).getInt(creativeYOffSet);
-        analogMaxDurationLength = config.get("Buff Bar Controls", "Analog Max Duration Length", analogMaxDurationLength).getInt(analogMaxDurationLength);
-        
-        config.save();
-
+//		proxy.registerTickers();
+//        Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+//        config.load();
+//        
+//        xOffset = config.get("Buff Bar Controls", "Display X Offeset", xOffset).getInt(xOffset);
+//        yOffset = config.get("Buff Bar Controls", "Display Y Offeset", yOffset).getInt(yOffset);
+//        displayType = config.get("Buff Bar Controls", "Display Type", displayType).getInt(displayType);
+//        fontColor = config.get("Buff Bar Controls", "Display Font Color", fontColor).getInt(fontColor);
+//        creativeYOffSet = config.get("Buff Bar Controls", "Display YOffSet in Creative", creativeYOffSet).getInt(creativeYOffSet);
+//        analogMaxDurationLength = config.get("Buff Bar Controls", "Analog Max Duration Length", analogMaxDurationLength).getInt(analogMaxDurationLength);
+//        
+//        config.save();
 	}
 	
-	@Init
+	@EventHandler
 	public void load(FMLInitializationEvent event) {
 //		proxy.registerRenderThings();
 	}
 	
-	@PostInit
+	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 
 		
@@ -61,6 +56,4 @@ public class mod_BuffBarMod {
 	public mod_BuffBarMod(){
 		
 	}
-
-
 }

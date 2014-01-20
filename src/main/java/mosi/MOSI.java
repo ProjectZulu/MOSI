@@ -16,10 +16,8 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(modid = DefaultProps.MOD_ID, name = DefaultProps.MOD_NAME, version = DefaultProps.VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class MOSI {
     @Instance(DefaultProps.MOD_ID)
     public static MOSI modInstance;
