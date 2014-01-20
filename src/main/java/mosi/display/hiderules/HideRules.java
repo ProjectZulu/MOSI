@@ -41,14 +41,13 @@ public class HideRules implements Iterable<HideRule> {
 
     }
 
-    public void update(DisplayStats currentDisplay, DisplayStats prevDisplay) {
+    public void update(Integer trackedCount, Integer prevTrackedCount) {
         for (HideRule rule : rules) {
-            rule.update(currentDisplay != null ? currentDisplay.trackedCount : null,
-                    prevDisplay != null ? prevDisplay.trackedCount : null);
+            rule.update(trackedCount, prevTrackedCount);
         }
     }
 
-    public boolean shouldHide(DisplayStats currentDisplay) {
+    public boolean shouldHide(int trackedCount) {
         boolean shouldHide = false;
         Boolean prevOutcome = null;
         for (int i = 0; i < rules.size(); i++) {
@@ -60,14 +59,14 @@ public class HideRules implements Iterable<HideRule> {
                 if (rule.getOperator() == Operator.AND && prevOutcome == false) {
                     prevOutcome = false;
                 } else {
-                    prevOutcome = rule.shouldHide(currentDisplay.trackedCount);
+                    prevOutcome = rule.shouldHide(trackedCount);
                     // If Last rule set shouldHide evaluation
                     if (i == rules.size() - 1 && prevOutcome) {
                         shouldHide = true;
                     }
                 }
             } else {
-                prevOutcome = rule.shouldHide(currentDisplay.trackedCount);
+                prevOutcome = rule.shouldHide(trackedCount);
                 // If Last rule set shouldHide evaluation
                 if (i == rules.size() - 1 && prevOutcome) {
                     shouldHide = true;

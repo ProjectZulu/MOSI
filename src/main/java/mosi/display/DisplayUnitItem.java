@@ -147,9 +147,9 @@ public class DisplayUnitItem extends DisplayUnitBase {
         if (ticks % updateFrequency == 0) {
             prevDisplayStat = displayStats;
             displayStats = calculateDisplayStats(mc);
-            hidingRules.update(displayStats, prevDisplayStat);
+            hidingRules.update(displayStats.trackedCount, prevDisplayStat.trackedCount);
             if (displayStats != null) {
-                displayOnHud = !hidingRules.shouldHide(displayStats);
+                displayOnHud = !hidingRules.shouldHide(displayStats.trackedCount);
             } else {
                 displayOnHud = false;
             }
