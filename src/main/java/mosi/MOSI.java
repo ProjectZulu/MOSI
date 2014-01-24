@@ -25,8 +25,12 @@ public class MOSI {
     @SidedProxy(clientSide = "mosi.proxy.ClientProxy", serverSide = "mosi.proxy.CommonProxy")
     public static CommonProxy proxy;
 
-    DisplayUnitFactory displayFactory;
-    DisplayUnitRegistry displayRegistry;
+    private DisplayUnitRegistry displayRegistry;
+    private static DisplayUnitFactory displayFactory;
+
+    public static DisplayUnitFactory getDisplayFactory() {
+        return displayFactory;
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

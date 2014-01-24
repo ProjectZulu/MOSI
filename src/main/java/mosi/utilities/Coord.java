@@ -40,4 +40,24 @@ public class Coord {
         float zDis = z - coord.z;
         return xDis * xDis + zDis * zDis;
     }
+
+    public Coord add(Coord coord) {
+        return new Coord(x + coord.x, z + coord.z);
+    }
+
+    public Coord add(int x, int z) {
+        return new Coord(x + this.x, z + this.z);
+    }
+
+    public Coord mult(int scale) {
+        return new Coord(x * scale, z * scale);
+    }
+
+    public Coord mult(int scaleX, int scaleZ) {
+        return new Coord(x * scaleX, z * scaleZ);
+    }
+
+    public Coord mult(Coord scale) {
+        return new Coord(x * scale.x, z * scale.z);
+    }
 }

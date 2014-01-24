@@ -139,7 +139,7 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.LEFT_ABSO;
+        return HorizontalAlignment.CENTER_ABSO;
     }
 
     @Override

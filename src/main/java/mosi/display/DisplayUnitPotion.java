@@ -1,15 +1,10 @@
 package mosi.display;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import mosi.DefaultProps;
+import mosi.display.hiderules.HideRule;
+import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
 import mosi.display.hiderules.HideThresholdRule;
-import mosi.display.hiderules.HideUnchangedRule;
-import mosi.display.hiderules.HideRule.Operator;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
@@ -29,22 +24,37 @@ public class DisplayUnitPotion implements DisplayUnit {
     // User assigned name to item for display. Should only be used for display when necessary and not be null.
     public String nickname = "";
     // Frequency to search player inventory for updated item statistics, most commonly quantity
-    private int updateFrequency;
+    public int updateFrequency;
     // For display purposes
-    private int textDisplayColor;
-    private int trackedPotion; // Id of Potion to be tracked
+    public int textDisplayColor;
+    public int trackedPotion; // Id of Potion to be tracked
 
-    private int trackedCount; // Value of tracked property, always duration for Potions
+    public int trackedCount; // Value of tracked property, always duration for Potions
     private int prevTrackedCount;
-    private int maxAnalogDuration; // in Ticks
+    public int maxAnalogDuration; // in Ticks
 
-    private HideRules hidingRules;
     private transient boolean shouldDisplay;
+    private HideRules hidingRules;
 
-    private boolean displayAnalogBar;
-    private boolean displayNumericCounter;
-    private Coord analogOffset;
-    private Coord digitalOffset;
+    public HideRules getHideRules() {
+        return hidingRules;
+    }
+
+    public boolean displayAnalogBar;
+    public boolean displayNumericCounter;
+    public Coord analogOffset;
+    public Coord digitalOffset;
+
+    public DisplayUnitPotion setEnableDigital(boolean enabled, Coord digitalOffset) {
+        this.displayNumericCounter = enabled;
+        this.digitalOffset = digitalOffset;
+        return this;
+    }
+
+    public DisplayUnitPotion disableDigital() {
+        this.displayNumericCounter = false;
+        return this;
+    }
 
     public DisplayUnitPotion() {
         updateFrequency = 20;
@@ -56,6 +66,21 @@ public class DisplayUnitPotion implements DisplayUnit {
         analogOffset = new Coord(1, 18);
         digitalOffset = new Coord(1, 18);
         hidingRules = new HideRules();
+        hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
+    }
+
+    public DisplayUnitPotion(int updateFrequency, int trackedPotion) {
+        this.updateFrequency = updateFrequency;
+        this.trackedPotion = trackedPotion;
+        this.textDisplayColor = 1030655;
+        this.maxAnalogDuration = 60 * 20;
+        this.displayAnalogBar = true;
+        this.displayNumericCounter = false;
+        this.displayAnalogBar = false;
+        this.displayNumericCounter = false;
+        this.analogOffset = new Coord(1, 18);
+        this.digitalOffset = new Coord(1, 18);
+        this.hidingRules = new HideRules();
         hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
     }
 

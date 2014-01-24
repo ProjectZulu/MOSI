@@ -4,6 +4,7 @@ import mosi.display.DisplayUnit;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.DisplayUnitItem;
 import mosi.display.DisplayUnitPotion;
+import mosi.display.DisplayUnitUnsortedPanel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -24,8 +25,9 @@ public class DisplayUnitRegistry {
 
     public void loadFromConfig() {
         Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
-        builder.add(new DisplayUnitItem());
-        builder.add(new DisplayUnitPotion());
+//        builder.add(new DisplayUnitItem());
+//        builder.add(new DisplayUnitPotion());
+        builder.add(new DisplayUnitUnsortedPanel());
         displays = builder.build();
 
         // Load implicitly saves changes due to errors/corrections appear i.e. a number that cannot be below zero is set
