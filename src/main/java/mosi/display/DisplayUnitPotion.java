@@ -16,7 +16,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.gson.JsonObject;
 
-public class DisplayUnitPotion implements DisplayUnit {
+public class DisplayUnitPotion implements DisplayUnitCountable {
     public static final String DISPLAY_ID = "DisplayUnitPotion";
     public static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
@@ -227,5 +227,10 @@ public class DisplayUnitPotion implements DisplayUnit {
 
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
+    }
+
+    @Override
+    public int getCount() {
+        return trackedCount;
     }
 }

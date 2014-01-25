@@ -1,5 +1,5 @@
 package mosi.display;
 
 
-public abstract class DisplayUnitBase implements DisplayUnit {
+public abstract class DisplayUnitBase implements DisplayUnitCountable {
 }

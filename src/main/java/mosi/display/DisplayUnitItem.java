@@ -351,4 +351,9 @@ public class DisplayUnitItem extends DisplayUnitBase {
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
 
     }
+
+    @Override
+    public int getCount() {
+        return displayStats != null ? displayStats.trackedCount : 0;
+    }
 }

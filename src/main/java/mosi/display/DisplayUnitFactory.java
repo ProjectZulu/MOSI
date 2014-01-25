@@ -24,7 +24,7 @@ public class DisplayUnitFactory implements JsonSerializer<ArrayList<DisplayUnit>
         return displayTypes.get(type);
     }
 
-    //TODO: Change to event thats called during postinit or so, ensures Types cannot be added/removed while running
+    // TODO: Change to event thats called during postinit or so, ensures Types cannot be added/removed while running
     public boolean addDisplayType(Class<? extends DisplayUnit> displayType) {
         if (displayType == null) {
             throw new IllegalArgumentException("Cannot register null DisplayType");
@@ -75,6 +75,7 @@ public class DisplayUnitFactory implements JsonSerializer<ArrayList<DisplayUnit>
         // TODO Add display types
         addDisplayType(DisplayUnitItem.class);
         addDisplayType(DisplayUnitPotion.class);
+        addDisplayType(DisplayUnitSortedPanel.class);
         addDisplayType(DisplayUnitUnsortedPanel.class);
     }
 
