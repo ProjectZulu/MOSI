@@ -1,9 +1,10 @@
-package mosi.display;
+package mosi.display.units;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import mosi.MOSI;
+import mosi.display.DisplayUnitFactory;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 

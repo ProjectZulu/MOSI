@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import mosi.Log;
+import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnitItem;
+import mosi.display.units.DisplayUnitPotion;
+import mosi.display.units.DisplayUnitSortedPanel;
+import mosi.display.units.DisplayUnitUnsortedPanel;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

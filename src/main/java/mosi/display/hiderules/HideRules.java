@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import mosi.display.DisplayUnitItem.DisplayStats;
 import mosi.display.hiderules.HideRule.Operator;
+import mosi.display.units.DisplayUnitItem.DisplayStats;
 
 import com.google.gson.JsonObject;
 

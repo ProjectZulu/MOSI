@@ -1,11 +1,12 @@
-package mosi.display;
+package mosi.display.units;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import mosi.Log;
-import mosi.display.DisplayUnit.HorizontalAlignment;
-import mosi.display.DisplayUnit.VerticalAlignment;
+import mosi.display.DisplayUnitFactory;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;

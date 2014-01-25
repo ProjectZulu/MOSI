@@ -1,9 +1,9 @@
 package mosi;
 
-import mosi.display.DisplayUnit;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.DisplayUnitSortedPanel;
-import mosi.display.DisplayUnitUnsortedPanel;
+import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnitSortedPanel;
+import mosi.display.units.DisplayUnitUnsortedPanel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;

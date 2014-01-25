@@ -1,6 +1,8 @@
-package mosi.display;
+package mosi.display.units;
 
 import mosi.DefaultProps;
+import mosi.display.DisplayRenderHelper;
+import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideRule;
 import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;

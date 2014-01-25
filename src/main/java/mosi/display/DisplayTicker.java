@@ -1,8 +1,9 @@
 package mosi.display;
 
 import mosi.DisplayUnitRegistry;
-import mosi.display.DisplayUnit.HorizontalAlignment;
-import mosi.display.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
