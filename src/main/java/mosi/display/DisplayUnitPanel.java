@@ -44,6 +44,13 @@ public abstract class DisplayUnitPanel implements DisplayUnit {
         showEmpty = true;
     }
 
+    public DisplayUnitPanel(DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty) {
+        this.displayMode = displayMode;
+        this.gridRows = maxRows;
+        this.gridCols = maxCols;
+        this.showEmpty = showEmpty;
+    }
+
     @Override
     public final Coord getOffset() {
         return new Coord(0, 0);
