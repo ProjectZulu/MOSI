@@ -2,7 +2,12 @@ package mosi;
 
 import java.io.File;
 
+import org.lwjgl.input.Keyboard;
+
+import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.MinecraftForge;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.GuiHandler;
 import mosi.proxy.CommonProxy;
 import mosi.utilities.FileUtilities;
 import mosi.utilities.GsonHelper;
@@ -15,6 +20,9 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
 
 @Mod(modid = DefaultProps.MOD_ID, name = DefaultProps.MOD_NAME, version = DefaultProps.VERSION)
 public class MOSI {
@@ -45,5 +53,6 @@ public class MOSI {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        proxy.registerGuiHandling();
     }
 }
