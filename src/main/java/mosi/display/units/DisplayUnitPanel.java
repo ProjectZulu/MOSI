@@ -6,11 +6,14 @@ import java.util.List;
 import mosi.Log;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnit.ActionResult.NoAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 
+import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 public abstract class DisplayUnitPanel implements DisplayUnit {
@@ -172,6 +175,20 @@ public abstract class DisplayUnitPanel implements DisplayUnit {
      * @return List of DisplayUnits should return EMPTY_COLLECTION when no displays, NEVER NULL
      */
     public abstract List<? extends DisplayUnit> getDisplaysToRender();
+
+    @Override
+    public void mouseMove(int mouseLocalX, int mouseLocalY) {
+    }
+
+    @Override
+    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        return new NoAction();
+    }
+
+    @Override
+    public ActionResult keyTyped(char eventCharacter, int eventKey) {
+        return new NoAction();
+    }
 
     @Override
     public JsonObject saveCustomData(JsonObject jsonObject) {

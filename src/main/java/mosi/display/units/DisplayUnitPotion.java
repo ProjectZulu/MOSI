@@ -7,6 +7,8 @@ import mosi.display.hiderules.HideRule;
 import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
 import mosi.display.hiderules.HideThresholdRule;
+import mosi.display.units.DisplayUnit.MouseAction;
+import mosi.display.units.DisplayUnit.ActionResult.NoAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
@@ -16,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 public class DisplayUnitPotion implements DisplayUnitCountable {
@@ -220,6 +223,20 @@ public class DisplayUnitPotion implements DisplayUnitCountable {
         mc.fontRenderer.drawString(formattedTime,
                 centerOfDisplay.x + (8 - mc.fontRenderer.getStringWidth(formattedTime) / 2) + offSet.x,
                 centerOfDisplay.z + offSet.z, textDisplayColor);
+    }
+
+    @Override
+    public void mouseMove(int mouseLocalX, int mouseLocalY) {
+    }
+
+    @Override
+    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        return new NoAction();
+    }
+
+    @Override
+    public ActionResult keyTyped(char eventCharacter, int eventKey) {
+        return new NoAction();
     }
 
     @Override

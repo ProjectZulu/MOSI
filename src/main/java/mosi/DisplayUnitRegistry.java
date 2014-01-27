@@ -2,8 +2,7 @@ package mosi;
 
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitSortedPanel;
-import mosi.display.units.DisplayUnitUnsortedPanel;
+import mosi.display.units.DisplayUnitItem;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -24,10 +23,10 @@ public class DisplayUnitRegistry {
 
     public void loadFromConfig() {
         Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
-//        builder.add(new DisplayUnitItem());
-//        builder.add(new DisplayUnitPotion());
-//        builder.add(new DisplayUnitUnsortedPanel());
-        builder.add(new DisplayUnitSortedPanel());
+        builder.add(new DisplayUnitItem());
+        // builder.add(new DisplayUnitPotion());
+        // builder.add(new DisplayUnitUnsortedPanel());
+        // builder.add(new DisplayUnitSortedPanel());
         displays = builder.build();
 
         // Load implicitly saves changes due to errors/corrections appear i.e. a number that cannot be below zero is set

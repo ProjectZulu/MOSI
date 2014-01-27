@@ -53,6 +53,6 @@ public class MOSI {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        proxy.registerGuiHandling();
+        proxy.registerGuiHandling(displayRegistry);
     }
 }

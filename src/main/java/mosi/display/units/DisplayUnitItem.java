@@ -3,13 +3,11 @@ package mosi.display.units;
 import mosi.DefaultProps;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
-import mosi.display.hiderules.HideThresholdRule;
-import mosi.display.hiderules.HideUnchangedRule;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
+import mosi.display.units.DisplayUnit.ActionResult.NoAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
@@ -22,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 public class DisplayUnitItem extends DisplayUnitBase {
@@ -60,8 +59,8 @@ public class DisplayUnitItem extends DisplayUnitBase {
         countingRules = new InventoryRules();
         countingRules.addRule(new ItemIdMatch("grass", true));
         hidingRules = new HideRules();
-        hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
-        hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
+//        hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
+//        hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
         missingDisplayStack = new ItemStack(Blocks.dirt);
     }
 
@@ -342,6 +341,20 @@ public class DisplayUnitItem extends DisplayUnitBase {
      */
     protected int mapValueToScale(int realValue, int realMax, int scaleMax) {
         return realValue > realMax ? scaleMax : realValue < 0 ? 0 : (int) (((float) realValue) / realMax * scaleMax);
+    }
+    
+    @Override
+    public void mouseMove(int mouseLocalX, int mouseLocalY) {
+    }
+
+    @Override
+    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        return new NoAction();
+    }
+
+    @Override
+    public ActionResult keyTyped(char eventCharacter, int eventKey) {
+        return new NoAction();
     }
 
     @Override

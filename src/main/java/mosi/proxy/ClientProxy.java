@@ -1,5 +1,6 @@
 package mosi.proxy;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -13,13 +14,15 @@ import net.minecraftforge.common.MinecraftForge;
 public class ClientProxy extends CommonProxy {
     @Override
     public void registerDisplayTicker(DisplayUnitRegistry displayRegistry) {
-        MinecraftForge.EVENT_BUS.register(new DisplayTicker(displayRegistry));
+        DisplayTicker ticker = new DisplayTicker(displayRegistry);
+        MinecraftForge.EVENT_BUS.register(ticker);
+        FMLCommonHandler.instance().bus().register(ticker);
     }
 
     @Override
-    public void registerGuiHandling() {
-        GuiHandler guiHandler = new GuiHandler();
+    public void registerGuiHandling(DisplayUnitRegistry displayRegistry) {
+        GuiHandler guiHandler = new GuiHandler(displayRegistry);
         NetworkRegistry.INSTANCE.registerGuiHandler(MOSI.modInstance, guiHandler);
-        MinecraftForge.EVENT_BUS.register(guiHandler);
+        FMLCommonHandler.instance().bus().register(guiHandler);
     }
 }
