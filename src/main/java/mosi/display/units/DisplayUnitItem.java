@@ -344,7 +344,7 @@ public class DisplayUnitItem extends DisplayUnitBase {
     }
     
     @Override
-    public void mouseMove(int mouseLocalX, int mouseLocalY) {
+    public void mousePosition(Coord localMouse) {
     }
 
     @Override

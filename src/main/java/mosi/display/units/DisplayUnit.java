@@ -35,7 +35,7 @@ public interface DisplayUnit {
 
     public void renderDisplay(Minecraft mc, Coord Position);
 
-    public void mouseMove(int mouseLocalX, int mouseLocalY);
+    public void mousePosition(Coord localMouse);
 
     public enum MouseAction {
         /* vararg 0: int EventButton */
@@ -47,17 +47,35 @@ public interface DisplayUnit {
     }
 
     public static class ActionResult {
+        /* i.e. This action occured on KeyPress.Y, no other Displays should receive the keypress event. */
         public final boolean stopActing;
-        public final Optional<DisplayWindow> display;
+        /* Whether display should be set as the active window */
+        public final INTERACTION interaction;
+        /* Can be null */
+        public final DisplayWindow display;
+
+        /* Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult */
+        public enum INTERACTION {
+            /* Do nothing, nado, zero, ziltch. display instance will be ignored */
+            NONE,
+            /* add, in addition to other displays if supported, provided instance if not null */
+            OPEN,
+            /* CLOSE provided displays instance if not null */
+            CLOSE,
+            /* CLOSE all OTHER displays on the current level and open provided instance if not null */
+            REPLACE;
+        }
 
         public ActionResult(boolean stopActing) {
             this.stopActing = stopActing;
-            display = Optional.absent();
+            this.interaction = INTERACTION.NONE;
+            this.display = null;
         }
 
-        public ActionResult(boolean stopActing, DisplayWindow dispaly) {
+        public ActionResult(boolean stopActing, INTERACTION interaction, DisplayWindow display) {
             this.stopActing = stopActing;
-            display = dispaly != null ? Optional.of(dispaly) : Optional.<DisplayWindow> absent();
+            this.interaction = interaction;
+            this.display = display;
         }
 
         public static class NoAction extends ActionResult {

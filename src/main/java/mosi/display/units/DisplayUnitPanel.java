@@ -177,7 +177,7 @@ public abstract class DisplayUnitPanel implements DisplayUnit {
     public abstract List<? extends DisplayUnit> getDisplaysToRender();
 
     @Override
-    public void mouseMove(int mouseLocalX, int mouseLocalY) {
+    public void mousePosition(Coord localMouse) {
     }
 
     @Override

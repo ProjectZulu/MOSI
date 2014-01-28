@@ -3,6 +3,7 @@ package mosi.display;
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.HorizontalAlignment;
 import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
@@ -12,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -21,7 +23,7 @@ public class DisplayScreen extends GuiScreen {
     private DisplayUnitRegistry displayRegistry;
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
-    private DisplayWindow menu;
+    private Optional<DisplayWindow> menu;
 
     // Helper for when parent minecraft field is obfuscarted
     public Minecraft getMinecraft() {
@@ -40,18 +42,30 @@ public class DisplayScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseScaledX, int mouseScaledY, float renderPartialTicks) {
         super.drawScreen(mouseScaledX, mouseScaledY, renderPartialTicks);
-        // Log.log().info("Window Rendering");
+        ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+        for (DisplayUnit displayUnit : displayList) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
+            displayUnit.mousePosition(localMouse);
+        }
     }
 
     @Override
     protected void mouseClicked(int mouseScaledX, int mouseScaledY, int eventbutton) {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
-        Log.log().info("mouseClicked [mouseScaledX, mouseScaledY, eventbutton]:=[%s, %s, %s]", mouseScaledX,
-                mouseScaledY, eventbutton);
+        if (menu.isPresent()) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, menu.get()
+                    .getBaseDisplay());
+            if (processAction(menu.get().mouseAction(localMouse, MouseAction.CLICK, eventbutton))) {
+                return;
+            }
+        }
+
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-            displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton);
+            if (processAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton))) {
+                break;
+            }
         }
     }
 
@@ -62,13 +76,21 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
         super.func_146286_b(mouseScaledX, mouseScaledY, which);
-        Log.log().info("mouseMovedOrUp [mouseScaledX, mouseScaledY, which]:=[%s, %s, %s]", mouseScaledX, mouseScaledY,
-                which);
         if (which == 0 || which == 1) {
+            if (menu.isPresent()) {
+                Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, menu.get()
+                        .getBaseDisplay());
+                if (processAction(menu.get().mouseAction(localMouse, MouseAction.RELEASE))) {
+                    return;
+                }
+            }
+
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-                displayUnit.mouseAction(localMouse, MouseAction.RELEASE);
+                if (processAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE))) {
+                    return;
+                }
             }
         }
     }
@@ -80,30 +102,56 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146273_a(int mouseScaledX, int mouseScaledY, int lastButtonClicked, long timeSinceMouseClick) {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
-        Log.log()
-                .info("mouseClickMove [mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick]:=[%s, %s, %s, %s]",
-                        mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
+        if (menu.isPresent()) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, menu.get()
+                    .getBaseDisplay());
+            if (processAction(menu.get().mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked))) {
+                return;
+            }
+        }
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-            displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked);
+            if (processAction(menu.get().mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked))) {
+                return;
+            }
         }
-    };
-
-    private Coord localizeMouseCoords(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit displayUnit) {
-        determineScreenPosition(mc, mouseScaledX, mouseScaledY, displayUnit);
-
-        return new Coord(0, 0);
     }
 
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
-        Log.log().info("keyTyped [eventCharacter, eventKey]:=[%s, %s]", eventCharacter, eventKey);
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
-            displayUnit.keyTyped(eventCharacter, eventKey);
+            if (processAction(displayUnit.keyTyped(eventCharacter, eventKey))) {
+                return;
+            }
         }
         super.keyTyped(eventCharacter, eventKey);
+    }
+
+    protected Coord localizeMouseCoords(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit displayUnit) {
+        return determineScreenPosition(mc, mouseScaledX, mouseScaledY, displayUnit);
+    }
+
+    protected boolean processAction(ActionResult action) {
+        switch (action.interaction) {
+        case CLOSE:
+            if (menu.isPresent() && menu.get().equals(action.display)) {
+                menu = Optional.absent();
+            }
+            break;
+        case OPEN:
+            if (action.display != null) {
+                menu.of(action.display);
+            }
+            break;
+        case REPLACE:
+            menu = action.display != null ? Optional.of(action.display) : Optional.<DisplayWindow> absent();
+            break;
+        case NONE:
+            break;
+        }
+        return action.stopActing;
     }
 
     private Coord determineScreenPosition(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit display) {

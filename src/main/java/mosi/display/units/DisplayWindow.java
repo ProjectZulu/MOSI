@@ -20,6 +20,11 @@ public class DisplayWindow implements DisplayUnit {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
 
     private DisplayUnit baseDisplay;
+
+    public DisplayUnit getBaseDisplay() {
+        return baseDisplay;
+    }
+
     // Child Windows that depend on this window for existence
     private ArrayList<DisplayWindow> children;
     // Temporary window that is closed automatically closed if anything else is interacted with, i.e. Right-Click menu
@@ -112,7 +117,7 @@ public class DisplayWindow implements DisplayUnit {
     }
 
     @Override
-    public void mouseMove(int mouseLocalX, int mouseLocalY) {
+    public void mousePosition(Coord localMouse) {
     }
 
     @Override
@@ -123,5 +128,13 @@ public class DisplayWindow implements DisplayUnit {
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
         return new NoAction();
+    }
+    
+    public void saveWindow() {
+        
+    }
+    
+    public void closeWindow() {
+        
     }
 }
