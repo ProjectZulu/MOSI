@@ -1,9 +1,12 @@
 package mosi.display;
 
+import java.util.ArrayList;
+
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.HorizontalAlignment;
 import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
@@ -23,7 +26,7 @@ public class DisplayScreen extends GuiScreen {
     private DisplayUnitRegistry displayRegistry;
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
-    private Optional<DisplayWindow> menu;
+    private ArrayList<DisplayWindow> displays;
 
     // Helper for when parent minecraft field is obfuscarted
     public Minecraft getMinecraft() {
@@ -33,6 +36,7 @@ public class DisplayScreen extends GuiScreen {
     public DisplayScreen(DisplayUnitRegistry displayRegistry) {
         super();
         this.displayRegistry = displayRegistry;
+        displays = new ArrayList<DisplayWindow>();
     }
 
     /**
@@ -52,10 +56,9 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseScaledX, int mouseScaledY, int eventbutton) {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
-        if (menu.isPresent()) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, menu.get()
-                    .getBaseDisplay());
-            if (processAction(menu.get().mouseAction(localMouse, MouseAction.CLICK, eventbutton))) {
+        for (DisplayWindow window : displays) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window.getBaseDisplay());
+            if (processAction(window.mouseAction(localMouse, MouseAction.CLICK, eventbutton), window)) {
                 return;
             }
         }
@@ -63,7 +66,7 @@ public class DisplayScreen extends GuiScreen {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-            if (processAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton))) {
+            if (processAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
                 break;
             }
         }
@@ -77,10 +80,10 @@ public class DisplayScreen extends GuiScreen {
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
         super.func_146286_b(mouseScaledX, mouseScaledY, which);
         if (which == 0 || which == 1) {
-            if (menu.isPresent()) {
-                Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, menu.get()
-                        .getBaseDisplay());
-                if (processAction(menu.get().mouseAction(localMouse, MouseAction.RELEASE))) {
+            for (DisplayWindow window : displays) {
+                Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                        window.getBaseDisplay());
+                if (processAction(window.mouseAction(localMouse, MouseAction.RELEASE), window)) {
                     return;
                 }
             }
@@ -88,7 +91,7 @@ public class DisplayScreen extends GuiScreen {
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-                if (processAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE))) {
+                if (processAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit)) {
                     return;
                 }
             }
@@ -102,17 +105,18 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146273_a(int mouseScaledX, int mouseScaledY, int lastButtonClicked, long timeSinceMouseClick) {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
-        if (menu.isPresent()) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, menu.get()
-                    .getBaseDisplay());
-            if (processAction(menu.get().mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked))) {
+        for (DisplayWindow window : displays) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window.getBaseDisplay());
+            if (processAction(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
                 return;
             }
         }
+
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-            if (processAction(menu.get().mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked))) {
+            if (processAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked),
+                    displayUnit)) {
                 return;
             }
         }
@@ -121,8 +125,14 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+        for (DisplayWindow window : displays) {
+            if (processAction(window.keyTyped(eventCharacter, eventKey), window)) {
+                return;
+            }
+        }
+
         for (DisplayUnit displayUnit : displayList) {
-            if (processAction(displayUnit.keyTyped(eventCharacter, eventKey))) {
+            if (processAction(displayUnit.keyTyped(eventCharacter, eventKey), displayUnit)) {
                 return;
             }
         }
@@ -133,20 +143,56 @@ public class DisplayScreen extends GuiScreen {
         return determineScreenPosition(mc, mouseScaledX, mouseScaledY, displayUnit);
     }
 
-    protected boolean processAction(ActionResult action) {
+    /**
+     * @param provider May be null if provider is not DisplayWindow in which case it CANNOT be closed
+     * @return StopProcessing - true if processing should be stopped
+     */
+    private boolean processAction(ActionResult action, DisplayUnit provider) {
+        /*
+         * DisplayUnits are a unique case in the Window hierarchy in that they are not windows and cannot be closed
+         * directly. DisplayUnitRegistry.DisplayChanger is to be used to remove/add and should be passed the
+         * DisplayWindow upon construction.
+         */
         switch (action.interaction) {
         case CLOSE:
-            if (menu.isPresent() && menu.get().equals(action.display)) {
-                menu = Optional.absent();
-            }
-            break;
-        case OPEN:
-            if (action.display != null) {
-                menu.of(action.display);
+            throw new UnsupportedOperationException("DisplayUnit does not support 'CLOSE' Interaction");
+        case REPLACE:
+            throw new IllegalArgumentException("DisplayUnit does not support 'REPLACE' Interaction");
+        case REPLACE_ALL:
+            throw new UnsupportedOperationException("DisplayUnit does not support 'REPLACE_ALL' Interaction");
+        case NONE:
+        default:
+            return processAction(action, null);
+        }
+    }
+
+    /**
+     * @param provider May be null if provider is not DisplayWindow in which case it CANNOT be closed
+     * @return StopProcessing - true if processing should be stopped
+     */
+    private boolean processAction(ActionResult action, DisplayWindow provider) {
+        switch (action.interaction) {
+        case CLOSE:
+            if (action.display.isPresent()) {
+                displays.remove(action.display);
             }
             break;
         case REPLACE:
-            menu = action.display != null ? Optional.of(action.display) : Optional.<DisplayWindow> absent();
+            if (provider != null && action.display.isPresent()) {
+                displays.add(action.display.get());
+                displays.remove(provider);
+            }
+            break;
+        case REPLACE_ALL:
+            displays.clear();
+            if (action.display.isPresent()) {
+                displays.add(action.display.get());
+            }
+            break;
+        case OPEN:
+            if (action.display.isPresent()) {
+                displays.add(action.display.get());
+            }
             break;
         case NONE:
             break;

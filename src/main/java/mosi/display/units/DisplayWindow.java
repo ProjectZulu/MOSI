@@ -15,6 +15,8 @@ import com.google.gson.JsonObject;
  * Tree structure for propagating interactive events through nested DisplayUnits that wraps valid DisplayUnits
  * 
  * Not actually strictly speaking a DisplayUnit and should not be added to DisplayTicker/DisplayUnitRegistry
+ * 
+ * Implicitly assumes Children are 'above' the base display and are a priority for input events
  */
 public class DisplayWindow implements DisplayUnit {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
@@ -27,26 +29,21 @@ public class DisplayWindow implements DisplayUnit {
 
     // Child Windows that depend on this window for existence
     private ArrayList<DisplayWindow> children;
-    // Temporary window that is closed automatically closed if anything else is interacted with, i.e. Right-Click menu
-    private DisplayWindow tempWindow;
 
     public DisplayWindow(DisplayUnit baseDisplay) {
+        if (baseDisplay == null) {
+            throw new IllegalArgumentException("Display cannot be null");
+        }
         this.baseDisplay = baseDisplay;
         this.children = new ArrayList<DisplayWindow>();
     }
 
     public boolean addWindow(DisplayWindow window) {
-        tempWindow = null;
         return children.add(window);
     }
 
     public boolean removeWindow(DisplayWindow window) {
-        tempWindow = null;
         return children.remove(window);
-    }
-
-    public void setTempWindow(DisplayWindow window) {
-        tempWindow = window;
     }
 
     @Override
@@ -92,14 +89,12 @@ public class DisplayWindow implements DisplayUnit {
 
     @Override
     public boolean shouldRender(Minecraft mc) {
+        // Does DisplayWindow do any rendering?
         return true;
     }
 
     @Override
     public void renderDisplay(Minecraft mc, Coord Position) {
-        if (tempWindow != null) {
-            tempWindow.renderDisplay(mc, Position);
-        }
         for (DisplayWindow window : children) {
             window.renderDisplay(mc, Position);
         }
@@ -118,23 +113,74 @@ public class DisplayWindow implements DisplayUnit {
 
     @Override
     public void mousePosition(Coord localMouse) {
+        baseDisplay.mousePosition(localMouse);
+        for (DisplayWindow window : children) {
+            window.mousePosition(localMouse);
+        }
+    }
+
+    public static class WindowActionResult extends ActionResult {
+        public final Optional<DisplayWindow> display;
+
+        public WindowActionResult(boolean stopActing, INTERACTION interaction, DisplayWindow display) {
+            super(stopActing, interaction, null);
+            this.display = Optional.of(display);
+        }
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        return new NoAction();
+        for (DisplayWindow window : children) {
+            if (processActionResult(window.mouseAction(localMouse, action, actionData), window)) {
+                break;
+            }
+        }
+        return baseDisplay.mouseAction(localMouse, action, actionData);
+    }
+
+    /**
+     * @return StopProcessing - true if processing should be stopped
+     */
+    private boolean processActionResult(ActionResult action, DisplayWindow provider) {
+        switch (action.interaction) {
+        case CLOSE:
+            if (action.display.isPresent()) {
+                children.remove(action.display);
+            }
+            break;
+        case REPLACE:
+            if (action.display.isPresent()) {
+                children.remove(provider);
+                children.add(action.display.get());
+            }
+            break;
+        case REPLACE_ALL:
+            children.clear();
+            if (action.display.isPresent()) {
+                children.add(action.display.get());
+            }
+            break;
+        case OPEN:
+            if (action.display.isPresent()) {
+                children.add(action.display.get());
+            }
+            break;
+        case NONE:
+            break;
+        }
+        return action.stopActing;
     }
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
         return new NoAction();
     }
-    
+
     public void saveWindow() {
-        
+
     }
-    
+
     public void closeWindow() {
-        
+
     }
 }

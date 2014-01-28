@@ -7,6 +7,12 @@ import net.minecraft.client.Minecraft;
 import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
+/**
+ * Base Interface for all display
+ * 
+ * TODO technically it seems not all of these are required for all display, Displayunit and Displaywindow extending from
+ * a common interface DisplayBase may be better encapsulation/OOP. To be revisited once more test cases are established.
+ */
 public interface DisplayUnit {
     /**
      * String type registered to Class object. IMPORTANT: Type is used for Deserialization
@@ -51,31 +57,35 @@ public interface DisplayUnit {
         public final boolean stopActing;
         /* Whether display should be set as the active window */
         public final INTERACTION interaction;
-        /* Can be null */
-        public final DisplayWindow display;
+        public final Optional<DisplayWindow> display;
 
-        /* Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult */
+        /**
+         * Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult Note that
+         * in all cases, open can only occur on non-null instances
+         */
         public enum INTERACTION {
             /* Do nothing, nado, zero, ziltch. display instance will be ignored */
             NONE,
-            /* add, in addition to other displays if supported, provided instance if not null */
+            /* add, in addition to other displays if supported */
             OPEN,
-            /* CLOSE provided displays instance if not null */
+            /* CLOSE provided displays instance if present */
             CLOSE,
-            /* CLOSE all OTHER displays on the current level and open provided instance if not null */
-            REPLACE;
+            /* CLOSE the ActionResult provider instance and add provided, if supported */
+            REPLACE,
+            /* clsoe ALL OTHER displays on the current level and add provided instance if not null */
+            REPLACE_ALL;
         }
 
         public ActionResult(boolean stopActing) {
             this.stopActing = stopActing;
             this.interaction = INTERACTION.NONE;
-            this.display = null;
+            this.display = Optional.absent();
         }
 
         public ActionResult(boolean stopActing, INTERACTION interaction, DisplayWindow display) {
             this.stopActing = stopActing;
             this.interaction = interaction;
-            this.display = display;
+            this.display = Optional.of(display);
         }
 
         public static class NoAction extends ActionResult {
