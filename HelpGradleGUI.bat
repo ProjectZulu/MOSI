@@ -1,1 +1,2 @@
 gradlew.bat --gui
+pause
