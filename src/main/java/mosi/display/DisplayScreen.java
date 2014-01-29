@@ -56,6 +56,7 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseScaledX, int mouseScaledY, int eventbutton) {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
+        Log.log().info("mouseClicked @[%s,%s] of %s", mouseScaledX, mouseScaledY, eventbutton);
         for (DisplayWindow window : displays) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window.getBaseDisplay());
             if (processAction(window.mouseAction(localMouse, MouseAction.CLICK, eventbutton), window)) {

@@ -3,12 +3,9 @@ package mosi.display.units;
 import mosi.DefaultProps;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.hiderules.HideRule;
 import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
 import mosi.display.hiderules.HideThresholdRule;
-import mosi.display.units.DisplayUnit.MouseAction;
-import mosi.display.units.DisplayUnit.ActionResult.NoAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
@@ -18,10 +15,9 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
-public class DisplayUnitPotion implements DisplayUnitCountable {
+public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUnitCountable {
     public static final String DISPLAY_ID = "DisplayUnitPotion";
     public static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
@@ -62,6 +58,7 @@ public class DisplayUnitPotion implements DisplayUnitCountable {
     }
 
     public DisplayUnitPotion() {
+        super(new Coord(0, 0));
         updateFrequency = 20;
         trackedPotion = 1;// Defaults to Speed, choice is arbitrary
         textDisplayColor = 1030655;
@@ -75,6 +72,7 @@ public class DisplayUnitPotion implements DisplayUnitCountable {
     }
 
     public DisplayUnitPotion(int updateFrequency, int trackedPotion) {
+        super(new Coord(0, 0));
         this.updateFrequency = updateFrequency;
         this.trackedPotion = trackedPotion;
         this.textDisplayColor = 1030655;
@@ -92,11 +90,6 @@ public class DisplayUnitPotion implements DisplayUnitCountable {
     @Override
     public String getType() {
         return DISPLAY_ID;
-    }
-
-    @Override
-    public Coord getOffset() {
-        return new Coord(0, 0);
     }
 
     @Override
@@ -167,7 +160,7 @@ public class DisplayUnitPotion implements DisplayUnitCountable {
         mc.renderEngine.bindTexture(countdown);
         int scaledValue = scaleAnalogizeValue(analogValue, analogMax);
         DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                centerOfDisplay.z + offSet.z, 0, 0, analogMax, 3);
+                centerOfDisplay.z + offSet.z, 0, 0, 16, 3);
         if (scaledValue > 9) {
             DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
                     centerOfDisplay.z + offSet.z, 0, 3, scaledValue, 3);
@@ -231,12 +224,12 @@ public class DisplayUnitPotion implements DisplayUnitCountable {
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        return new NoAction();
+        return super.mouseAction(localMouse, action, actionData);
     }
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        return new NoAction();
+        return super.keyTyped(eventCharacter, eventKey);
     }
 
     @Override

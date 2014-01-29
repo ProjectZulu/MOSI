@@ -59,7 +59,9 @@ public interface DisplayUnit {
         /* Whether display should be set as the active window */
         public final INTERACTION interaction;
         public final Optional<DisplayWindow> display;
-
+        
+        
+        public static final ActionResult NOACTION = new ActionResult(false);
         /**
          * Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult Note that
          * in all cases, open can only occur on non-null instances
@@ -87,12 +89,6 @@ public interface DisplayUnit {
             this.stopActing = stopActing;
             this.interaction = interaction;
             this.display = Optional.of(display);
-        }
-
-        public static class NoAction extends ActionResult {
-            public NoAction() {
-                super(false);
-            }
         }
     }
 

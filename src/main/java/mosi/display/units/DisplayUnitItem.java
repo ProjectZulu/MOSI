@@ -1,15 +1,13 @@
 package mosi.display.units;
 
 import mosi.DefaultProps;
-import mosi.Log;
-import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideRules;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
-import mosi.display.units.DisplayUnit.ActionResult.NoAction;
+import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
@@ -22,10 +20,9 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
-public class DisplayUnitItem extends DisplayUnitBase {
+public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitCountable {
     public static final String DISPLAY_ID = "DisplayUnitItem";
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
 
@@ -53,14 +50,9 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     private Coord analogOffset = new Coord(16, 13);
     private Coord digitalOffset = new Coord(16, -4);
-    private Coord offset;
-    private transient boolean clickedOn = false;
-    // Mouse location was on mouseClick. Click + Drag -> Offset = OriginalOffset + (MousePos - mousePosOnClick)
-    private transient Coord mousePosOnClick;
-    // Original location were on mouseClick. Click + Drag -> Offset = OriginalOffset + (MousePos - mousePosOnClick)
-    private transient Coord offsetPosOnClick;
 
     public DisplayUnitItem() {
+        super(new Coord(0, 0));
         displayOnHud = true;
         nickname = "";
         trackMode = TrackMode.QUANTITY;
@@ -70,7 +62,6 @@ public class DisplayUnitItem extends DisplayUnitBase {
         // hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
         // hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
         missingDisplayStack = new ItemStack(Blocks.dirt);
-        offset = new Coord(0, 0);
     }
 
     /* Changes the quality that is being counted */
@@ -93,11 +84,6 @@ public class DisplayUnitItem extends DisplayUnitBase {
     @Override
     public String getType() {
         return DISPLAY_ID;
-    }
-
-    @Override
-    public Coord getOffset() {
-        return offset;
     }
 
     @Override
@@ -230,6 +216,14 @@ public class DisplayUnitItem extends DisplayUnitBase {
         if (displayStats == null) {
             return;
         }
+        if (displayAnalogBar) {
+            renderAnalogBar(mc, position, analogOffset, displayStats.trackedCount, displayStats.maximumCount);
+        }
+        GL11.glDisable(GL11.GL_BLEND);
+        if (displayNumericCounter) {
+            renderCounterBar(mc, position, digitalOffset, displayStats.trackedCount);
+        }
+        
         GL11.glPushMatrix();
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         RenderHelper.enableGUIStandardItemLighting();
@@ -246,13 +240,6 @@ public class DisplayUnitItem extends DisplayUnitBase {
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 
         GL11.glEnable(GL11.GL_BLEND);
-        if (displayAnalogBar) {
-            renderAnalogBar(mc, position, analogOffset, displayStats.trackedCount, displayStats.maximumCount);
-        }
-        GL11.glDisable(GL11.GL_BLEND);
-        if (displayNumericCounter) {
-            renderCounterBar(mc, position, digitalOffset, displayStats.trackedCount);
-        }
         GL11.glPopMatrix();
     }
 
@@ -358,31 +345,16 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        switch (action) {
-        case CLICK:
-            if (DisplayHelper.isCursorOverDisplay(localMouse, this)) {
-                clickedOn = true;
-                mousePosOnClick = localMouse;
-                offsetPosOnClick = offset;
-                return new ActionResult(true);
-            }
-            break;
-        case CLICK_MOVE:
-            if (clickedOn) {
-                offset = offsetPosOnClick.add(localMouse.subt(mousePosOnClick));
-                return new ActionResult(true);
-            }
-            break;
-        case RELEASE:
-            clickedOn = false;
-            return new NoAction();
+        if (action == MouseAction.CLICK && actionData[0] == 1) {
+//            new ActionResult(true, INTERACTION.OPEN, display);
         }
-        return new NoAction();
+
+        return super.mouseAction(localMouse, action, actionData);
     }
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        return new NoAction();
+        return super.keyTyped(eventCharacter, eventKey);
     }
 
     @Override

@@ -1,22 +1,15 @@
 package mosi.display.units;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mosi.Log;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
-import mosi.display.units.DisplayUnit.MouseAction;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
-import mosi.display.units.DisplayUnit.ActionResult.NoAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
-public abstract class DisplayUnitPanel implements DisplayUnit {
+public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements DisplayUnit {
 
     // Frequency to determine how often the update loop is run
     private int updateFrequency = 20;
@@ -42,6 +35,7 @@ public abstract class DisplayUnitPanel implements DisplayUnit {
     }
 
     public DisplayUnitPanel() {
+        super(new Coord(0, 0));
         displayMode = DisplayMode.ROW_GRID;
         gridRows = 3;
         gridCols = 2;
@@ -49,15 +43,11 @@ public abstract class DisplayUnitPanel implements DisplayUnit {
     }
 
     public DisplayUnitPanel(DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty) {
+        super(new Coord(0, 0));
         this.displayMode = displayMode;
         this.gridRows = maxRows;
         this.gridCols = maxCols;
         this.showEmpty = showEmpty;
-    }
-
-    @Override
-    public final Coord getOffset() {
-        return new Coord(0, 0);
     }
 
     @Override
@@ -182,12 +172,12 @@ public abstract class DisplayUnitPanel implements DisplayUnit {
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        return new NoAction();
+        return super.mouseAction(localMouse, action, actionData);
     }
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        return new NoAction();
+        return super.keyTyped(eventCharacter, eventKey);
     }
 
     @Override

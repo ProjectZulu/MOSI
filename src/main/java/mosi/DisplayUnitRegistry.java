@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnitItem;
+import mosi.display.units.DisplayUnitPotion;
+import mosi.display.units.DisplayUnitUnsortedPanel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -62,8 +64,8 @@ public class DisplayUnitRegistry {
     public void loadFromConfig() {
         Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
         builder.add(new DisplayUnitItem());
-        // builder.add(new DisplayUnitPotion());
-        // builder.add(new DisplayUnitUnsortedPanel());
+        builder.add(new DisplayUnitPotion());
+        builder.add(new DisplayUnitUnsortedPanel());
         // builder.add(new DisplayUnitSortedPanel());
         displays = builder.build();
 
