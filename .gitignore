@@ -1,11 +1,8 @@
-#First half of gitignore to ensure items in source/resource directory are not ignored (second half required in src for deep objects)
-*
-!.gitignore
-!/src/
-!/src/*
-!/gradle/
-!/gradle/*
-!gradlew
-!gradlew.bat
-!build.gradle
-!README.md
+/.gradle/
+/.settings/
+/bin/
+/build/
+.project
+.classpath
+/eclipse/
+*.lnk
