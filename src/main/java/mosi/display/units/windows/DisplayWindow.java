@@ -1,9 +1,15 @@
-package mosi.display.units;
+package mosi.display.units.windows;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import mosi.display.DisplayUnitFactory;
+import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.MouseAction;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.ActionResult.NoAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;

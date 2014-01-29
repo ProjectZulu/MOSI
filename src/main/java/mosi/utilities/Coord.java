@@ -49,6 +49,14 @@ public class Coord {
         return new Coord(x + this.x, z + this.z);
     }
 
+    public Coord subt(Coord coord) {
+        return new Coord(x - coord.x, z - coord.z);
+    }
+
+    public Coord subt(int x, int z) {
+        return new Coord(this.x - x, this.z - z);
+    }
+
     public Coord mult(int scale) {
         return new Coord(x * scale, z * scale);
     }
@@ -59,5 +67,38 @@ public class Coord {
 
     public Coord mult(Coord scale) {
         return new Coord(x * scale.x, z * scale.z);
+    }
+
+    public Coord multf(float scale) {
+        return new Coord((int) (x * scale), (int) (z * scale));
+    }
+
+    public Coord multf(float scaleX, float scaleZ) {
+        return new Coord((int) (x * scaleX), (int) (z * scaleZ));
+    }
+
+    public Coord div(int scale) {
+        return new Coord(x / scale, z / scale);
+    }
+
+    public Coord div(int scaleX, int scaleZ) {
+        return new Coord(x / scaleX, z / scaleZ);
+    }
+
+    public Coord div(Coord scale) {
+        return new Coord(x / scale.x, z / scale.z);
+    }
+
+    public Coord divf(float scale) {
+        return new Coord((int) (x / scale), (int) (z / scale));
+    }
+
+    public Coord divf(float scaleX, float scaleZ) {
+        return new Coord((int) (x / scaleX), (int) (z / scaleZ));
+    }
+
+    @Override
+    public String toString() {
+        return "[" + x + "," + z + "]";
     }
 }

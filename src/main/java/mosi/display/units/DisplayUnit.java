@@ -1,6 +1,7 @@
 package mosi.display.units;
 
 import mosi.display.DisplayUnitFactory;
+import mosi.display.units.windows.DisplayWindow;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 

@@ -1,6 +1,8 @@
 package mosi.display.units;
 
 import mosi.DefaultProps;
+import mosi.Log;
+import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideRules;
@@ -51,6 +53,12 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     private Coord analogOffset = new Coord(16, 13);
     private Coord digitalOffset = new Coord(16, -4);
+    private Coord offset;
+    private transient boolean clickedOn = false;
+    // Mouse location was on mouseClick. Click + Drag -> Offset = OriginalOffset + (MousePos - mousePosOnClick)
+    private transient Coord mousePosOnClick;
+    // Original location were on mouseClick. Click + Drag -> Offset = OriginalOffset + (MousePos - mousePosOnClick)
+    private transient Coord offsetPosOnClick;
 
     public DisplayUnitItem() {
         displayOnHud = true;
@@ -59,9 +67,10 @@ public class DisplayUnitItem extends DisplayUnitBase {
         countingRules = new InventoryRules();
         countingRules.addRule(new ItemIdMatch("grass", true));
         hidingRules = new HideRules();
-//        hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
-//        hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
+        // hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
+        // hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
         missingDisplayStack = new ItemStack(Blocks.dirt);
+        offset = new Coord(0, 0);
     }
 
     /* Changes the quality that is being counted */
@@ -88,7 +97,7 @@ public class DisplayUnitItem extends DisplayUnitBase {
 
     @Override
     public Coord getOffset() {
-        return new Coord(0, 0);
+        return offset;
     }
 
     @Override
@@ -342,13 +351,32 @@ public class DisplayUnitItem extends DisplayUnitBase {
     protected int mapValueToScale(int realValue, int realMax, int scaleMax) {
         return realValue > realMax ? scaleMax : realValue < 0 ? 0 : (int) (((float) realValue) / realMax * scaleMax);
     }
-    
+
     @Override
     public void mousePosition(Coord localMouse) {
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        switch (action) {
+        case CLICK:
+            if (DisplayHelper.isCursorOverDisplay(localMouse, this)) {
+                clickedOn = true;
+                mousePosOnClick = localMouse;
+                offsetPosOnClick = offset;
+                return new ActionResult(true);
+            }
+            break;
+        case CLICK_MOVE:
+            if (clickedOn) {
+                offset = offsetPosOnClick.add(localMouse.subt(mousePosOnClick));
+                return new ActionResult(true);
+            }
+            break;
+        case RELEASE:
+            clickedOn = false;
+            return new NoAction();
+        }
         return new NoAction();
     }
 

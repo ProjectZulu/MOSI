@@ -10,7 +10,7 @@ import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.HorizontalAlignment;
 import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
-import mosi.display.units.DisplayWindow;
+import mosi.display.units.windows.DisplayWindow;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -75,6 +75,8 @@ public class DisplayScreen extends GuiScreen {
     /**
      * mouseMovedOrUp:= Called when the mouse is moved or a mouse button is released. Signature: (mouseX, mouseY, which)
      * which==-1 is mouseMove, which==0 or which==1 is mouseUp
+     * 
+     * NOTE: Release cannot be cancelled, a display that received CLICK must be able to receive RELEASE
      */
     @Override
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
@@ -83,17 +85,13 @@ public class DisplayScreen extends GuiScreen {
             for (DisplayWindow window : displays) {
                 Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                         window.getBaseDisplay());
-                if (processAction(window.mouseAction(localMouse, MouseAction.RELEASE), window)) {
-                    return;
-                }
+                processAction(window.mouseAction(localMouse, MouseAction.RELEASE), window);
             }
 
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-                if (processAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit)) {
-                    return;
-                }
+                processAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit);
             }
         }
     }
@@ -203,17 +201,18 @@ public class DisplayScreen extends GuiScreen {
     private Coord determineScreenPosition(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit display) {
         ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
         Coord displaySize = display.getSize();
-        Coord displayOffset = new Coord(mouseScaledX, mouseScaledY);
+        Coord scaledMouse = new Coord(mouseScaledX, mouseScaledY);
         VerticalAlignment vertAlign = display.getVerticalAlignment();
         HorizontalAlignment horizonAlign = display.getHorizontalAlignment();
-        int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, displayOffset, displaySize);
-        int vertCoord = getVerticalPosition(vertAlign, scaledResolition, displayOffset, displaySize);
+        int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, scaledMouse, displaySize);
+        int vertCoord = getVerticalPosition(vertAlign, scaledResolition, scaledMouse, displaySize);
         return new Coord(horzCoord, vertCoord);
     }
 
     private int getHorizontalCoord(HorizontalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
             Coord displaySize) {
-        int percOffset = (int) (resolution.getScaledWidth() * displayOffset.x / 100f);
+        // Reminder do NOT do integer division for %
+        int percOffset = (int) (displayOffset.x * 100f / resolution.getScaledWidth());
         switch (vertAlign) {
         default:
         case LEFT_ABSO:
@@ -221,19 +220,20 @@ public class DisplayScreen extends GuiScreen {
         case LEFT_PERC:
             return percOffset;
         case CENTER_ABSO:
-            return (resolution.getScaledWidth() / 2 - displaySize.x / 2) + displayOffset.x;
+            return displayOffset.x - resolution.getScaledWidth() / 2;
         case CENTER_PERC:
-            return (resolution.getScaledWidth() / 2 - displaySize.x / 2) + percOffset;
+            return percOffset - 50;
         case RIGHT_ABSO:
-            return (resolution.getScaledWidth() - displaySize.x) + displayOffset.x;
+            return displayOffset.x - resolution.getScaledWidth();
         case RIGHT_PERC:
-            return (resolution.getScaledWidth() - displaySize.x) + percOffset;
+            return percOffset - 100;
         }
     }
 
     private int getVerticalPosition(VerticalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
             Coord displaySize) {
-        int percOffset = (int) (resolution.getScaledHeight() * displayOffset.z / 100f);
+        // Reminder do NOT do integer division for %
+        int percOffset = (int) (displayOffset.z * 100f / resolution.getScaledHeight());
         switch (vertAlign) {
         default:
         case TOP_ABSO:
@@ -241,13 +241,13 @@ public class DisplayScreen extends GuiScreen {
         case TOP_PECR:
             return percOffset;
         case CENTER_ABSO:
-            return (resolution.getScaledHeight() / 2 - displaySize.z / 2) + displayOffset.z;
+            return displayOffset.z - resolution.getScaledHeight() / 2;
         case CENTER_PERC:
-            return (resolution.getScaledHeight() / 2 - displaySize.z / 2) + percOffset;
+            return percOffset - 50;
         case BOTTOM_ABSO:
-            return (resolution.getScaledHeight() - displaySize.z) + displayOffset.z;
+            return displayOffset.z - resolution.getScaledHeight();
         case BOTTOM_PERC:
-            return (resolution.getScaledHeight() - displaySize.z) + percOffset;
+            return percOffset - 100;
         }
     }
 

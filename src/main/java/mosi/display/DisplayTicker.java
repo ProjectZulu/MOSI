@@ -66,6 +66,7 @@ public class DisplayTicker {
 
     private int getHorizontalCoord(HorizontalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
             Coord displaySize) {
+        // Reminder: displayOffset.x is a % when doing any of the _PERC alignment situations
         int percOffset = (int) (resolution.getScaledWidth() * displayOffset.x / 100f);
         switch (vertAlign) {
         default:
@@ -86,6 +87,7 @@ public class DisplayTicker {
 
     private int getVerticalPosition(VerticalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
             Coord displaySize) {
+        // Reminder: displayOffset.z is a % when doing any of the _PERC alignment situations
         int percOffset = (int) (resolution.getScaledHeight() * displayOffset.z / 100f);
         switch (vertAlign) {
         default:
