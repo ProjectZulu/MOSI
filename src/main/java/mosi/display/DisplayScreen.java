@@ -26,7 +26,7 @@ public class DisplayScreen extends GuiScreen {
     private DisplayUnitRegistry displayRegistry;
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
-    private ArrayList<DisplayWindow> displays;
+    private ArrayList<DisplayUnit> displays;
 
     // Helper for when parent minecraft field is obfuscarted
     public Minecraft getMinecraft() {
@@ -36,7 +36,7 @@ public class DisplayScreen extends GuiScreen {
     public DisplayScreen(DisplayUnitRegistry displayRegistry) {
         super();
         this.displayRegistry = displayRegistry;
-        displays = new ArrayList<DisplayWindow>();
+        displays = new ArrayList<DisplayUnit>();
     }
 
     /**
@@ -57,8 +57,8 @@ public class DisplayScreen extends GuiScreen {
     protected void mouseClicked(int mouseScaledX, int mouseScaledY, int eventbutton) {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
         Log.log().info("mouseClicked @[%s,%s] of %s", mouseScaledX, mouseScaledY, eventbutton);
-        for (DisplayWindow window : displays) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window.getBaseDisplay());
+        for (DisplayUnit window : displays) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
             if (processAction(window.mouseAction(localMouse, MouseAction.CLICK, eventbutton), window)) {
                 return;
             }
@@ -67,7 +67,7 @@ public class DisplayScreen extends GuiScreen {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-            if (processAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
+            if (processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
                 break;
             }
         }
@@ -83,16 +83,16 @@ public class DisplayScreen extends GuiScreen {
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
         super.func_146286_b(mouseScaledX, mouseScaledY, which);
         if (which == 0 || which == 1) {
-            for (DisplayWindow window : displays) {
+            for (DisplayUnit window : displays) {
                 Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
-                        window.getBaseDisplay());
+                        window);
                 processAction(window.mouseAction(localMouse, MouseAction.RELEASE), window);
             }
 
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-                processAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit);
+                processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit);
             }
         }
     }
@@ -104,8 +104,8 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146273_a(int mouseScaledX, int mouseScaledY, int lastButtonClicked, long timeSinceMouseClick) {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
-        for (DisplayWindow window : displays) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window.getBaseDisplay());
+        for (DisplayUnit window : displays) {
+            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
             if (processAction(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
                 return;
             }
@@ -114,7 +114,7 @@ public class DisplayScreen extends GuiScreen {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
-            if (processAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked),
+            if (processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked),
                     displayUnit)) {
                 return;
             }
@@ -124,14 +124,14 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
-        for (DisplayWindow window : displays) {
+        for (DisplayUnit window : displays) {
             if (processAction(window.keyTyped(eventCharacter, eventKey), window)) {
                 return;
             }
         }
 
         for (DisplayUnit displayUnit : displayList) {
-            if (processAction(displayUnit.keyTyped(eventCharacter, eventKey), displayUnit)) {
+            if (processLimitedAction(displayUnit.keyTyped(eventCharacter, eventKey), displayUnit)) {
                 return;
             }
         }
@@ -143,15 +143,14 @@ public class DisplayScreen extends GuiScreen {
     }
 
     /**
+     * DisplayUnits are a unique case in the Window hierarchy in that they are not windows and cannot be closed
+     * directly. DisplayUnitRegistry. DisplayChanger is to be used to remove/add and should be passed the DisplayWindow
+     * upon construction.
+     * 
      * @param provider May be null if provider is not DisplayWindow in which case it CANNOT be closed
      * @return StopProcessing - true if processing should be stopped
      */
-    private boolean processAction(ActionResult action, DisplayUnit provider) {
-        /*
-         * DisplayUnits are a unique case in the Window hierarchy in that they are not windows and cannot be closed
-         * directly. DisplayUnitRegistry.DisplayChanger is to be used to remove/add and should be passed the
-         * DisplayWindow upon construction.
-         */
+    private boolean processLimitedAction(ActionResult action, DisplayUnit provider) {
         switch (action.interaction) {
         case CLOSE:
             throw new UnsupportedOperationException("DisplayUnit does not support 'CLOSE' Interaction");
@@ -169,7 +168,7 @@ public class DisplayScreen extends GuiScreen {
      * @param provider May be null if provider is not DisplayWindow in which case it CANNOT be closed
      * @return StopProcessing - true if processing should be stopped
      */
-    private boolean processAction(ActionResult action, DisplayWindow provider) {
+    private boolean processAction(ActionResult action, DisplayUnit provider) {
         switch (action.interaction) {
         case CLOSE:
             if (action.display.isPresent()) {

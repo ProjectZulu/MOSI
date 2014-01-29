@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnitMoveable;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
@@ -18,24 +19,14 @@ import com.google.gson.JsonObject;
  * 
  * Implicitly assumes Children are 'above' the base display and are a priority for input events
  */
-public class DisplayWindow implements DisplayUnit {
+public abstract class DisplayWindow extends DisplayUnitMoveable {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
 
-    private DisplayUnit baseDisplay;
+    private ArrayList<DisplayUnit> children;
 
-    public DisplayUnit getBaseDisplay() {
-        return baseDisplay;
-    }
-
-    // Child Windows that depend on this window for existence
-    private ArrayList<DisplayWindow> children;
-
-    public DisplayWindow(DisplayUnit baseDisplay) {
-        if (baseDisplay == null) {
-            throw new IllegalArgumentException("Display cannot be null");
-        }
-        this.baseDisplay = baseDisplay;
-        this.children = new ArrayList<DisplayWindow>();
+    public DisplayWindow() {
+        super(new Coord(0, 0));
+        this.children = new ArrayList<DisplayUnit>();
     }
 
     public boolean addWindow(DisplayWindow window) {
@@ -47,40 +38,22 @@ public class DisplayWindow implements DisplayUnit {
     }
 
     @Override
-    public String getType() {
+    public final String getType() {
         StringBuilder sb = new StringBuilder();
-        sb.append(DISPLAY_ID).append(":").append(baseDisplay.getType()).append("[");
-        Iterator<DisplayWindow> iterator = children.iterator();
+        sb.append(DISPLAY_ID).append(":").append(getSubType()).append("[");
+        Iterator<DisplayUnit> iterator = children.iterator();
         while (iterator.hasNext()) {
-            DisplayWindow window = iterator.next();
+            DisplayUnit window = iterator.next();
             sb.append(window.getType());
             if (iterator.hasNext()) {
                 sb.append(",");
             }
         }
         sb.append("]");
-        return DISPLAY_ID.concat(":").concat(baseDisplay.getType()).concat("[");
+        return DISPLAY_ID.concat(":").concat(getSubType()).concat("[");
     }
 
-    @Override
-    public Coord getOffset() {
-        return baseDisplay.getOffset();
-    }
-
-    @Override
-    public Coord getSize() {
-        return baseDisplay.getSize();
-    }
-
-    @Override
-    public VerticalAlignment getVerticalAlignment() {
-        return baseDisplay.getVerticalAlignment();
-    }
-
-    @Override
-    public HorizontalAlignment getHorizontalAlignment() {
-        return baseDisplay.getHorizontalAlignment();
-    }
+    public abstract String getSubType();
 
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
@@ -94,12 +67,14 @@ public class DisplayWindow implements DisplayUnit {
     }
 
     @Override
-    public void renderDisplay(Minecraft mc, Coord Position) {
-        for (DisplayWindow window : children) {
+    public final void renderDisplay(Minecraft mc, Coord Position) {
+        for (DisplayUnit window : children) {
             window.renderDisplay(mc, Position);
         }
-        baseDisplay.renderDisplay(mc, Position);
+        renderSubDisplay(mc, Position);
     }
+
+    public abstract void renderSubDisplay(Minecraft mc, Coord Position);
 
     @Override
     public JsonObject saveCustomData(JsonObject jsonObject) {
@@ -113,8 +88,7 @@ public class DisplayWindow implements DisplayUnit {
 
     @Override
     public void mousePosition(Coord localMouse) {
-        baseDisplay.mousePosition(localMouse);
-        for (DisplayWindow window : children) {
+        for (DisplayUnit window : children) {
             window.mousePosition(localMouse);
         }
     }
@@ -130,18 +104,18 @@ public class DisplayWindow implements DisplayUnit {
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        for (DisplayWindow window : children) {
+        for (DisplayUnit window : children) {
             if (processActionResult(window.mouseAction(localMouse, action, actionData), window)) {
-                break;
+                return new ActionResult(true);
             }
         }
-        return baseDisplay.mouseAction(localMouse, action, actionData);
+        return ActionResult.NOACTION;
     }
 
     /**
      * @return StopProcessing - true if processing should be stopped
      */
-    private boolean processActionResult(ActionResult action, DisplayWindow provider) {
+    private boolean processActionResult(ActionResult action, DisplayUnit provider) {
         switch (action.interaction) {
         case CLOSE:
             if (action.display.isPresent()) {

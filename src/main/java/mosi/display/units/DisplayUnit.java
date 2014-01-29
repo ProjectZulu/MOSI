@@ -58,7 +58,7 @@ public interface DisplayUnit {
         public final boolean stopActing;
         /* Whether display should be set as the active window */
         public final INTERACTION interaction;
-        public final Optional<DisplayWindow> display;
+        public final Optional<DisplayUnit> display;
         
         
         public static final ActionResult NOACTION = new ActionResult(false);
@@ -85,7 +85,7 @@ public interface DisplayUnit {
             this.display = Optional.absent();
         }
 
-        public ActionResult(boolean stopActing, INTERACTION interaction, DisplayWindow display) {
+        public ActionResult(boolean stopActing, INTERACTION interaction, DisplayUnit display) {
             this.stopActing = stopActing;
             this.interaction = interaction;
             this.display = Optional.of(display);
