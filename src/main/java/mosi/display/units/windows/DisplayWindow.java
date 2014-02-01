@@ -3,13 +3,14 @@ package mosi.display.units.windows;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitMoveable;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 /**
@@ -29,12 +30,21 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
         this.children = new ArrayList<DisplayUnit>();
     }
 
-    public boolean addWindow(DisplayWindow window) {
+    public DisplayWindow(Coord coord) {
+        super(coord);
+        this.children = new ArrayList<DisplayUnit>();
+    }
+
+    public boolean addWindow(DisplayUnit window) {
         return children.add(window);
     }
 
-    public boolean removeWindow(DisplayWindow window) {
+    public boolean removeWindow(DisplayUnit window) {
         return children.remove(window);
+    }
+
+    protected void clearWindows() {
+        children.clear();
     }
 
     @Override
@@ -67,11 +77,12 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     }
 
     @Override
-    public final void renderDisplay(Minecraft mc, Coord Position) {
+    public final void renderDisplay(Minecraft mc, Coord position) {
         for (DisplayUnit window : children) {
-            window.renderDisplay(mc, Position);
+            window.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), window));
+            // window.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, window));
         }
-        renderSubDisplay(mc, Position);
+        renderSubDisplay(mc, position);
     }
 
     public abstract void renderSubDisplay(Minecraft mc, Coord Position);
@@ -87,29 +98,27 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     }
 
     @Override
-    public void mousePosition(Coord localMouse) {
+    public SimpleAction mousePosition(Coord localMouse) {
         for (DisplayUnit window : children) {
-            window.mousePosition(localMouse);
+            SimpleAction action = window.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
+                    localMouse, this, window));
+            if (action.stopActing) {
+                return action;
+            }
         }
-    }
-
-    public static class WindowActionResult extends ActionResult {
-        public final Optional<DisplayWindow> display;
-
-        public WindowActionResult(boolean stopActing, INTERACTION interaction, DisplayWindow display) {
-            super(stopActing, interaction, null);
-            this.display = Optional.of(display);
-        }
+        return new SimpleAction(false);
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         for (DisplayUnit window : children) {
-            if (processActionResult(window.mouseAction(localMouse, action, actionData), window)) {
+            if (processActionResult(window.mouseAction(
+                    DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window), action,
+                    actionData), window)) {
                 return new ActionResult(true);
             }
         }
-        return ActionResult.NOACTION;
+        return super.mouseAction(localMouse, action, actionData);
     }
 
     /**
@@ -147,7 +156,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        return ActionResult.NOACTION;
+        return super.keyTyped(eventCharacter, eventKey);
     }
 
     public void saveWindow() {

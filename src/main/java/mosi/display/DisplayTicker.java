@@ -46,63 +46,14 @@ public class DisplayTicker {
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 if (displayUnit.shouldRender(mc)) {
-                    displayUnit.renderDisplay(mc, determineScreenPosition(mc, displayUnit));
+                    ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth,
+                            mc.displayHeight);
+                    Coord screenPos = DisplayHelper.determineScreenPositionFromDisplay(mc, new Coord(0, 0), new Coord(
+                            scaledResolition.getScaledWidth(), scaledResolition.getScaledHeight()), displayUnit);
+                    displayUnit.renderDisplay(mc, screenPos);
                 }
             }
             inGameTicks++;
-        }
-    }
-
-    private Coord determineScreenPosition(Minecraft mc, DisplayUnit display) {
-        ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-        Coord displaySize = display.getSize();
-        Coord displayOffset = display.getOffset();
-        VerticalAlignment vertAlign = display.getVerticalAlignment();
-        HorizontalAlignment horizonAlign = display.getHorizontalAlignment();
-        int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, displayOffset, displaySize);
-        int vertCoord = getVerticalPosition(vertAlign, scaledResolition, displayOffset, displaySize);
-        return new Coord(horzCoord, vertCoord);
-    }
-
-    private int getHorizontalCoord(HorizontalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
-            Coord displaySize) {
-        // Reminder: displayOffset.x is a % when doing any of the _PERC alignment situations
-        int percOffset = (int) (resolution.getScaledWidth() * displayOffset.x / 100f);
-        switch (vertAlign) {
-        default:
-        case LEFT_ABSO:
-            return displayOffset.x;
-        case LEFT_PERC:
-            return percOffset;
-        case CENTER_ABSO:
-            return (resolution.getScaledWidth() / 2 - displaySize.x / 2) + displayOffset.x;
-        case CENTER_PERC:
-            return (resolution.getScaledWidth() / 2 - displaySize.x / 2) + percOffset;
-        case RIGHT_ABSO:
-            return (resolution.getScaledWidth() - displaySize.x) + displayOffset.x;
-        case RIGHT_PERC:
-            return (resolution.getScaledWidth() - displaySize.x) + percOffset;
-        }
-    }
-
-    private int getVerticalPosition(VerticalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
-            Coord displaySize) {
-        // Reminder: displayOffset.z is a % when doing any of the _PERC alignment situations
-        int percOffset = (int) (resolution.getScaledHeight() * displayOffset.z / 100f);
-        switch (vertAlign) {
-        default:
-        case TOP_ABSO:
-            return displayOffset.z;
-        case TOP_PECR:
-            return percOffset;
-        case CENTER_ABSO:
-            return (resolution.getScaledHeight() / 2 - displaySize.z / 2) + displayOffset.z;
-        case CENTER_PERC:
-            return (resolution.getScaledHeight() / 2 - displaySize.z / 2) + percOffset;
-        case BOTTOM_ABSO:
-            return (resolution.getScaledHeight() - displaySize.z) + displayOffset.z;
-        case BOTTOM_PERC:
-            return (resolution.getScaledHeight() - displaySize.z) + percOffset;
         }
     }
 }

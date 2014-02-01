@@ -6,17 +6,12 @@ import mosi.DisplayUnitRegistry;
 import mosi.Log;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.ActionResult;
-import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
 import mosi.display.units.DisplayUnit.MouseAction;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
-import mosi.display.units.windows.DisplayWindow;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -26,17 +21,24 @@ public class DisplayScreen extends GuiScreen {
     private DisplayUnitRegistry displayRegistry;
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
-    private ArrayList<DisplayUnit> displays;
+    private ArrayList<DisplayUnit> windows;
 
     // Helper for when parent minecraft field is obfuscarted
     public Minecraft getMinecraft() {
         return field_146297_k;
     }
 
+    // Simple delegate, cause I'm apparently really lazy, probably shouldn't be called often
+    public Coord calcScaledScreenSize() {
+        ScaledResolution scaledResolition = new ScaledResolution(getMinecraft().gameSettings,
+                getMinecraft().displayWidth, getMinecraft().displayHeight);
+        return new Coord(scaledResolition.getScaledWidth(), scaledResolition.getScaledHeight());
+    }
+
     public DisplayScreen(DisplayUnitRegistry displayRegistry) {
         super();
         this.displayRegistry = displayRegistry;
-        displays = new ArrayList<DisplayUnit>();
+        windows = new ArrayList<DisplayUnit>();
     }
 
     /**
@@ -48,8 +50,21 @@ public class DisplayScreen extends GuiScreen {
         super.drawScreen(mouseScaledX, mouseScaledY, renderPartialTicks);
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                    displayUnit);
             displayUnit.mousePosition(localMouse);
+        }
+        for (DisplayUnit displayUnit : windows) {
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                    displayUnit);
+            displayUnit.mousePosition(localMouse);
+        }
+        for (DisplayUnit displayUnit : windows) {
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                    displayUnit);
+            Coord screenPos = DisplayHelper.determineScreenPositionFromDisplay(getMinecraft(), new Coord(0, 0),
+                    calcScaledScreenSize(), displayUnit);
+            displayUnit.renderDisplay(getMinecraft(), screenPos);
         }
     }
 
@@ -57,8 +72,8 @@ public class DisplayScreen extends GuiScreen {
     protected void mouseClicked(int mouseScaledX, int mouseScaledY, int eventbutton) {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
         Log.log().info("mouseClicked @[%s,%s] of %s", mouseScaledX, mouseScaledY, eventbutton);
-        for (DisplayUnit window : displays) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
+        for (DisplayUnit window : windows) {
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
             if (processAction(window.mouseAction(localMouse, MouseAction.CLICK, eventbutton), window)) {
                 return;
             }
@@ -66,7 +81,8 @@ public class DisplayScreen extends GuiScreen {
 
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                    displayUnit);
             if (processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
                 break;
             }
@@ -83,15 +99,16 @@ public class DisplayScreen extends GuiScreen {
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
         super.func_146286_b(mouseScaledX, mouseScaledY, which);
         if (which == 0 || which == 1) {
-            for (DisplayUnit window : displays) {
-                Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
-                        window);
+            for (DisplayUnit window : windows) {
+                Coord localMouse = DisplayHelper
+                        .localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
                 processAction(window.mouseAction(localMouse, MouseAction.RELEASE), window);
             }
 
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
-                Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
+                Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                        displayUnit);
                 processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit);
             }
         }
@@ -104,8 +121,8 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146273_a(int mouseScaledX, int mouseScaledY, int lastButtonClicked, long timeSinceMouseClick) {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
-        for (DisplayUnit window : displays) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
+        for (DisplayUnit window : windows) {
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
             if (processAction(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
                 return;
             }
@@ -113,7 +130,8 @@ public class DisplayScreen extends GuiScreen {
 
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
-            Coord localMouse = localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, displayUnit);
+            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                    displayUnit);
             if (processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked),
                     displayUnit)) {
                 return;
@@ -124,7 +142,7 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
-        for (DisplayUnit window : displays) {
+        for (DisplayUnit window : windows) {
             if (processAction(window.keyTyped(eventCharacter, eventKey), window)) {
                 return;
             }
@@ -138,9 +156,9 @@ public class DisplayScreen extends GuiScreen {
         super.keyTyped(eventCharacter, eventKey);
     }
 
-    protected Coord localizeMouseCoords(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit displayUnit) {
-        return determineScreenPosition(mc, mouseScaledX, mouseScaledY, displayUnit);
-    }
+    // protected Coord localizeMouseCoords(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit displayUnit) {
+    // return determineScreenPosition(mc, mouseScaledX, mouseScaledY, displayUnit);
+    // }
 
     /**
      * DisplayUnits are a unique case in the Window hierarchy in that they are not windows and cannot be closed
@@ -172,24 +190,24 @@ public class DisplayScreen extends GuiScreen {
         switch (action.interaction) {
         case CLOSE:
             if (action.display.isPresent()) {
-                displays.remove(action.display);
+                windows.remove(action.display);
             }
             break;
         case REPLACE:
             if (provider != null && action.display.isPresent()) {
-                displays.add(action.display.get());
-                displays.remove(provider);
+                windows.add(action.display.get());
+                windows.remove(provider);
             }
             break;
         case REPLACE_ALL:
-            displays.clear();
+            windows.clear();
             if (action.display.isPresent()) {
-                displays.add(action.display.get());
+                windows.add(action.display.get());
             }
             break;
         case OPEN:
             if (action.display.isPresent()) {
-                displays.add(action.display.get());
+                windows.add(action.display.get());
             }
             break;
         case NONE:
@@ -198,57 +216,57 @@ public class DisplayScreen extends GuiScreen {
         return action.stopActing;
     }
 
-    private Coord determineScreenPosition(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit display) {
-        ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-        Coord displaySize = display.getSize();
-        Coord scaledMouse = new Coord(mouseScaledX, mouseScaledY);
-        VerticalAlignment vertAlign = display.getVerticalAlignment();
-        HorizontalAlignment horizonAlign = display.getHorizontalAlignment();
-        int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, scaledMouse, displaySize);
-        int vertCoord = getVerticalPosition(vertAlign, scaledResolition, scaledMouse, displaySize);
-        return new Coord(horzCoord, vertCoord);
-    }
-
-    private int getHorizontalCoord(HorizontalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
-            Coord displaySize) {
-        // Reminder do NOT do integer division for %
-        int percOffset = (int) (displayOffset.x * 100f / resolution.getScaledWidth());
-        switch (vertAlign) {
-        default:
-        case LEFT_ABSO:
-            return displayOffset.x;
-        case LEFT_PERC:
-            return percOffset;
-        case CENTER_ABSO:
-            return displayOffset.x - resolution.getScaledWidth() / 2;
-        case CENTER_PERC:
-            return percOffset - 50;
-        case RIGHT_ABSO:
-            return displayOffset.x - resolution.getScaledWidth();
-        case RIGHT_PERC:
-            return percOffset - 100;
-        }
-    }
-
-    private int getVerticalPosition(VerticalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
-            Coord displaySize) {
-        // Reminder do NOT do integer division for %
-        int percOffset = (int) (displayOffset.z * 100f / resolution.getScaledHeight());
-        switch (vertAlign) {
-        default:
-        case TOP_ABSO:
-            return displayOffset.z;
-        case TOP_PECR:
-            return percOffset;
-        case CENTER_ABSO:
-            return displayOffset.z - resolution.getScaledHeight() / 2;
-        case CENTER_PERC:
-            return percOffset - 50;
-        case BOTTOM_ABSO:
-            return displayOffset.z - resolution.getScaledHeight();
-        case BOTTOM_PERC:
-            return percOffset - 100;
-        }
-    }
+    // private Coord determineScreenPosition(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit display) {
+    // ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+    // Coord displaySize = display.getSize();
+    // Coord scaledMouse = new Coord(mouseScaledX, mouseScaledY);
+    // VerticalAlignment vertAlign = display.getVerticalAlignment();
+    // HorizontalAlignment horizonAlign = display.getHorizontalAlignment();
+    // int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, scaledMouse, displaySize);
+    // int vertCoord = getVerticalPosition(vertAlign, scaledResolition, scaledMouse, displaySize);
+    // return new Coord(horzCoord, vertCoord);
+    // }
+    //
+    // private int getHorizontalCoord(HorizontalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
+    // Coord displaySize) {
+    // // Reminder do NOT do integer division for %
+    // int percOffset = (int) (displayOffset.x * 100f / resolution.getScaledWidth());
+    // switch (vertAlign) {
+    // default:
+    // case LEFT_ABSO:
+    // return displayOffset.x;
+    // case LEFT_PERC:
+    // return percOffset;
+    // case CENTER_ABSO:
+    // return displayOffset.x - resolution.getScaledWidth() / 2;
+    // case CENTER_PERC:
+    // return percOffset - 50;
+    // case RIGHT_ABSO:
+    // return displayOffset.x - resolution.getScaledWidth();
+    // case RIGHT_PERC:
+    // return percOffset - 100;
+    // }
+    // }
+    //
+    // private int getVerticalPosition(VerticalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
+    // Coord displaySize) {
+    // // Reminder do NOT do integer division for %
+    // int percOffset = (int) (displayOffset.z * 100f / resolution.getScaledHeight());
+    // switch (vertAlign) {
+    // default:
+    // case TOP_ABSO:
+    // return displayOffset.z;
+    // case TOP_PECR:
+    // return percOffset;
+    // case CENTER_ABSO:
+    // return displayOffset.z - resolution.getScaledHeight() / 2;
+    // case CENTER_PERC:
+    // return percOffset - 50;
+    // case BOTTOM_ABSO:
+    // return displayOffset.z - resolution.getScaledHeight();
+    // case BOTTOM_PERC:
+    // return percOffset - 100;
+    // }
+    // }
 
 }

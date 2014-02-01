@@ -4,6 +4,7 @@ import java.util.List;
 
 import mosi.Log;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
@@ -167,7 +168,8 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     public abstract List<? extends DisplayUnit> getDisplaysToRender();
 
     @Override
-    public void mousePosition(Coord localMouse) {
+    public SimpleAction mousePosition(Coord localMouse) {
+        return new SimpleAction(false);
     }
 
     @Override

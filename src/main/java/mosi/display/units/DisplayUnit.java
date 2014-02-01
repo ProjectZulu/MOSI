@@ -1,7 +1,7 @@
 package mosi.display.units;
 
 import mosi.display.DisplayUnitFactory;
-import mosi.display.units.windows.DisplayWindow;
+import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
@@ -25,13 +25,13 @@ public interface DisplayUnit {
     public abstract Coord getSize();
 
     public enum VerticalAlignment {
-        TOP_PECR, TOP_ABSO, BOTTOM_PERC, BOTTOM_ABSO, CENTER_PERC, CENTER_ABSO;
+        TOP_ABSO, BOTTOM_ABSO, CENTER_ABSO;
     }
 
     public abstract VerticalAlignment getVerticalAlignment();
 
     public enum HorizontalAlignment {
-        LEFT_PERC, LEFT_ABSO, RIGHT_PERC, RIGHT_ABSO, CENTER_PERC, CENTER_ABSO;
+        LEFT_ABSO, RIGHT_ABSO, CENTER_ABSO;
     }
 
     public abstract HorizontalAlignment getHorizontalAlignment();
@@ -40,9 +40,13 @@ public interface DisplayUnit {
 
     public boolean shouldRender(Minecraft mc);
 
-    public void renderDisplay(Minecraft mc, Coord Position);
+    /**
+     * @param Position the location this display should render at. Already includes Alignment and Offset which is done
+     *            by parent display
+     */
+    public void renderDisplay(Minecraft mc, Coord position);
 
-    public void mousePosition(Coord localMouse);
+    public SimpleAction mousePosition(Coord localMouse);
 
     public enum MouseAction {
         /* vararg 0: int EventButton */
@@ -59,9 +63,9 @@ public interface DisplayUnit {
         /* Whether display should be set as the active window */
         public final INTERACTION interaction;
         public final Optional<DisplayUnit> display;
-        
-        
+
         public static final ActionResult NOACTION = new ActionResult(false);
+
         /**
          * Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult Note that
          * in all cases, open can only occur on non-null instances
@@ -89,6 +93,16 @@ public interface DisplayUnit {
             this.stopActing = stopActing;
             this.interaction = interaction;
             this.display = Optional.of(display);
+        }
+
+        /*
+         * Action that can only ever have stopActing true/false, used when returning GUIs wouldn't make sense. i.e.
+         * Highlighting mouseOver a button
+         */
+        public static final class SimpleAction extends ActionResult {
+            public SimpleAction(boolean stopActing) {
+                super(stopActing);
+            }
         }
     }
 

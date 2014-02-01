@@ -1,6 +1,7 @@
 package mosi.display.units;
 
 import mosi.DefaultProps;
+import mosi.Log;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideRules;
@@ -8,6 +9,8 @@ import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
+import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
@@ -223,7 +226,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         if (displayNumericCounter) {
             renderCounterBar(mc, position, digitalOffset, displayStats.trackedCount);
         }
-        
+
         GL11.glPushMatrix();
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
         RenderHelper.enableGUIStandardItemLighting();
@@ -308,18 +311,15 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         String displayAmount = Integer.toString(counterAmount);
         switch (getHorizontalAlignment()) {
         case CENTER_ABSO:
-        case CENTER_PERC:
             mc.fontRenderer.drawString(displayAmount,
                     centerOfDisplay.x + 8 - mc.fontRenderer.getStringWidth(displayAmount) / 2 + offSet.x,
                     centerOfDisplay.z - offSet.z, textDisplayColor);
             break;
         case LEFT_ABSO:
-        case LEFT_PERC:
             mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x + offSet.x, centerOfDisplay.z - offSet.z,
                     textDisplayColor);
             break;
         case RIGHT_ABSO:
-        case RIGHT_PERC:
             mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x - mc.fontRenderer.getStringWidth(displayAmount)
                     + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
             break;
@@ -340,13 +340,15 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     }
 
     @Override
-    public void mousePosition(Coord localMouse) {
+    public SimpleAction mousePosition(Coord localMouse) {
+        return new SimpleAction(false);
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         if (action == MouseAction.CLICK && actionData[0] == 1) {
-//            new ActionResult(true, INTERACTION.OPEN, display);
+            Log.log().info("Creating DisplayWindowMenu");
+            return new ActionResult(true, INTERACTION.OPEN, new DisplayWindowMenu(this));
         }
 
         return super.mouseAction(localMouse, action, actionData);

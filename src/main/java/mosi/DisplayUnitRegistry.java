@@ -64,8 +64,8 @@ public class DisplayUnitRegistry {
     public void loadFromConfig() {
         Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
         builder.add(new DisplayUnitItem());
-        builder.add(new DisplayUnitPotion());
-        builder.add(new DisplayUnitUnsortedPanel());
+        // builder.add(new DisplayUnitPotion());
+        // builder.add(new DisplayUnitUnsortedPanel());
         // builder.add(new DisplayUnitSortedPanel());
         displays = builder.build();
 
