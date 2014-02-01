@@ -51,7 +51,6 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
         if (clickedOn) {
-            Log.log().info("Char %s  -- Key %s", eventCharacter, eventKey);
             if (Keyboard.KEY_LEFT == eventKey) {
                 offset = offset.add(-1, 0);
                 mousePosOnClick = mousePosOnClick.subt(-1, 0);

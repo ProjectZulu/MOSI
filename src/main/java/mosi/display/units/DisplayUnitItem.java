@@ -2,6 +2,7 @@ package mosi.display.units;
 
 import mosi.DefaultProps;
 import mosi.Log;
+import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideRules;
@@ -346,8 +347,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        if (action == MouseAction.CLICK && actionData[0] == 1) {
-            Log.log().info("Creating DisplayWindowMenu");
+        if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             return new ActionResult(true, INTERACTION.OPEN, new DisplayWindowMenu(this));
         }
 

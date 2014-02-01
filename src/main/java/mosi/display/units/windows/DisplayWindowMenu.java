@@ -67,8 +67,6 @@ public class DisplayWindowMenu extends DisplayWindow {
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
         super.mousePosition(localMouse);
-        Log.log().info("Menu: {%s} localMouse {%s} INSIDE {%s}", getOffset(), localMouse,
-                DisplayHelper.isCursorOverDisplay(localMouse, this));
         isMouseOverButton = DisplayHelper.isCursorOverDisplay(localMouse, this);
         return new SimpleAction(isMouseOverButton);
     }
