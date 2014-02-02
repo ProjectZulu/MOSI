@@ -27,6 +27,7 @@ import mosi.utilities.Coord;
 /**
  * Interactive display which performs an action when CLICK is RELEASE.
  */
+// TODO: Not finished. Still need clicked interface for command pattern
 public class DisplayUnitButton implements DisplayUnit {
     public static final ResourceLocation guiButton = new ResourceLocation("mosi", "buttongui.png");
     public static final ResourceLocation guiIcons = new ResourceLocation("mosi", "icons.png");
@@ -111,12 +112,11 @@ public class DisplayUnitButton implements DisplayUnit {
         /* GUI Image */
         Coord iconCoord = new Coord(111, 2);
         Coord iconSize = new Coord(12, 16);
-        DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x  + getSize().x / 2 - iconSize.x / 2,
-                position.z + getSize().z / 2 - iconSize.z / 2, 111, 2,
-                12, 16);
+        DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + getSize().x / 2 - iconSize.x
+                / 2, position.z + getSize().z / 2 - iconSize.z / 2, 111, 2, 12, 16);
 
-//        DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + 3, position.z + 2, 111, 2,
-//                12, 16);
+        // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + 3, position.z + 2, 111, 2,
+        // 12, 16);
         mc.getTextureManager().bindTexture(guiButton);
 
         /* Background */
