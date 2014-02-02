@@ -1,10 +1,10 @@
 package mosi.display.units.windows;
 
-import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
-import mosi.display.units.DisplayUnitItem;
+import mosi.display.units.DisplayUnitSettable;
+import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -24,20 +24,85 @@ public class DisplayWindowMenu extends DisplayWindow {
 
     // Parent to propagate changes to, this will probably be an interface of some sort later or a property of various
     // buttons/menu entries in the list
-    private DisplayUnitItem parent;
+    private DisplayUnitSettable parent;
     private HorizontalAlignment horizAlign;
+    private VerticalAlignment vertAlign;
 
-    public DisplayWindowMenu(DisplayUnitItem parent) {
-        this(parent, new Coord(0, 0), HorizontalAlignment.LEFT_ABSO);
+    public DisplayWindowMenu(DisplayUnitSettable parent) {
+        // TODO: Alignment and pos should be inferred from parent
+        this(parent, new Coord(0, 0), HorizontalAlignment.LEFT_ABSO, VerticalAlignment.TOP_ABSO);
     }
 
-    public DisplayWindowMenu(DisplayUnitItem parent, Coord coord, HorizontalAlignment alignment) {
-        super(coord);
+    public DisplayWindowMenu(DisplayUnitSettable parent, Coord coord, HorizontalAlignment horizAlign, VerticalAlignment vertAlign) {
+        super(parent.getOffset());
         this.parent = parent;
-        this.horizAlign = alignment;
+        this.horizAlign = parent.getHorizontalAlignment();
+        this.vertAlign = parent.getVerticalAlignment();
         clearWindows();
-        addWindow(new DisplayUnitButton(new Coord(-15, -2), new Coord(20, 10)));
-        addWindow(new DisplayUnitButton(new Coord(+15, -2), new Coord(20, 10)));
+
+        addWindow(new DisplayUnitToggle(new Coord(-25, 3), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new Coord(111, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
+                        HorizontalAlignment.LEFT_ABSO)));
+        addWindow(new DisplayUnitToggle(new Coord(+00, 3), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new Coord(129, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
+                        HorizontalAlignment.CENTER_ABSO)));
+        addWindow(new DisplayUnitToggle(new Coord(+25, 3), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new Coord(147, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
+                        HorizontalAlignment.RIGHT_ABSO)));
+
+        addWindow(new DisplayUnitToggle(new Coord(-25, 28), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new Coord(111, 23), new Coord(12, 16), new ToggleVertAlign(parent,
+                        VerticalAlignment.TOP_ABSO)));
+        addWindow(new DisplayUnitToggle(new Coord(+00, 28), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new Coord(129, 23), new Coord(12, 16), new ToggleVertAlign(parent,
+                        VerticalAlignment.CENTER_ABSO)));
+        addWindow(new DisplayUnitToggle(new Coord(+25, 28), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new Coord(147, 23), new Coord(12, 16), new ToggleVertAlign(parent,
+                        VerticalAlignment.BOTTOM_ABSO)));
+    }
+
+    public static class ToggleVertAlign implements Toggle {
+        private DisplayUnitSettable displayToSet;
+        private VerticalAlignment alignmentToSet;
+
+        public ToggleVertAlign(DisplayUnitSettable displayToSet, VerticalAlignment alignment) {
+            this.displayToSet = displayToSet;
+            this.alignmentToSet = alignment;
+        }
+
+        @Override
+        public void toggle() {
+            displayToSet.setVerticalAlignment(alignmentToSet);
+            // Reset position to prevent display from becoming lost outside screen
+            displayToSet.setOffset(new Coord(0, 0));
+        }
+
+        @Override
+        public boolean isToggled() {
+            return displayToSet.getVerticalAlignment() == alignmentToSet;
+        }
+    }
+
+    public static class ToggleHorizAlign implements Toggle {
+        private DisplayUnitSettable displayToSet;
+        private HorizontalAlignment alignmentToSet;
+
+        public ToggleHorizAlign(DisplayUnitSettable displayToSet, HorizontalAlignment alignment) {
+            this.displayToSet = displayToSet;
+            this.alignmentToSet = alignment;
+        }
+
+        @Override
+        public void toggle() {
+            displayToSet.setHorizontalAlignment(alignmentToSet);
+            // Reset position to prevent display from becoming lost outside screen
+            displayToSet.setOffset(new Coord(0, 0));
+        }
+
+        @Override
+        public boolean isToggled() {
+            return displayToSet.getHorizontalAlignment() == alignmentToSet;
+        }
     }
 
     @Override
@@ -47,7 +112,8 @@ public class DisplayWindowMenu extends DisplayWindow {
 
     @Override
     public Coord getSize() {
-        return new Coord(100, 50);
+        // TODO: Determine based on position(s) and size(s) of children
+        return new Coord(100, 75);
     }
 
     @Override
@@ -57,7 +123,7 @@ public class DisplayWindowMenu extends DisplayWindow {
 
     @Override
     public VerticalAlignment getVerticalAlignment() {
-        return VerticalAlignment.TOP_ABSO;
+        return vertAlign;
     }
 
     boolean isButtonUp = true;// Global, default true
@@ -80,21 +146,8 @@ public class DisplayWindowMenu extends DisplayWindow {
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, 0.5f, position, getSize(), new Coord(000, 128),
-                new Coord(127, 127));
-
-        // this.func_146119_b(mc, p_146112_2_, p_146112_3_); //Doesn't do anthing in GuiButton
-        // int l = 14737632; // This is for changing the font color
-        // if (packedFGColour != 0) {
-        // l = packedFGColour;
-        // } else if (!isButtonUp) {
-        // l = 10526880;
-        // } else if (this.isMouseOverButton) {
-        // l = 16777120;
-        // }
-        // String field_146126_j = ""; //Text to display on button
-        // drawCenteredString(fontrenderer, field_146126_j, field_146128_h + field_146120_f / 2, field_146129_i +
-        // (field_146121_g - 8) / 2, l);
+        DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
+                new Coord(000, 128), new Coord(127, 127));
     }
 
     @Override

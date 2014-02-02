@@ -1,6 +1,7 @@
 package mosi.display;
 
 import mosi.utilities.Coord;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IIcon;
 
@@ -81,5 +82,13 @@ public class DisplayRenderHelper {
         tess.addVertexWithUV(screenPosition.getX() + 16.0D, screenPosition.getY() + 00.0D, zLevel, maxU, minV);
         tess.addVertexWithUV(screenPosition.getX() + 00.0D, screenPosition.getY() + 00.0D, zLevel, minU, minV);
         tess.draw();
+    }
+
+    /**
+     * Color is RGB `int color = (RED << 16) + (GREEN << 8) + BLUE` where REG/GREEN/BLUE are each a 0-255 int value
+     */
+    public static void drawCenteredString(FontRenderer fontRenderer, String text, int posX, int posY, int color,
+            boolean shadow) {
+        fontRenderer.drawStringWithShadow(text, posX - fontRenderer.getStringWidth(text) / 2, posY, color);
     }
 }

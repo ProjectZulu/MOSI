@@ -26,7 +26,7 @@ import org.lwjgl.opengl.GL12;
 
 import com.google.gson.JsonObject;
 
-public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitCountable {
+public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitCountable, DisplayUnitSettable {
     public static final String DISPLAY_ID = "DisplayUnitItem";
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
 
@@ -54,6 +54,8 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
     private Coord analogOffset = new Coord(16, 13);
     private Coord digitalOffset = new Coord(16, -4);
+    private VerticalAlignment vertAlign = VerticalAlignment.CENTER_ABSO;
+    private HorizontalAlignment horizAlign = HorizontalAlignment.CENTER_ABSO;
 
     public DisplayUnitItem() {
         super(new Coord(0, 0));
@@ -88,6 +90,11 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     @Override
     public String getType() {
         return DISPLAY_ID;
+    }
+
+    @Override
+    public Coord setOffset(Coord offset) {
+        return this.offset = offset;
     }
 
     @Override
@@ -134,12 +141,22 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
     @Override
     public VerticalAlignment getVerticalAlignment() {
-        return VerticalAlignment.CENTER_ABSO;
+        return vertAlign;
+    }
+
+    @Override
+    public VerticalAlignment setVerticalAlignment(VerticalAlignment alignment) {
+        return vertAlign = alignment;
     }
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.CENTER_ABSO;
+        return horizAlign;
+    }
+
+    @Override
+    public HorizontalAlignment setHorizontalAlignment(HorizontalAlignment alignment) {
+        return horizAlign = alignment;
     }
 
     @Override
