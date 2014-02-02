@@ -26,9 +26,9 @@ import com.google.gson.JsonObject;
 public abstract class DisplayWindow extends DisplayUnitMoveable {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
 
-    private ArrayList<DisplayUnit> children;
+    private final ArrayList<DisplayUnit> children;
     // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
-    private Queue<DisplayUnit> priority;
+    private final Queue<DisplayUnit> priority;
 
     public DisplayWindow() {
         super(new Coord(0, 0));
@@ -39,6 +39,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     public DisplayWindow(Coord coord) {
         super(coord);
         this.children = new ArrayList<DisplayUnit>();
+        this.priority = new ArrayDeque<DisplayUnit>();
     }
 
     public boolean addWindow(DisplayUnit window) {
@@ -170,6 +171,11 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
+        for (DisplayUnit window : children) {
+            if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
+                return ActionResult.SIMPLEACTION;
+            }
+        }
         return super.keyTyped(eventCharacter, eventKey);
     }
 
