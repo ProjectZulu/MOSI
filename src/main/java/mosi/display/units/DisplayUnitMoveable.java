@@ -2,6 +2,7 @@ package mosi.display.units;
 
 import mosi.Log;
 import mosi.display.DisplayHelper;
+import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.utilities.Coord;
 
 import org.lwjgl.input.Keyboard;
@@ -32,13 +33,13 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
                 clickedOn = true;
                 mousePosOnClick = localMouse;
                 offsetPosOnClick = offset;
-                return new ActionResult(true);
+                return ActionResult.SIMPLEACTION;
             }
             break;
         case CLICK_MOVE:
             if (clickedOn) {
                 offset = offsetPosOnClick.add(localMouse.subt(mousePosOnClick));
-                return new ActionResult(true);
+                return ActionResult.SIMPLEACTION;
             }
             break;
         case RELEASE:

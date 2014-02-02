@@ -62,7 +62,7 @@ public class DisplayUnitToggle implements DisplayUnit {
         this.toggle = toggle;
         this.iconCoord = Optional.absent();
     }
-    
+
     // Toggle toggleLeftAligned = new Toggle() {
     // private DisplayUnitItem displayToToggle;
     //
@@ -177,7 +177,7 @@ public class DisplayUnitToggle implements DisplayUnit {
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
         isMouseOver = DisplayHelper.isCursorOverDisplay(localMouse, this);
-        return new SimpleAction(isMouseOver);
+        return isMouseOver ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
     }
 
     @Override
@@ -185,7 +185,7 @@ public class DisplayUnitToggle implements DisplayUnit {
         if (action == MouseAction.CLICK && actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)
                 && !toggle.isToggled()) {
             toggle.toggle();
-            return new SimpleAction(true);
+            return ActionResult.SIMPLEACTION;
         } else {
             return ActionResult.NOACTION;
         }

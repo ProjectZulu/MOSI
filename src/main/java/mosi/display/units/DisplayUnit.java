@@ -64,7 +64,8 @@ public interface DisplayUnit {
         public final INTERACTION interaction;
         public final Optional<DisplayUnit> display;
 
-        public static final ActionResult NOACTION = new ActionResult(false);
+        public static final SimpleAction NOACTION = new SimpleAction(false);
+        public static final SimpleAction SIMPLEACTION = new SimpleAction(true);
 
         /**
          * Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult Note that
@@ -83,7 +84,7 @@ public interface DisplayUnit {
             REPLACE_ALL;
         }
 
-        public ActionResult(boolean stopActing) {
+        private ActionResult(boolean stopActing) {
             this.stopActing = stopActing;
             this.interaction = INTERACTION.NONE;
             this.display = Optional.absent();
@@ -100,7 +101,7 @@ public interface DisplayUnit {
          * Highlighting mouseOver a button
          */
         public static final class SimpleAction extends ActionResult {
-            public SimpleAction(boolean stopActing) {
+            private SimpleAction(boolean stopActing) {
                 super(stopActing);
             }
         }

@@ -8,6 +8,7 @@ import java.util.Queue;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitMoveable;
 import mosi.utilities.Coord;
@@ -115,7 +116,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
                 return action;
             }
         }
-        return new SimpleAction(false);
+        return ActionResult.NOACTION;
     }
 
     @Override
@@ -124,7 +125,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
             if (processActionResult(window.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window), action,
                     actionData), window)) {
-                return new ActionResult(true);
+                return ActionResult.SIMPLEACTION;
             }
         }
         return super.mouseAction(localMouse, action, actionData);

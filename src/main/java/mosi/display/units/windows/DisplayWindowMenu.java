@@ -2,6 +2,7 @@ package mosi.display.units.windows;
 
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
+import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitSettable;
 import mosi.display.units.windows.DisplayUnitToggle.Toggle;
@@ -33,7 +34,8 @@ public class DisplayWindowMenu extends DisplayWindow {
         this(parent, new Coord(0, 0), HorizontalAlignment.LEFT_ABSO, VerticalAlignment.TOP_ABSO);
     }
 
-    public DisplayWindowMenu(DisplayUnitSettable parent, Coord coord, HorizontalAlignment horizAlign, VerticalAlignment vertAlign) {
+    public DisplayWindowMenu(DisplayUnitSettable parent, Coord coord, HorizontalAlignment horizAlign,
+            VerticalAlignment vertAlign) {
         super(parent.getOffset());
         this.parent = parent;
         this.horizAlign = parent.getHorizontalAlignment();
@@ -134,7 +136,7 @@ public class DisplayWindowMenu extends DisplayWindow {
     public SimpleAction mousePosition(Coord localMouse) {
         super.mousePosition(localMouse);
         isMouseOverButton = DisplayHelper.isCursorOverDisplay(localMouse, this);
-        return new SimpleAction(isMouseOverButton);
+        return isMouseOverButton ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
     }
 
     @Override

@@ -143,7 +143,7 @@ public class DisplayUnitButton implements DisplayUnit {
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
         isMouseOver = DisplayHelper.isCursorOverDisplay(localMouse, this);
-        return new SimpleAction(isMouseOver);
+        return isMouseOver ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
     }
 
     @Override
@@ -153,7 +153,7 @@ public class DisplayUnitButton implements DisplayUnit {
             // actionData[0] == EventButton, 0 == Left-Click, 1 == Right-Click
             if (actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
                 isClicked = true;
-                return new ActionResult(true);
+                return ActionResult.SIMPLEACTION;
             }
             break;
         case CLICK_MOVE:

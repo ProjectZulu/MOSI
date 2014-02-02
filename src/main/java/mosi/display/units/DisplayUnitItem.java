@@ -9,6 +9,7 @@ import mosi.display.hiderules.HideRules;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
+import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.windows.DisplayWindowMenu;
@@ -359,7 +360,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
-        return new SimpleAction(false);
+        return ActionResult.NOACTION;
     }
 
     @Override
