@@ -62,7 +62,7 @@ public class DisplayUnitToggle implements DisplayUnit {
         this.toggle = toggle;
         this.iconCoord = Optional.absent();
     }
-
+    
     // Toggle toggleLeftAligned = new Toggle() {
     // private DisplayUnitItem displayToToggle;
     //

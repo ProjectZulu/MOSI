@@ -1,6 +1,8 @@
 package mosi.display;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
@@ -22,6 +24,8 @@ public class DisplayScreen extends GuiScreen {
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
     private ArrayList<DisplayUnit> windows;
+    // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
+    private Queue<DisplayUnit> priority;
 
     // Helper for when parent minecraft field is obfuscarted
     public Minecraft getMinecraft() {
@@ -39,6 +43,17 @@ public class DisplayScreen extends GuiScreen {
         super();
         this.displayRegistry = displayRegistry;
         windows = new ArrayList<DisplayUnit>();
+        priority = new ArrayDeque<DisplayUnit>();
+    }
+
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        while (!priority.isEmpty()) {
+            DisplayUnit display = priority.poll();
+            windows.remove(display);
+            windows.add(0, display);
+        }
     }
 
     /**
@@ -155,10 +170,6 @@ public class DisplayScreen extends GuiScreen {
         super.keyTyped(eventCharacter, eventKey);
     }
 
-    // protected Coord localizeMouseCoords(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit displayUnit) {
-    // return determineScreenPosition(mc, mouseScaledX, mouseScaledY, displayUnit);
-    // }
-
     /**
      * DisplayUnits are a unique case in the Window hierarchy in that they are not windows and cannot be closed
      * directly. DisplayUnitRegistry. DisplayChanger is to be used to remove/add and should be passed the DisplayWindow
@@ -175,10 +186,15 @@ public class DisplayScreen extends GuiScreen {
             throw new IllegalArgumentException("DisplayUnit does not support 'REPLACE' Interaction");
         case REPLACE_ALL:
             throw new UnsupportedOperationException("DisplayUnit does not support 'REPLACE_ALL' Interaction");
+        case OPEN:
+            if (action.display.isPresent()) {
+                windows.add(action.display.get());
+            }
+            break;
         case NONE:
-        default:
-            return processAction(action, null);
+            break;
         }
+        return action.stopActing;
     }
 
     /**
@@ -210,6 +226,10 @@ public class DisplayScreen extends GuiScreen {
             }
             break;
         case NONE:
+            if (action.stopActing) {
+                // Some interaction occurred in that display, elevate it to receive events sooner
+                priority.add(provider);
+            }
             break;
         }
         return action.stopActing;
@@ -267,5 +287,4 @@ public class DisplayScreen extends GuiScreen {
     // return percOffset - 100;
     // }
     // }
-
 }

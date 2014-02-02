@@ -1,7 +1,9 @@
 package mosi.display.units.windows;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Queue;
 
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
@@ -24,10 +26,13 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
 
     private ArrayList<DisplayUnit> children;
+    // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
+    private Queue<DisplayUnit> priority;
 
     public DisplayWindow() {
         super(new Coord(0, 0));
         this.children = new ArrayList<DisplayUnit>();
+        this.priority = new ArrayDeque<DisplayUnit>();
     }
 
     public DisplayWindow(Coord coord) {
@@ -67,7 +72,11 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
 
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
-        throw new UnsupportedOperationException("DisplayWindows should not be updating logic");
+        while (!priority.isEmpty()) {
+            DisplayUnit display = priority.poll();
+            children.remove(display);
+            children.add(0, display);
+        }
     }
 
     @Override
@@ -149,6 +158,10 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
             }
             break;
         case NONE:
+            if (action.stopActing) {
+                // Some interaction occurred in that display, elevate it to receive events sooner
+                priority.add(provider);
+            }
             break;
         }
         return action.stopActing;
