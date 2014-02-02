@@ -1,14 +1,17 @@
 package mosi.display;
 
-import scala.reflect.internal.Trees.This;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-import mosi.Log;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.HorizontalAlignment;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.utilities.Coord;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 
+/**
+ * Helper for non-rendering display tasks. Contains custom written tasks as well as wrappers around vanilla obfuscated
+ * names to centralize changes
+ */
 public class DisplayHelper {
     /**
      * Mouse coordinates are assumed to share the same origin as the display offset such that this is a simple bounds
@@ -212,5 +215,21 @@ public class DisplayHelper {
         }
         }
         throw new IllegalArgumentException("This should not happen, alignment invalid case " + displayAlign.toString());
+    }
+
+    public static boolean isCtrlKeyDown() {
+        return GuiScreen.func_146271_m();
+    }
+
+    public static boolean isShiftKeyDown() {
+        return GuiScreen.func_146272_n();
+    }
+
+    public static void setClipboardString(String string) {
+        GuiScreen.func_146275_d(string);
+    }
+
+    public static String getClipboardString() {
+        return GuiScreen.func_146277_j();
     }
 }

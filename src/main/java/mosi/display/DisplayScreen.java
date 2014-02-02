@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
  */
 public class DisplayScreen extends GuiScreen {
     private DisplayUnitRegistry displayRegistry;
+    private int ticks = 0;
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
     private ArrayList<DisplayUnit> windows;
@@ -54,6 +55,11 @@ public class DisplayScreen extends GuiScreen {
             windows.remove(display);
             windows.add(0, display);
         }
+
+        for (DisplayUnit display : windows) {
+            display.onUpdate(getMinecraft(), ticks);
+        }
+        ticks++;
     }
 
     /**

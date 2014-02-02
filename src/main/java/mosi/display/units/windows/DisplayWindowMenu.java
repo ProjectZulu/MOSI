@@ -42,23 +42,24 @@ public class DisplayWindowMenu extends DisplayWindow {
         this.vertAlign = parent.getVerticalAlignment();
         clearWindows();
 
-        addWindow(new DisplayUnitToggle(new Coord(-25, 3), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitTextField(new Coord(0, 0), new Coord(40, 20), vertAlign, horizAlign));
+        addWindow(new DisplayUnitToggle(new Coord(-22, 33), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(111, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
                         HorizontalAlignment.LEFT_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+00, 3), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+00, 33), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(129, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
                         HorizontalAlignment.CENTER_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+25, 3), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+22, 33), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(147, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
                         HorizontalAlignment.RIGHT_ABSO)));
 
-        addWindow(new DisplayUnitToggle(new Coord(-25, 28), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(-22, 58), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(111, 23), new Coord(12, 16), new ToggleVertAlign(parent,
                         VerticalAlignment.TOP_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+00, 28), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+00, 58), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(129, 23), new Coord(12, 16), new ToggleVertAlign(parent,
                         VerticalAlignment.CENTER_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+25, 28), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+22, 58), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(147, 23), new Coord(12, 16), new ToggleVertAlign(parent,
                         VerticalAlignment.BOTTOM_ABSO)));
     }
