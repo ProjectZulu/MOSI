@@ -91,4 +91,12 @@ public class DisplayRenderHelper {
             boolean shadow) {
         fontRenderer.drawStringWithShadow(text, posX - fontRenderer.getStringWidth(text) / 2, posY, color);
     }
+    
+    /**
+     * Color is RGB `int color = (RED << 16) + (GREEN << 8) + BLUE` where REG/GREEN/BLUE are each a 0-255 int value
+     */
+    public static void drawString(FontRenderer fontRenderer, String text, int posX, int posY, int color,
+            boolean shadow) {
+        fontRenderer.drawString(text, posX - fontRenderer.getStringWidth(text) / 2, posY, color);
+    }
 }

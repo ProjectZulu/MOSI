@@ -5,16 +5,17 @@ import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.JsonObject;
@@ -32,6 +33,8 @@ public class DisplayUnitTextField implements DisplayUnit {
     private VerticalAlignment vertAlign;
     private HorizontalAlignment horizAlign;
     private boolean isSelected = false;
+    private boolean isMouseOver = false;
+
     /** Text that will need to be displayed, shouldn't be set directly use {@link #setText() or {@link #writeText()} */
     private String displayText;
     private Validator textValidator;
@@ -44,10 +47,29 @@ public class DisplayUnitTextField implements DisplayUnit {
     private int selectionEnd;
     /** Maximum length allowed for displayText */
     private int maxStringLength;
+    /*
+     * Previous entry grabbed from validator.getString used in the update loop to check if the property has changed from
+     * an external source which should override current text
+     */
+    private String prevEntry;
+    /* Default entry grabbed when enabling box, assumed to be valid (as it was already assigned) */
+    private String defaultEntry;
+    /* Used to allow text entry cursor to flash in/out */
+    private int cursorCounter = 0;
 
+    /**
+     * Validates input, validation is done per character.
+     * 
+     * The entire entry validation {@link isStringValid} is called when the box loses focus and allows for a
+     * backup/default value to be provided to corrent it.
+     * 
+     * i.e. Consider a text box representing position. The default location could be saved when the box is selected.
+     * Upon deselection, if the position was outside the screen bounds the saved position could be supplemented.
+     */
     public static interface Validator {
         /* Validate if the character would be a valid addition */
-        public abstract boolean isCharacterValid(int characterKey);
+        public abstract boolean isCharacterValid(char eventCharacter); // i.e.
+                                                                       // ChatAllowedCharacters.isAllowedCharacter(eventCharacter)
 
         /* Validate if the entire string is valid, may be used on occasion to reset the text */
         public abstract boolean isStringValid(String text);
@@ -55,18 +77,49 @@ public class DisplayUnitTextField implements DisplayUnit {
         /* Set text to base display */
         public abstract void setString(String text);
 
-        /* Get string from client, used for initial value */
-        public abstract String getString(String text);
+        /*
+         * Get string from client, can be used for initial value. Should return the currently set property changed by
+         * setString
+         */
+        public abstract String getString();
     }
 
-    public DisplayUnitTextField(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
+    public DisplayUnitTextField(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
+            int maxStringLength, Validator textValidator) {
         this.offset = offset;
         this.size = size;
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
-        setText("TEST");
+        this.maxStringLength = maxStringLength;
+        this.textValidator = textValidator;
+        setText(textValidator.getString());
         setCursorPosition(displayText.length());
-        maxStringLength = 10;
+    }
+
+    /** Performs enable routine IF not already enabled */
+    private void enableBox() {
+        if (isSelected) {
+            return;
+        }
+        isSelected = true;
+        String entry = textValidator.getString();
+        setText(entry);
+        defaultEntry = entry;
+        prevEntry = entry;
+    }
+
+    /** Performs disabled routine IF not already disabled */
+    private void disabledBox() {
+        if (!isSelected) {
+            return;
+        }
+        isSelected = false;
+        if (textValidator.isStringValid(displayText)) {
+            textValidator.setString(displayText);
+        } else {
+            textValidator.setString(defaultEntry);
+            setText(defaultEntry);
+        }
     }
 
     private FontRenderer getFontRenderer() {
@@ -75,7 +128,6 @@ public class DisplayUnitTextField implements DisplayUnit {
 
     /** Replaces the text wholsesale with minor checks for validity */
     public void setText(String text) {
-        // TODO textValidator.isStringValid(text);
         if (text.length() > this.maxStringLength) {
             displayText = text.substring(0, this.maxStringLength);
         } else {
@@ -89,16 +141,14 @@ public class DisplayUnitTextField implements DisplayUnit {
      * {@link #setText()}
      */
     public void writeText(String addition) {
-        addition = ChatAllowedCharacters.filerAllowedCharacters(addition);
+        addition = filterAllowedCharacters(addition);
         // Log.log().info("BLah %s, {%s, %s}", addition, cursorPosition, selectionEnd);
         int i = cursorPosition < selectionEnd ? cursorPosition : selectionEnd;
         int j = cursorPosition < selectionEnd ? selectionEnd : cursorPosition;
         int k = maxStringLength - displayText.length() - (i - selectionEnd);
         boolean flag = false;
-        Log.log().info("BLah %s, %s, %s", i, j, k);
 
         String result = "";
-        Log.log().info("BLah %s", result);
         if (displayText.length() > 0) {
             result = result + displayText.substring(0, i);
         }
@@ -121,16 +171,26 @@ public class DisplayUnitTextField implements DisplayUnit {
         moveCursorBy(i - selectionEnd + l);
     }
 
+    private String filterAllowedCharacters(String string) {
+        StringBuilder stringbuilder = new StringBuilder();
+        for (char character : string.toCharArray()) {
+            if (textValidator.isCharacterValid(character)) {
+                stringbuilder.append(character);
+            }
+        }
+        return stringbuilder.toString();
+    }
+
     /**
      * Deletes the specified number of words starting at the cursor position. Negative numbers will delete words left of
      * the cursor.
      */
-    public void deleteWords(int par1) {
+    private void deleteWords(int par1) {
         if (displayText.length() != 0) {
             if (selectionEnd != cursorPosition) {
                 writeText("");
             } else {
-                deleteFromCursor(getNthWordFromCursor(par1) - cursorPosition);
+                deleteFromCursor(getPosofNthWord(par1, cursorPosition) - cursorPosition);
             }
         }
     }
@@ -138,14 +198,14 @@ public class DisplayUnitTextField implements DisplayUnit {
     /**
      * delete the selected text, otherwsie deletes characters from either side of the cursor. params: delete num
      */
-    public void deleteFromCursor(int par1) {
+    private void deleteFromCursor(int charsToDelete) {
         if (displayText.length() != 0) {
             if (selectionEnd != cursorPosition) {
                 writeText("");
             } else {
-                boolean flag = par1 < 0;
-                int j = flag ? cursorPosition + par1 : cursorPosition;
-                int k = flag ? cursorPosition : cursorPosition + par1;
+                boolean flag = charsToDelete < 0;
+                int j = flag ? cursorPosition + charsToDelete : cursorPosition;
+                int k = flag ? cursorPosition : cursorPosition + charsToDelete;
                 String s = "";
 
                 if (j >= 0) {
@@ -159,28 +219,21 @@ public class DisplayUnitTextField implements DisplayUnit {
                 displayText = s;
 
                 if (flag) {
-                    this.moveCursorBy(par1);
+                    this.moveCursorBy(charsToDelete);
                 }
             }
         }
     }
 
     /**
-     * see @getNthNextWordFromPos() params: N, position
+     * Calculates position N words away from provided position in displayString. N may be negative; in which case it
+     * searchs backwards
      */
-    @Deprecated
-    private int getNthWordFromCursor(int wordOffsetToGet) {
-        return this.getNthWordFromPos(wordOffsetToGet, cursorPosition);
+    private int getPosofNthWord(int wordOffsetToGet, int position) {
+        return getPosofNthWord(wordOffsetToGet, position, true);
     }
 
-    /**
-     * gets the position of the nth word. N may be negative, then it looks backwards. params: N, position
-     */
-    private int getNthWordFromPos(int wordOffsetToGet, int position) {
-        return this.getNthWordFromPos(wordOffsetToGet, position, true);
-    }
-
-    private int getNthWordFromPos(int wordOffsetToGet, int startPosition, boolean par3) {
+    private int getPosofNthWord(int wordOffsetToGet, int startPosition, boolean par3) {
         int position = startPosition;
         boolean searchBackwards = wordOffsetToGet < 0;
         int wordNum = Math.abs(wordOffsetToGet);
@@ -229,12 +282,12 @@ public class DisplayUnitTextField implements DisplayUnit {
         setCursorPosition(displayText.length());
     }
 
-    public void moveCursorBy(int par1) {
+    private void moveCursorBy(int par1) {
         setCursorPosition(selectionEnd + par1);
     }
 
     /** Sets the position of the selection cursor and recalculates lineScrollOffset */
-    public void setSelectionPos(int pos) {
+    private void setSelectionPos(int pos) {
         int maxPos = displayText.length();
         pos = pos > maxPos ? maxPos : pos < 0 ? 0 : pos;
         selectionEnd = pos;
@@ -271,7 +324,7 @@ public class DisplayUnitTextField implements DisplayUnit {
         }
     }
 
-    public String getSelectedtext() {
+    private String getSelectedtext() {
         int startIndex = this.cursorPosition < this.selectionEnd ? this.cursorPosition : this.selectionEnd;
         int endIndex = this.cursorPosition < this.selectionEnd ? this.selectionEnd : this.cursorPosition;
         return displayText.substring(startIndex, endIndex);
@@ -304,7 +357,11 @@ public class DisplayUnitTextField implements DisplayUnit {
 
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
-
+        String entry = textValidator.getString();
+        if (!entry.equals(prevEntry)) {
+            setText(entry);
+        }
+        prevEntry = entry;
     }
 
     @Override
@@ -319,18 +376,12 @@ public class DisplayUnitTextField implements DisplayUnit {
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + 3, position.z + 2, 111, 2,
-        // 12, 16);
         mc.getTextureManager().bindTexture(guiButton);
 
         /* Background */
         // TODO: The Background Texture and Coords for Toggled/UnToggled/Hover need to be configurable via a setter, BUT
         // the default is set during the constructor
-        // if (toggle.isToggled()) {
-        // DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(129,
-        // 129), new Coord(127, 127));
-        // } else
-        if (isSelected) {
+        if (isSelected || isMouseOver) {
             DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(000,
                     0), new Coord(127, 127));
         } else {
@@ -338,27 +389,70 @@ public class DisplayUnitTextField implements DisplayUnit {
                     0), new Coord(127, 127));
         }
 
-        String shortName = (String) fontRenderer.listFormattedStringToWidth(displayText, getSize().x).get(0);
+        int shortCurPos = cursorPosition - lineScrollOffset;
+        String shortName = (String) fontRenderer.listFormattedStringToWidth(displayText.substring(lineScrollOffset),
+                getSize().x).get(0);
         // Note posZ-4+getSize/2. -4 is to 'center' the string vertically, and getSize/2 is to move center to the
         // middle button
-        DisplayRenderHelper.drawCenteredString(fontRenderer, shortName, position.x + 1 + getSize().x / 2, position.z
-                - 4 + getSize().z / 2, 16777120, true);
+        DisplayRenderHelper.drawCenteredString(fontRenderer, shortName, position.x + getSize().x / 2, position.z - 4
+                + getSize().z / 2, 16777120, true);
+
+        if (cursorCounter / 24 % 2 != 0) {
+            int stringStart = position.x + getSize().x / 2 - fontRenderer.getStringWidth(shortName) / 2;
+            int lengthSize = fontRenderer.getStringWidth(shortCurPos > shortName.length() ? shortName : shortName
+                    .substring(0, shortCurPos));
+            int xCoord = stringStart + lengthSize;
+            drawCursorVertical(xCoord, position.z + getSize().z - 3, xCoord + 1, position.z + getSize().z - 3
+                    - fontRenderer.FONT_HEIGHT);
+        }
+        cursorCounter++;
+    }
+
+    private void drawCursorVertical(int highPosX, int highPosY, int lowPosX, int lowPosY) {
+        int temp; // Holder to switch variables
+
+        if (highPosX < lowPosX) {
+            temp = highPosX;
+            highPosX = lowPosX;
+            lowPosX = temp;
+        }
+
+        if (highPosY < lowPosY) {
+            temp = highPosY;
+            highPosY = lowPosY;
+            lowPosY = temp;
+        }
+
+        Tessellator tessellator = Tessellator.instance;
+        GL11.glColor4f(0.0F, 0.0F, 255.0F, 255.0F);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_COLOR_LOGIC_OP);
+        GL11.glLogicOp(GL11.GL_OR_REVERSE);
+        tessellator.startDrawingQuads();
+        tessellator.addVertex(highPosX, lowPosY, 0.0D);
+        tessellator.addVertex(lowPosX, lowPosY, 0.0D);
+        tessellator.addVertex(lowPosX, highPosY, 0.0D);
+        tessellator.addVertex(highPosX, highPosY, 0.0D);
+        tessellator.draw();
+        GL11.glDisable(GL11.GL_COLOR_LOGIC_OP);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
-        return ActionResult.NOACTION;
+        isMouseOver = DisplayHelper.isCursorOverDisplay(localMouse, this);
+        return isMouseOver ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         if (DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             if (action == MouseAction.CLICK && actionData[0] == 0) {
-                isSelected = true;
+                enableBox();
                 return ActionResult.SIMPLEACTION;
             }
         } else {
-            isSelected = false;
+            disabledBox();
             return ActionResult.NOACTION;
         }
         return ActionResult.NOACTION;
@@ -367,19 +461,23 @@ public class DisplayUnitTextField implements DisplayUnit {
     // See func_146201_a in guiTextField
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
+        Log.log().info("{%s, %s}", eventCharacter, eventKey);
         // TODO: Esc key should be bound to escape text selection
         if (isSelected) {
             // displayText = "=" + Character.getNumericValue(eventCharacter);
-            ActionResult result = textboxKeyTyped(eventCharacter, eventKey) ? ActionResult.SIMPLEACTION
+            ActionResult result = processKeyEvent(eventCharacter, eventKey) ? ActionResult.SIMPLEACTION
                     : ActionResult.NOACTION;
             // Log.log().info(displayText);
+            if (eventKey == Keyboard.KEY_RETURN) {
+                disabledBox();
+            }
             return result;
         } else {
             return ActionResult.NOACTION;
         }
     }
 
-    private boolean textboxKeyTyped(char eventCharacter, int eventKey) {
+    private boolean processKeyEvent(char eventCharacter, int eventKey) {
         if (isSelected) {
             switch (eventCharacter) {
             case 1:
@@ -412,15 +510,15 @@ public class DisplayUnitTextField implements DisplayUnit {
                         setCursorPosition(0);
                     }
                     return true;
-                case 203:
+                case 203: // Left Arrow
                     if (DisplayHelper.isShiftKeyDown()) {
                         if (DisplayHelper.isCtrlKeyDown()) {
-                            setSelectionPos(getNthWordFromPos(-1, selectionEnd));
+                            setSelectionPos(getPosofNthWord(-1, selectionEnd));
                         } else {
                             setSelectionPos(selectionEnd - 1);
                         }
                     } else if (DisplayHelper.isCtrlKeyDown()) {
-                        setCursorPosition(getNthWordFromCursor(-1));
+                        setCursorPosition(getPosofNthWord(-1, cursorPosition));
                     } else {
                         moveCursorBy(-1);
                     }
@@ -428,12 +526,12 @@ public class DisplayUnitTextField implements DisplayUnit {
                 case 205:
                     if (DisplayHelper.isShiftKeyDown()) {
                         if (DisplayHelper.isCtrlKeyDown()) {
-                            setSelectionPos(getNthWordFromPos(1, selectionEnd));
+                            setSelectionPos(getPosofNthWord(1, selectionEnd));
                         } else {
                             setSelectionPos(selectionEnd + 1);
                         }
                     } else if (DisplayHelper.isCtrlKeyDown()) {
-                        setCursorPosition(getNthWordFromCursor(1));
+                        setCursorPosition(getPosofNthWord(1, cursorPosition));
                     } else {
                         moveCursorBy(1);
                     }
@@ -453,7 +551,7 @@ public class DisplayUnitTextField implements DisplayUnit {
                     }
                     return true;
                 default:
-                    if (ChatAllowedCharacters.isAllowedCharacter(eventCharacter)) {
+                    if (textValidator.isCharacterValid(eventCharacter)) {
                         writeText(Character.toString(eventCharacter));
                         return true;
                     } else {

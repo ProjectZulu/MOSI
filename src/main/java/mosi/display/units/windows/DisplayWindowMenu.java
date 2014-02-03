@@ -5,15 +5,20 @@ import mosi.display.DisplayRenderHelper;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitSettable;
+import mosi.display.units.windows.DisplayUnitTextField.Validator;
 import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.utilities.Coord;
+import mosi.utilities.StringHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
+
+import com.sun.xml.internal.ws.message.StringHeader;
 
 /**
  * Simple menu implementation. It is essentially list of buttons/interactables
@@ -42,26 +47,71 @@ public class DisplayWindowMenu extends DisplayWindow {
         this.vertAlign = parent.getVerticalAlignment();
         clearWindows();
 
-        addWindow(new DisplayUnitTextField(new Coord(0, 0), new Coord(40, 20), vertAlign, horizAlign));
-        addWindow(new DisplayUnitToggle(new Coord(-22, 33), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        // TODO: These should be added by class creating DisplayMenu, or a subclass specific to that type. Generic
+        // DisplayMenu shouldn't be so specific. Also get rid of parent dependency
+        addWindow(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(parent, true)));
+        addWindow(new DisplayUnitTextField(new Coord(+18, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(parent, false)));
+
+        addWindow(new DisplayUnitToggle(new Coord(-22, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(111, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
                         HorizontalAlignment.LEFT_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+00, 33), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+00, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(129, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
                         HorizontalAlignment.CENTER_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+22, 33), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+22, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(147, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
                         HorizontalAlignment.RIGHT_ABSO)));
 
-        addWindow(new DisplayUnitToggle(new Coord(-22, 58), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(-22, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(111, 23), new Coord(12, 16), new ToggleVertAlign(parent,
                         VerticalAlignment.TOP_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+00, 58), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+00, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(129, 23), new Coord(12, 16), new ToggleVertAlign(parent,
                         VerticalAlignment.CENTER_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+22, 58), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+        addWindow(new DisplayUnitToggle(new Coord(+22, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Coord(147, 23), new Coord(12, 16), new ToggleVertAlign(parent,
                         VerticalAlignment.BOTTOM_ABSO)));
+    }
+
+    public static class PositionTextValidator implements Validator {
+        private DisplayUnitSettable display;
+        private boolean xCoord;
+
+        public PositionTextValidator(DisplayUnitSettable settableDisplay, boolean xCoord) {
+            this.display = settableDisplay;
+            this.xCoord = xCoord;
+        }
+
+        @Override
+        public boolean isCharacterValid(char eventCharacter) {
+            return ('-' == eventCharacter || Character.isDigit(eventCharacter))
+                    && ChatAllowedCharacters.isAllowedCharacter(eventCharacter);
+        }
+
+        @Override
+        public boolean isStringValid(String text) {
+            return StringHelper.isInteger(text);
+        }
+
+        @Override
+        public void setString(String text) {
+            if (xCoord) {
+                display.setOffset(new Coord(Integer.parseInt(text), display.getOffset().z));
+            } else {
+                display.setOffset(new Coord(display.getOffset().x, Integer.parseInt(text)));
+            }
+        }
+
+        @Override
+        public String getString() {
+            if (xCoord) {
+                return Integer.toString(display.getOffset().x);
+            } else {
+                return Integer.toString(display.getOffset().z);
+            }
+        }
     }
 
     public static class ToggleVertAlign implements Toggle {

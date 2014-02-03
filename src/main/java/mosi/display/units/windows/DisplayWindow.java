@@ -79,6 +79,10 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
             children.remove(display);
             children.add(0, display);
         }
+
+        for (DisplayUnit display : children) {
+            display.onUpdate(mc, ticks);
+        }
     }
 
     @Override
