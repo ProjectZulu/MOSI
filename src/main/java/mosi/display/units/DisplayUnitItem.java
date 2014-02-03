@@ -366,7 +366,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
-            return new ActionResult(true, INTERACTION.OPEN, new DisplayWindowMenu(this));
+            return new ActionResult(true, INTERACTION.REPLACE_ALL, new DisplayWindowMenu(this));
         }
 
         return super.mouseAction(localMouse, action, actionData);

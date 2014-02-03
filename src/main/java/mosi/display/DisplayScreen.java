@@ -187,11 +187,18 @@ public class DisplayScreen extends GuiScreen {
     private boolean processLimitedAction(ActionResult action, DisplayUnit provider) {
         switch (action.interaction) {
         case CLOSE:
-            throw new UnsupportedOperationException("DisplayUnit does not support 'CLOSE' Interaction");
+            if (action.display.isPresent()) {
+                windows.remove(action.display);
+            }
+            break;
         case REPLACE:
             throw new IllegalArgumentException("DisplayUnit does not support 'REPLACE' Interaction");
         case REPLACE_ALL:
-            throw new UnsupportedOperationException("DisplayUnit does not support 'REPLACE_ALL' Interaction");
+            windows.clear();
+            if (action.display.isPresent()) {
+                windows.add(action.display.get());
+            }
+            break;
         case OPEN:
             if (action.display.isPresent()) {
                 windows.add(action.display.get());
