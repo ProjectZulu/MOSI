@@ -26,7 +26,7 @@ import com.google.gson.JsonObject;
 public abstract class DisplayWindow extends DisplayUnitMoveable {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
 
-    private final ArrayList<DisplayUnit> children;
+    protected final ArrayList<DisplayUnit> children;
     // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
     private final Queue<DisplayUnit> priority;
 

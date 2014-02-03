@@ -2,6 +2,7 @@ package mosi.display.units.windows;
 
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
+import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitSettable;
@@ -28,51 +29,15 @@ public class DisplayWindowMenu extends DisplayWindow {
     private static final ResourceLocation widgets = new ResourceLocation("textures/gui/widgets.png");
     private static final ResourceLocation guiButton = new ResourceLocation("mosi", "buttongui.png");
 
-    // Parent to propagate changes to, this will probably be an interface of some sort later or a property of various
-    // buttons/menu entries in the list
-    private DisplayUnitSettable parent;
     private HorizontalAlignment horizAlign;
     private VerticalAlignment vertAlign;
+    private Coord size;
 
-    public DisplayWindowMenu(DisplayUnitSettable parent) {
-        // TODO: Alignment and pos should be inferred from parent
-        this(parent, new Coord(0, 0), HorizontalAlignment.LEFT_ABSO, VerticalAlignment.TOP_ABSO);
-    }
-
-    public DisplayWindowMenu(DisplayUnitSettable parent, Coord coord, HorizontalAlignment horizAlign,
-            VerticalAlignment vertAlign) {
-        super(parent.getOffset());
-        this.parent = parent;
-        this.horizAlign = parent.getHorizontalAlignment();
-        this.vertAlign = parent.getVerticalAlignment();
-        clearWindows();
-
-        // TODO: These should be added by class creating DisplayMenu, or a subclass specific to that type. Generic
-        // DisplayMenu shouldn't be so specific. Also get rid of parent dependency
-        addWindow(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(parent, true)));
-        addWindow(new DisplayUnitTextField(new Coord(+18, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(parent, false)));
-
-        addWindow(new DisplayUnitToggle(new Coord(-22, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new Coord(111, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
-                        HorizontalAlignment.LEFT_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+00, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new Coord(129, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
-                        HorizontalAlignment.CENTER_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+22, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new Coord(147, 2), new Coord(12, 16), new ToggleHorizAlign(parent,
-                        HorizontalAlignment.RIGHT_ABSO)));
-
-        addWindow(new DisplayUnitToggle(new Coord(-22, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new Coord(111, 23), new Coord(12, 16), new ToggleVertAlign(parent,
-                        VerticalAlignment.TOP_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+00, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new Coord(129, 23), new Coord(12, 16), new ToggleVertAlign(parent,
-                        VerticalAlignment.CENTER_ABSO)));
-        addWindow(new DisplayUnitToggle(new Coord(+22, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new Coord(147, 23), new Coord(12, 16), new ToggleVertAlign(parent,
-                        VerticalAlignment.BOTTOM_ABSO)));
+    public DisplayWindowMenu(Coord coord, HorizontalAlignment horizAlign, VerticalAlignment vertAlign) {
+        super(coord);
+        this.horizAlign = horizAlign;
+        this.vertAlign = vertAlign;
+        this.size = new Coord(20, 20);
     }
 
     public static class PositionTextValidator implements Validator {
@@ -111,6 +76,53 @@ public class DisplayWindowMenu extends DisplayWindow {
             } else {
                 return Integer.toString(display.getOffset().z);
             }
+        }
+    }
+
+    @Override
+    public boolean addWindow(DisplayUnit window) {
+        if (super.addWindow(window)) {
+            int minX = 0;
+            int maxX = 0;
+            int minY = 0;
+            int maxY = 0;
+            for (DisplayUnit display : children) {
+                Coord offset = display.getOffset();
+                Coord size = display.getSize();
+                minX = Math.min(offset.x, minX);
+                minX = Math.min(offset.x + size.x, minX);
+                maxX = Math.max(offset.x, maxX);
+                maxX = Math.max(offset.x + size.x, maxX);
+                minY = Math.min(offset.z, minY);
+                minY = Math.min(offset.z + size.z, minY);
+                maxY = Math.max(offset.z, maxY);
+                maxY = Math.max(offset.z + size.z, maxY);
+            }
+            size = new Coord(maxX - minX + 6, maxY - minY + 6);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeWindow(DisplayUnit window) {
+        if (super.removeWindow(window)) {
+            int minX = 0;
+            int maxX = 0;
+            int minY = 0;
+            int maxY = 0;
+            for (DisplayUnit display : children) {
+                Coord offset = display.getOffset();
+                minX = Math.min(offset.x, minX);
+                maxX = Math.max(offset.x, maxX);
+                minY = Math.min(offset.z, minY);
+                maxY = Math.max(offset.z, maxY);
+            }
+            size = new Coord(maxX - minX, maxY - minY);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -165,8 +177,7 @@ public class DisplayWindowMenu extends DisplayWindow {
 
     @Override
     public Coord getSize() {
-        // TODO: Determine based on position(s) and size(s) of children
-        return new Coord(100, 75);
+        return size;
     }
 
     @Override
@@ -179,17 +190,6 @@ public class DisplayWindowMenu extends DisplayWindow {
         return vertAlign;
     }
 
-    boolean isButtonUp = true;// Global, default true
-    boolean isMouseOverButton = true; // global,
-    int packedFGColour = 0; // Global public, occasionally set from outside
-
-    @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        super.mousePosition(localMouse);
-        isMouseOverButton = DisplayHelper.isCursorOverDisplay(localMouse, this);
-        return isMouseOverButton ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
-    }
-
     @Override
     public void renderSubDisplay(Minecraft mc, Coord position) {
         FontRenderer fontrenderer = mc.fontRenderer;
@@ -198,7 +198,6 @@ public class DisplayWindowMenu extends DisplayWindow {
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
                 new Coord(000, 128), new Coord(127, 127));
     }

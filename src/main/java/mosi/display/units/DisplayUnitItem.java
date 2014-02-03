@@ -10,9 +10,16 @@ import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.windows.DisplayUnitTextField;
+import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
+import mosi.display.units.windows.DisplayWindowMenu.PositionTextValidator;
+import mosi.display.units.windows.DisplayWindowMenu.ToggleHorizAlign;
+import mosi.display.units.windows.DisplayWindowMenu.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
@@ -366,7 +373,34 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
-            return new ActionResult(true, INTERACTION.REPLACE_ALL, new DisplayWindowMenu(this));
+            DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
+                    getVerticalAlignment());
+            menu.addWindow(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
+            menu.addWindow(new DisplayUnitTextField(new Coord(+18, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, false)));
+
+            menu.addWindow(new DisplayUnitToggle(new Coord(-22, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Coord(111, 2), new Coord(12, 16), new ToggleHorizAlign(this,
+                            HorizontalAlignment.LEFT_ABSO)));
+            menu.addWindow(new DisplayUnitToggle(new Coord(+00, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Coord(129, 2), new Coord(12, 16), new ToggleHorizAlign(this,
+                            HorizontalAlignment.CENTER_ABSO)));
+            menu.addWindow(new DisplayUnitToggle(new Coord(+22, 23), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Coord(147, 2), new Coord(12, 16), new ToggleHorizAlign(this,
+                            HorizontalAlignment.RIGHT_ABSO)));
+
+            menu.addWindow(new DisplayUnitToggle(new Coord(-22, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Coord(111, 23), new Coord(12, 16), new ToggleVertAlign(this,
+                            VerticalAlignment.TOP_ABSO)));
+            menu.addWindow(new DisplayUnitToggle(new Coord(+00, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Coord(129, 23), new Coord(12, 16), new ToggleVertAlign(this,
+                            VerticalAlignment.CENTER_ABSO)));
+            menu.addWindow(new DisplayUnitToggle(new Coord(+22, 48), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Coord(147, 23), new Coord(12, 16), new ToggleVertAlign(this,
+                            VerticalAlignment.BOTTOM_ABSO)));
+
+            return new ActionResult(true, INTERACTION.REPLACE_ALL, menu);
         }
 
         return super.mouseAction(localMouse, action, actionData);
