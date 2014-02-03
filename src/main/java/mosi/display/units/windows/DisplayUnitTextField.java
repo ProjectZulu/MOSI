@@ -1,18 +1,15 @@
 package mosi.display.units.windows;
 
-import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.input.Keyboard;
@@ -142,7 +139,6 @@ public class DisplayUnitTextField implements DisplayUnit {
      */
     public void writeText(String addition) {
         addition = filterAllowedCharacters(addition);
-        // Log.log().info("BLah %s, {%s, %s}", addition, cursorPosition, selectionEnd);
         int i = cursorPosition < selectionEnd ? cursorPosition : selectionEnd;
         int j = cursorPosition < selectionEnd ? selectionEnd : cursorPosition;
         int k = maxStringLength - displayText.length() - (i - selectionEnd);
@@ -461,13 +457,10 @@ public class DisplayUnitTextField implements DisplayUnit {
     // See func_146201_a in guiTextField
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        Log.log().info("{%s, %s}", eventCharacter, eventKey);
         // TODO: Esc key should be bound to escape text selection
         if (isSelected) {
-            // displayText = "=" + Character.getNumericValue(eventCharacter);
             ActionResult result = processKeyEvent(eventCharacter, eventKey) ? ActionResult.SIMPLEACTION
                     : ActionResult.NOACTION;
-            // Log.log().info(displayText);
             if (eventKey == Keyboard.KEY_RETURN) {
                 disabledBox();
             }
