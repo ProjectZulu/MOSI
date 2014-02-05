@@ -1,10 +1,9 @@
 package mosi.display;
 
+import org.lwjgl.opengl.GL11;
+
 import mosi.DisplayUnitRegistry;
-import mosi.Log;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -44,6 +43,7 @@ public class DisplayTicker {
         if (event.type != null && event.type == ElementType.HOTBAR) {
             Minecraft mc = Minecraft.getMinecraft();
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
             for (DisplayUnit displayUnit : displayList) {
                 if (displayUnit.shouldRender(mc)) {
                     ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth,
@@ -53,6 +53,7 @@ public class DisplayTicker {
                     displayUnit.renderDisplay(mc, screenPos);
                 }
             }
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
             inGameTicks++;
         }
     }

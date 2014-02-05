@@ -138,15 +138,6 @@ public class DisplayUnitToggle implements DisplayUnit {
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        // TODO: GuiIcons should be a passable parameter
-        mc.getTextureManager().bindTexture(guiIcons);
-        /* GUI Image */
-        if (iconCoord.isPresent()) {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + getSize().x / 2
-                    - iconSize.x / 2, position.z + getSize().z / 2 - iconSize.z / 2, iconCoord.get().x,
-                    iconCoord.get().z, iconSize.x, iconSize.z);
-        }
-
         // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + 3, position.z + 2, 111, 2,
         // 12, 16);
         mc.getTextureManager().bindTexture(guiButton);
@@ -163,6 +154,15 @@ public class DisplayUnitToggle implements DisplayUnit {
         } else {
             DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -0.1f, position, getSize(), new Coord(129,
                     0), new Coord(127, 127));
+        }
+
+        // TODO: GuiIcons should be a passable parameter
+        mc.getTextureManager().bindTexture(guiIcons);
+        /* GUI Image */
+        if (iconCoord.isPresent()) {
+            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + getSize().x / 2
+                    - iconSize.x / 2, position.z + getSize().z / 2 - iconSize.z / 2, iconCoord.get().x,
+                    iconCoord.get().z, iconSize.x, iconSize.z);
         }
 
         if (displayText.isPresent()) {

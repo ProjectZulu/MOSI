@@ -4,6 +4,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Queue;
 
+import org.lwjgl.opengl.GL11;
+
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
 import mosi.display.units.DisplayUnit;
@@ -80,6 +82,7 @@ public class DisplayScreen extends GuiScreen {
                     displayUnit);
             displayUnit.mousePosition(localMouse);
         }
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
         for (DisplayUnit displayUnit : windows) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
@@ -87,6 +90,7 @@ public class DisplayScreen extends GuiScreen {
                     calcScaledScreenSize(), displayUnit);
             displayUnit.renderDisplay(getMinecraft(), screenPos);
         }
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
     }
 
     @Override
