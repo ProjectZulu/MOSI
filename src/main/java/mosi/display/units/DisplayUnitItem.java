@@ -17,6 +17,8 @@ import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
+import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.DisplayWindowSlider;
 import mosi.display.units.windows.DisplayWindowMenu.PositionTextValidator;
 import mosi.display.units.windows.DisplayWindowMenu.ToggleHorizAlign;
 import mosi.display.units.windows.DisplayWindowMenu.ToggleVertAlign;
@@ -273,6 +275,9 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     }
 
     public DisplayStats getDisplayInfo(Minecraft mc) {
+        if (displayStats == null) {
+            displayStats = calculateDisplayStats(mc);
+        }
         return displayStats;
     }
 
@@ -375,6 +380,9 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
                     getVerticalAlignment());
+            menu.addWindow(new DisplayWindowScrollList(new Coord(0, -10), new Coord(80, 160), 15,
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO));
+
             menu.addWindow(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
             menu.addWindow(new DisplayUnitTextField(new Coord(+18, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,

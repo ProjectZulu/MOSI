@@ -13,13 +13,13 @@ public class ItemIdMatch implements InventoryRule {
         this.multipleMatches = multipleMatches;
     }
 
-	@Override
-	public boolean isMatch(ItemStack itemStack, int slotId, boolean armorSlot, boolean currentItem) {
-		if (itemStack == null) {
-			return false;
-		}		
-		return itemStack.getItem().equals(Item.field_150901_e.getObject(itemId));
-	}
+    @Override
+    public boolean isMatch(ItemStack itemStack, int slotId, boolean armorSlot, boolean currentItem) {
+        if (itemStack == null) {
+            return false;
+        }
+        return itemStack.getItem().equals(Item.field_150901_e.getObject(itemId));
+    }
 
     @Override
     public boolean allowMultipleMatches() {

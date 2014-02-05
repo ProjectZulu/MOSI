@@ -93,14 +93,14 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
 
     @Override
     public final void renderDisplay(Minecraft mc, Coord position) {
+        renderSubDisplay(mc, position);
         for (DisplayUnit window : children) {
             window.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), window));
             // window.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, window));
         }
-        renderSubDisplay(mc, position);
     }
 
-    public abstract void renderSubDisplay(Minecraft mc, Coord Position);
+    public abstract void renderSubDisplay(Minecraft mc, Coord position);
 
     @Override
     public JsonObject saveCustomData(JsonObject jsonObject) {
