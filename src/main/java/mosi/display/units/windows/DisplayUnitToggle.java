@@ -182,8 +182,7 @@ public class DisplayUnitToggle implements DisplayUnit {
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        if (action == MouseAction.CLICK && actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)
-                && !toggle.isToggled()) {
+        if (action == MouseAction.CLICK && actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             toggle.toggle();
             return ActionResult.SIMPLEACTION;
         } else {
