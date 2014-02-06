@@ -393,13 +393,15 @@ public class DisplayUnitTextField implements DisplayUnit {
         DisplayRenderHelper.drawCenteredString(fontRenderer, shortName, position.x + getSize().x / 2, position.z - 4
                 + getSize().z / 2, 16777120, true);
 
-        if (cursorCounter / 24 % 2 != 0) {
-            int stringStart = position.x + getSize().x / 2 - fontRenderer.getStringWidth(shortName) / 2;
-            int lengthSize = fontRenderer.getStringWidth(shortCurPos > shortName.length() ? shortName : shortName
-                    .substring(0, shortCurPos));
-            int xCoord = stringStart + lengthSize;
-            drawCursorVertical(xCoord, position.z + getSize().z - 3, xCoord + 1, position.z + getSize().z - 3
-                    - fontRenderer.FONT_HEIGHT);
+        if (isSelected) {
+            if (cursorCounter / 24 % 2 != 0) {
+                int stringStart = position.x + getSize().x / 2 - fontRenderer.getStringWidth(shortName) / 2;
+                int lengthSize = fontRenderer.getStringWidth(shortCurPos > shortName.length() ? shortName : shortName
+                        .substring(0, shortCurPos));
+                int xCoord = stringStart + lengthSize;
+                drawCursorVertical(xCoord, position.z + getSize().z - 3, xCoord + 1, position.z + getSize().z - 3
+                        - fontRenderer.FONT_HEIGHT);
+            }
         }
         cursorCounter++;
     }
