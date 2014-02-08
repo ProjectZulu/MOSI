@@ -81,7 +81,7 @@ public interface DisplayUnit {
             CLOSE,
             /* CLOSE the ActionResult provider instance and add provided, if supported */
             REPLACE,
-            /* clsoe ALL OTHER displays on the current level and add provided instance if not null */
+            /* close ALL OTHER displays on the current level and add provided instance if not null */
             REPLACE_ALL;
         }
 
