@@ -56,10 +56,10 @@ public class DisplayUnitButton implements DisplayUnit {
      * and thus onRelease() is not guaranteed for every onClick()
      */
     public static interface Clicker {
-        public abstract void onClick();
+        public abstract ActionResult onClick();
 
         /** Perform action on release ONLY IF mouse is still over button */
-        public abstract void onRelease();
+        public abstract ActionResult onRelease();
     }
 
     public DisplayUnitButton(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
@@ -195,17 +195,15 @@ public class DisplayUnitButton implements DisplayUnit {
             // actionData[0] == EventButton, 0 == Left-Click, 1 == Right-Click
             if (actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
                 isClicked = true;
-                clicker.onClick();
-                return ActionResult.SIMPLEACTION;
+                return clicker.onClick();
             }
             break;
         case CLICK_MOVE:
             break;
         case RELEASE:
             if (isClicked && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
-                clicker.onRelease();
                 isClicked = false;
-                return ActionResult.SIMPLEACTION;
+                return clicker.onRelease();
             } else {
                 isClicked = false;
                 return ActionResult.NOACTION;

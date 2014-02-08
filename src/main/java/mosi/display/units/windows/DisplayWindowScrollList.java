@@ -48,7 +48,6 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
     private int scrolledDistance;
     private Coord size;
     private Scrollable scrollable;
-    private Collection<ScrollableElement> scrollDisplays = Collections.EMPTY_LIST;
 
     @Override
     public void setScrollDistance(int scrollDistance, int scrollLength) {
@@ -57,7 +56,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
 
     // TODO: Should this implement Sliden Slider interface?
     public static interface Scrollable {
-        public abstract Collection<ScrollableElement> getElements();
+        public abstract Collection<? extends ScrollableElement> getElements();
 
         public abstract boolean removeElement(ScrollableElement element);
     }
@@ -69,7 +68,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
     }
 
     public DisplayWindowScrollList(Coord offset, Coord size, int headerSize, VerticalAlignment vertAlign,
-            HorizontalAlignment horizAlign) {
+            HorizontalAlignment horizAlign, Scrollable scrollable) {
         super(offset);
         this.horizAlign = horizAlign;
         this.vertAlign = vertAlign;
@@ -79,36 +78,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
         this.scrollLength = Math.abs(size.z - (this.headerSize * 2)) - sliderWidth;
         this.slider = new DisplayWindowSlider(new Coord(0, this.headerSize), new Coord(sliderWidth, sliderWidth),
                 this.scrollLength, true, VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO, this);
-        this.scrollable = new Scrollable() {
-            private ArrayList<ScrollableElement> scrollDisplays = new ArrayList<ScrollableElement>();
-
-            public Scrollable init() {
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemMetaMatch("grass", 0, true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemMetaMatch("grass", 1, true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemSlotMatch(1, false), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemHandMatch(), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                return this;
-            }
-
-            @Override
-            public Collection<ScrollableElement> getElements() {
-                return scrollDisplays;
-            }
-
-            @Override
-            public boolean removeElement(ScrollableElement element) {
-                return scrollDisplays.remove(element);
-            }
-        }.init();
-        scrollDisplays = scrollable.getElements();
+        this.scrollable = scrollable;
     }
 
     @Override
@@ -135,14 +105,13 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
     public void onUpdate(Minecraft mc, int ticks) {
         slider.onUpdate(mc, ticks);
         int listSize = 0;
+        Collection<? extends ScrollableElement> scrollDisplays = scrollable.getElements();
         for (DisplayUnit element : scrollDisplays) {
             listSize += element.getSize().z;
         }
         listSize = listSize - (getSize().z - headerSize * 2);
         int elementPosY = 0;
         for (DisplayUnitSettable element : scrollDisplays) {
-            // Log.log().info("Blah %s", element.getOffset());
-            // element.setOffset(new Coord(0, 0));
             element.setHorizontalAlignment(HorizontalAlignment.LEFT_ABSO);
             element.setVerticalAlignment(VerticalAlignment.TOP_ABSO);
             /*
@@ -157,7 +126,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
         for (DisplayUnitSettable element : scrollDisplays) {
             element.onUpdate(mc, ticks);
         }
-        
+
         super.onUpdate(mc, ticks);
     }
 
@@ -172,7 +141,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, getSize(),
                 new Coord(000, 128), new Coord(127, 127));
 
-        for (ScrollableElement element : scrollDisplays) {
+        for (ScrollableElement element : scrollable.getElements()) {
             Coord elemPos = DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), element);
             // Should scroll visibility logic be done during rendering? Can it be done without absolute position?
             if (elemPos.z > position.z && elemPos.z < position.z + getSize().z - element.getSize().z) {
@@ -203,7 +172,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
             return ActionResult.SIMPLEACTION;
         }
 
-        for (ScrollableElement element : scrollDisplays) {
+        for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
                 if (element.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this,
                         element)).stopActing) {
@@ -222,7 +191,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
             return ActionResult.SIMPLEACTION;
         }
 
-        for (ScrollableElement element : scrollDisplays) {
+        for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
                 if (element.mouseAction(
                         DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
@@ -241,14 +210,13 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
             return ActionResult.SIMPLEACTION;
         }
 
-        for (ScrollableElement element : scrollDisplays) {
+        for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
                 if (element.keyTyped(eventCharacter, eventKey).stopActing) {
                     return ActionResult.SIMPLEACTION;
                 }
             }
         }
-
         return super.keyTyped(eventCharacter, eventKey);
     }
 

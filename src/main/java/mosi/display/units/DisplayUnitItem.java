@@ -8,9 +8,12 @@ import mosi.display.hiderules.HideRules;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
+import mosi.display.inventoryrules.ScrollableInventoryRules;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.windows.DisplayUnitButton;
+import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
@@ -30,6 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitCountable, DisplayUnitSettable {
@@ -376,8 +380,27 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
                     getVerticalAlignment());
-            menu.addWindow(new DisplayWindowScrollList(new Coord(0, -10), new Coord(140, 200), 20,
-                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO));
+            menu.addWindow(new DisplayUnitButton(new Coord(0, 80), new Coord(100, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Clicker() {
+                        private InventoryRules rules;
+
+                        private Clicker init(InventoryRules rules) {
+                            this.rules = rules;
+                            return this;
+                        }
+
+                        @Override
+                        public ActionResult onClick() {
+                            return ActionResult.SIMPLEACTION;
+                        }
+
+                        @Override
+                        public ActionResult onRelease() {
+                            return new ActionResult(true, INTERACTION.OPEN, new DisplayWindowScrollList(new Coord(0,
+                                    -10), new Coord(140, 200), 20, VerticalAlignment.TOP_ABSO,
+                                    HorizontalAlignment.CENTER_ABSO, new ScrollableInventoryRules(rules)));
+                        }
+                    }.init(countingRules), Optional.of("Inventory Rules")));
 
             menu.addWindow(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
