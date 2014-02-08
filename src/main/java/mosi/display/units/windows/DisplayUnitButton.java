@@ -17,6 +17,8 @@ import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.resource.ImageResource;
+import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.HorizontalAlignment;
@@ -37,32 +39,70 @@ public class DisplayUnitButton implements DisplayUnit {
     private Coord size;
     private boolean isClicked;
     private boolean isMouseOver;
-
-    private Optional<String> displayText = Optional.of("CLOSE");
+    private Clicker clicker;
 
     private VerticalAlignment vertAlign;
     private HorizontalAlignment horizAlign;
 
-    public static interface click {
+    private Optional<? extends ImageResource> iconImage;
+    private Optional<String> displayText;
 
+    private ImageResource mouseOverImage;
+    private ImageResource downImage;
+    private ImageResource upImage;
+
+    /**
+     * Clicker interface for handling logic. Note that release is only performed if mouse is still within button bounds
+     * and thus onRelease() is not guaranteed for every onClick()
+     */
+    public static interface Clicker {
+        public abstract void onClick();
+
+        /** Perform action on release ONLY IF mouse is still over button */
+        public abstract void onRelease();
     }
 
-    public static class interaction {
-
+    public DisplayUnitButton(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
+            Clicker clicker) {
+        this(offset, size, vertAlign, horizAlign, clicker, Optional.<String> absent());
     }
 
-    public DisplayUnitButton(Coord offset, Coord size) {
-        this.offset = offset;
-        this.size = size;
-        this.vertAlign = VerticalAlignment.BOTTOM_ABSO;
-        this.horizAlign = HorizontalAlignment.CENTER_ABSO;
-    }
-
-    public DisplayUnitButton(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
+    public DisplayUnitButton(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
+            Clicker clicker, Optional<String> displayText) {
         this.offset = offset;
         this.size = size;
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
+        this.clicker = clicker;
+        this.displayText = displayText;
+        iconImage = Optional.absent();
+        setDefaultImageResources();
+    }
+
+    private final void setDefaultImageResources() {
+        downImage = new GuiButtonImageResource(new Coord(129, 129), new Coord(127, 127));
+        mouseOverImage = new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127));
+        upImage = new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127));
+    }
+
+    public DisplayUnitButton setIconImageResource(ImageResource resource) {
+        iconImage = Optional.of(resource);
+        return this;
+    }
+
+    public DisplayUnitButton setDownImage(ImageResource resource) {
+        downImage = resource;
+        return this;
+    }
+
+    public DisplayUnitButton setMouseOverImage(ImageResource resource) {
+        mouseOverImage = resource;
+        return this;
+    }
+
+    public DisplayUnitButton setUpImage(ImageResource resource) {
+        upImage = resource;
+        return this;
     }
 
     @Override
@@ -82,12 +122,12 @@ public class DisplayUnitButton implements DisplayUnit {
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.CENTER_ABSO;
+        return horizAlign;
     }
 
     @Override
     public VerticalAlignment getVerticalAlignment() {
-        return VerticalAlignment.BOTTOM_ABSO;
+        return vertAlign;
     }
 
     @Override
@@ -108,27 +148,29 @@ public class DisplayUnitButton implements DisplayUnit {
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        mc.getTextureManager().bindTexture(guiIcons);
-        /* GUI Image */
-        Coord iconCoord = new Coord(111, 2);
-        Coord iconSize = new Coord(12, 16);
-        DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + getSize().x / 2 - iconSize.x
-                / 2, position.z + getSize().z / 2 - iconSize.z / 2, 111, 2, 12, 16);
-
-        // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + 3, position.z + 2, 111, 2,
-        // 12, 16);
-        mc.getTextureManager().bindTexture(guiButton);
-
         /* Background */
         if (isClicked) {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(128,
-                    128), new Coord(127, 127));
+            mc.getTextureManager().bindTexture(downImage.getImageToBind());
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                    downImage.getImageUV(), downImage.getImageSize());
         } else if (isMouseOver) {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(000,
-                    0), new Coord(127, 127));
+            mc.getTextureManager().bindTexture(mouseOverImage.getImageToBind());
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                    mouseOverImage.getImageUV(), mouseOverImage.getImageSize());
         } else {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -0.1f, position, getSize(), new Coord(128,
-                    0), new Coord(127, 127));
+            mc.getTextureManager().bindTexture(upImage.getImageToBind());
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -0.1f, position, getSize(),
+                    upImage.getImageUV(), upImage.getImageSize());
+        }
+
+        /* GUI Image */
+        if (iconImage.isPresent()) {
+            mc.getTextureManager().bindTexture(iconImage.get().getImageToBind());
+            Coord imageSize = iconImage.get().getImageSize();
+            Coord iamgeUV = iconImage.get().getImageUV();
+            iamgeUV = new Coord(165, 2);
+            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, new Coord(position.x + getSize().x
+                    / 2 - imageSize.x / 2, position.z + getSize().z / 2 - imageSize.z / 2), iamgeUV, imageSize);
         }
 
         if (displayText.isPresent()) {
@@ -153,17 +195,21 @@ public class DisplayUnitButton implements DisplayUnit {
             // actionData[0] == EventButton, 0 == Left-Click, 1 == Right-Click
             if (actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
                 isClicked = true;
+                clicker.onClick();
                 return ActionResult.SIMPLEACTION;
             }
             break;
         case CLICK_MOVE:
             break;
         case RELEASE:
-            if (isClicked) {
-                // ReleaseAction();
+            if (isClicked && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
+                clicker.onRelease();
+                isClicked = false;
+                return ActionResult.SIMPLEACTION;
+            } else {
+                isClicked = false;
+                return ActionResult.NOACTION;
             }
-            isClicked = false;
-            return ActionResult.NOACTION;
         }
         return ActionResult.NOACTION;
     }

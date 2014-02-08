@@ -3,8 +3,30 @@ package mosi.display.inventoryrules;
 import net.minecraft.item.ItemStack;
 
 public class ItemMetaMatch extends ItemIdMatch {
-    public final int minItemDamage;
-    public final int maxItemDamage;
+    private int minItemDamage;
+    private int maxItemDamage;
+
+    public void setMinItemDamage(int minItemDamage) {
+        this.minItemDamage = minItemDamage;
+        if (maxItemDamage < minItemDamage) {
+            maxItemDamage = minItemDamage;
+        }
+    }
+
+    public void setMaxItemDamage(int maxItemDamage) {
+        this.maxItemDamage = maxItemDamage;
+        if (minItemDamage > maxItemDamage) {
+            minItemDamage = maxItemDamage;
+        }
+    }
+
+    public int getMinItemDamage() {
+        return minItemDamage;
+    }
+
+    public int getMaxItemDamage() {
+        return maxItemDamage;
+    }
 
     public ItemMetaMatch(String itemId, int itemDamage, boolean multipleMatches) {
         this(itemId, itemDamage, itemDamage, multipleMatches);

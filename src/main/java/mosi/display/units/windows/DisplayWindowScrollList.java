@@ -8,7 +8,10 @@ import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.inventoryrules.InventoryRules;
+import mosi.display.inventoryrules.ItemHandMatch;
 import mosi.display.inventoryrules.ItemIdMatch;
+import mosi.display.inventoryrules.ItemMetaMatch;
+import mosi.display.inventoryrules.ItemSlotMatch;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnitItem;
@@ -81,8 +84,11 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
 
             public Scrollable init() {
                 scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
+                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemMetaMatch("grass", 0, true), this));
+                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemMetaMatch("grass", 1, true), this));
                 scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
-                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
+                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemSlotMatch(1, false), this));
+                scrollDisplays.add(new DisplayUnitInventoryRule(new ItemHandMatch(), this));
                 scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
                 scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
                 scrollDisplays.add(new DisplayUnitInventoryRule(new ItemIdMatch("grass", true), this));
@@ -148,6 +154,10 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
             elementPosY += element.getSize().z;
             element.setOffset(new Coord(0, zCoord));
         }
+        for (DisplayUnitSettable element : scrollDisplays) {
+            element.onUpdate(mc, ticks);
+        }
+        
         super.onUpdate(mc, ticks);
     }
 
@@ -181,7 +191,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, new Coord(getSize().x,
                 headerSize), new Coord(0, 0), new Coord(127, 127));
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f,
-                position.add(0, getSize().z - headerSize), new Coord(getSize().x, headerSize), new Coord(0, 0),
+                position.add(0, getSize().z + 1 - headerSize), new Coord(getSize().x, headerSize), new Coord(0, 0),
                 new Coord(127, 127));
 
         slider.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), slider));

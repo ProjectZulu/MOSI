@@ -5,8 +5,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class ItemIdMatch implements InventoryRule {
-    private String itemId;
-    public final boolean multipleMatches;
+    public String itemId;
+    public boolean multipleMatches;
 
     public ItemIdMatch(String itemId, boolean multipleMatches) {
         this.itemId = itemId;

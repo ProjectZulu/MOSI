@@ -46,6 +46,7 @@ public interface DisplayUnit {
      */
     public void renderDisplay(Minecraft mc, Coord position);
 
+    // TODO: Change from mousePOsition to MouseOver similar to MouseAction with enum ENTER, HOVER_MOVE, EXIT
     public SimpleAction mousePosition(Coord localMouse);
 
     public enum MouseAction {

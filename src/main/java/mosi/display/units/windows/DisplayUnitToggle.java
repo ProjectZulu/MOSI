@@ -1,34 +1,25 @@
 package mosi.display.units.windows;
 
-import javax.swing.GroupLayout.Alignment;
-
-import org.lwjgl.opengl.GL11;
-
+import mosi.display.DisplayHelper;
+import mosi.display.DisplayRenderHelper;
+import mosi.display.DisplayUnitFactory;
+import mosi.display.resource.ImageResource;
+import mosi.display.resource.SimpleImageResource;
+import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
+import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
-import mosi.display.DisplayHelper;
-import mosi.display.DisplayRenderHelper;
-import mosi.display.DisplayUnitFactory;
-import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitItem;
-import mosi.display.units.DisplayUnit.ActionResult;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
-import mosi.display.units.DisplayUnit.MouseAction;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
-import mosi.utilities.Coord;
-
 public class DisplayUnitToggle implements DisplayUnit {
-    public static final ResourceLocation guiButton = new ResourceLocation("mosi", "buttongui.png");
-    public static final ResourceLocation guiIcons = new ResourceLocation("mosi", "icons.png");
-
     public static final String DISPLAY_ID = "DisplayUnitToggle";
 
     private Coord offset;
@@ -36,13 +27,16 @@ public class DisplayUnitToggle implements DisplayUnit {
     private boolean isClicked;
     private boolean isMouseOver;
 
-    private Optional<String> displayText;
-    private Optional<Coord> iconCoord;
-    private Coord iconSize;
-
     private VerticalAlignment vertAlign;
     private HorizontalAlignment horizAlign;
     private Toggle toggle;
+
+    private Optional<? extends ImageResource> iconImage;
+    private Optional<String> displayText;
+
+    private ImageResource mouseOverImage;
+    private ImageResource toggledImage;
+    private ImageResource defaultImage;
 
     public static interface Toggle {
         /* Toggles the internal value */
@@ -53,46 +47,46 @@ public class DisplayUnitToggle implements DisplayUnit {
     }
 
     public DisplayUnitToggle(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horzAlign,
-            String displayText, Toggle toggle) {
-        this.offset = offset;
-        this.size = size;
-        this.vertAlign = vertAlign;
-        this.horizAlign = horzAlign;
-        this.displayText = Optional.of(displayText);
-        this.toggle = toggle;
-        this.iconCoord = Optional.absent();
+            Toggle toggle) {
+        this(offset, size, vertAlign, horzAlign, toggle, Optional.<String> absent());
     }
 
-    // Toggle toggleLeftAligned = new Toggle() {
-    // private DisplayUnitItem displayToToggle;
-    //
-    // private Toggle init(DisplayUnitItem displayToToggle) {
-    // this.displayToToggle = displayToToggle;
-    // return this;
-    // }
-    //
-    // @Override
-    // public void toggle() {
-    // // displayToToggle.setHorizontalAlignment(HorizontalAlignment.LEFT_ABSO);
-    // }
-    //
-    // @Override
-    // public boolean isToggles() {
-    // return displayToToggle.getHorizontalAlignment() == HorizontalAlignment.LEFT_ABSO;
-    // }
-    //
-    // }.init(displayItem);
-
     public DisplayUnitToggle(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horzAlign,
-            Coord iconCoord, Coord iconSize, Toggle toggle) {
+            Toggle toggle, Optional<String> displayText) {
         this.offset = offset;
         this.size = size;
         this.vertAlign = vertAlign;
         this.horizAlign = horzAlign;
-        this.iconCoord = Optional.of(iconCoord);
-        this.iconSize = iconSize;
         this.toggle = toggle;
-        this.displayText = Optional.absent();
+        this.displayText = displayText;
+        this.iconImage = Optional.absent();
+        this.setDefaultImageResource();
+    }
+
+    private final void setDefaultImageResource() {
+        toggledImage = new GuiButtonImageResource(new Coord(129, 129), new Coord(127, 127));
+        mouseOverImage = new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127));
+        defaultImage = new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127));
+    }
+
+    public final DisplayUnitToggle setIconImageResource(ImageResource resource) {
+        iconImage = Optional.of(resource);
+        return this;
+    }
+
+    public final DisplayUnitToggle setToggledImage(ImageResource resource) {
+        toggledImage = resource;
+        return this;
+    }
+
+    public final DisplayUnitToggle setMouseOverImage(ImageResource resource) {
+        mouseOverImage = resource;
+        return this;
+    }
+
+    public final DisplayUnitToggle setDefaultImage(ImageResource resource) {
+        defaultImage = resource;
+        return this;
     }
 
     @Override
@@ -140,29 +134,32 @@ public class DisplayUnitToggle implements DisplayUnit {
 
         // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + 3, position.z + 2, 111, 2,
         // 12, 16);
-        mc.getTextureManager().bindTexture(guiButton);
 
         /* Background */
         // TODO: The Background Texture and Coords for Toggled/UnToggled/Hover need to be configurable via a setter, BUT
         // the default is set during the constructor
         if (toggle.isToggled()) {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(129,
-                    129), new Coord(127, 127));
+            mc.getTextureManager().bindTexture(toggledImage.getImageToBind());
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                    toggledImage.getImageUV(), toggledImage.getImageSize());
         } else if (isMouseOver) {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(000,
-                    0), new Coord(127, 127));
+            mc.getTextureManager().bindTexture(mouseOverImage.getImageToBind());
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                    mouseOverImage.getImageUV(), mouseOverImage.getImageSize());
         } else {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -0.1f, position, getSize(), new Coord(129,
-                    0), new Coord(127, 127));
+            mc.getTextureManager().bindTexture(defaultImage.getImageToBind());
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -0.1f, position, getSize(),
+                    defaultImage.getImageUV(), defaultImage.getImageSize());
         }
 
         // TODO: GuiIcons should be a passable parameter
-        mc.getTextureManager().bindTexture(guiIcons);
         /* GUI Image */
-        if (iconCoord.isPresent()) {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, position.x + getSize().x / 2
-                    - iconSize.x / 2, position.z + getSize().z / 2 - iconSize.z / 2, iconCoord.get().x,
-                    iconCoord.get().z, iconSize.x, iconSize.z);
+        if (iconImage.isPresent()) {
+            mc.getTextureManager().bindTexture(iconImage.get().getImageToBind());
+            Coord imageSize = iconImage.get().getImageSize();
+            Coord iamgeUV = iconImage.get().getImageUV();
+            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, new Coord(position.x + getSize().x
+                    / 2 - imageSize.x / 2, position.z + getSize().z / 2 - imageSize.z / 2), iamgeUV, imageSize);
         }
 
         if (displayText.isPresent()) {

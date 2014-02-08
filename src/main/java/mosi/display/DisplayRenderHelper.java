@@ -68,6 +68,28 @@ public class DisplayRenderHelper {
         tess.draw();
     }
 
+    public static void drawTexturedModalRect(Tessellator tess, float zLevel, Coord screenPos, Coord imageUV,
+            Coord imageSize) {
+        float var7 = 0.00390625F; // == 1/256-> Image scale from screen to file? 1/256
+        float var8 = 0.00390625F;
+        tess.startDrawingQuads();
+        double x1 = screenPos.x + 0;
+        double y1 = screenPos.z + 0;
+        double x2 = screenPos.x + imageSize.x;
+        double y2 = screenPos.z + imageSize.z;
+        double z = zLevel;
+        double u1 = (imageUV.x + 0) * var7;
+        double v1 = (imageUV.z + 0) * var8;
+        double u2 = (imageUV.x + imageSize.x) * var7;
+        double v2 = (imageUV.z + imageSize.z) * var8;
+
+        tess.addVertexWithUV(x1, y2, zLevel, u1, v2);
+        tess.addVertexWithUV(x2, y2, zLevel, u2, v2);
+        tess.addVertexWithUV(x2, y1, zLevel, u2, v1);
+        tess.addVertexWithUV(x1, y1, zLevel, u1, v1);
+        tess.draw();
+    }
+
     public static void drawTextureModelFromIcon(Tessellator tess, IIcon icon, Point screenPosition) {
         final float minU = icon.getMinU();
         final float maxU = icon.getMaxU();

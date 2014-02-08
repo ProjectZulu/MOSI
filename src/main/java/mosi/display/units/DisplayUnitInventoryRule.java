@@ -7,15 +7,26 @@ import mosi.display.inventoryrules.ItemHandMatch;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ItemMetaMatch;
 import mosi.display.inventoryrules.ItemSlotMatch;
+import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.windows.DisplayUnitButton;
+import mosi.display.units.windows.DisplayUnitTextField;
+import mosi.display.units.windows.DisplayUnitTextField.Validator;
+import mosi.display.units.windows.DisplayUnitToggle;
+import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.display.units.windows.DisplayWindow;
 import mosi.display.units.windows.DisplayWindowScrollList.Scrollable;
 import mosi.display.units.windows.DisplayWindowScrollList.ScrollableElement;
+import mosi.display.units.windows.list.ScrobbleElementRemoveButton;
+import mosi.display.units.windows.text.ValidatorBoundedInt;
+import mosi.display.units.windows.text.ValidatorInt;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.Item;
+import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
@@ -37,7 +48,16 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     // TODO: A more generic way to get editable segments of InventoryRules. Theres only a few atm, so individual support
     // is manageable
     public enum RULEID {
-        HAND, ID, IDMETA, SLOT;
+        HAND, ID, IDMETA("ID-META"), SLOT;
+        public final String displayName;
+
+        private RULEID() {
+            this.displayName = this.toString();
+        }
+
+        private RULEID(String displayName) {
+            this.displayName = displayName;
+        }
     }
 
     /**
@@ -47,35 +67,177 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
      */
     public DisplayUnitInventoryRule(ItemHandMatch inventoryRule, Scrollable container) {
         ruleId = RULEID.HAND;
-        size = new Coord(40, 20);
+        // Add button to remove rule
+        addWindow(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+        size = new Coord(105, 22);
         this.container = container;
     }
 
+    //
     public DisplayUnitInventoryRule(ItemIdMatch inventoryRule, Scrollable container) {
         ruleId = RULEID.ID;
-
         // Add TextBox to set string id --> will eventually be scroll list
+        addWindow(new DisplayUnitTextField(new Coord(22, 2), new Coord(60, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, 30, new ItemIdTextField(inventoryRule)));
         // Add Toggle to set multipleMatches
-        size = new Coord(40, 20);
+        addWindow(new DisplayUnitToggle(new Coord(83, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new ToggleMultipleMatches(inventoryRule))
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+        // Add button to remove rule
+        addWindow(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+        size = new Coord(140, 24);
         this.container = container;
     }
 
-    public DisplayUnitInventoryRule(ItemMetaMatch inventoryRule, Scrollable container) {
+    public DisplayUnitInventoryRule(final ItemMetaMatch inventoryRule, Scrollable container) {
         ruleId = RULEID.IDMETA;
         // Add TextBox to set string id --> will eventually be scroll list
-        // Add TextBox to set string damage (--> eventually scroll list that selected id + damage?)
+        addWindow(new DisplayUnitTextField(new Coord(2, 23), new Coord(60, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, 30, new ItemIdTextField(inventoryRule)));
+        // Add TextBox to set min string damage (--> eventually scroll list that selects id + damage?)
+        addWindow(new DisplayUnitTextField(new Coord(63, 23), new Coord(30, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, 5, new ValidatorBoundedInt(0, 65535) {
+
+                    @Override
+                    public void setString(String text) {
+                        inventoryRule.setMinItemDamage(Integer.parseInt(text));
+                    }
+
+                    @Override
+                    public String getString() {
+                        return Integer.toString(inventoryRule.getMinItemDamage());
+                    }
+                }));
+        // Add TextBox to set max string damage (--> eventually scroll list that selects id + damage?)
+        addWindow(new DisplayUnitTextField(new Coord(94, 23), new Coord(30, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, 5, new ValidatorBoundedInt(0, 65535) {
+
+                    @Override
+                    public void setString(String text) {
+                        inventoryRule.setMaxItemDamage(Integer.parseInt(text));
+                    }
+
+                    @Override
+                    public String getString() {
+                        return Integer.toString(inventoryRule.getMaxItemDamage());
+                    }
+                }));
         // Add Toggle to set multipleMatches
-        size = new Coord(40, 20);
+        addWindow(new DisplayUnitToggle(new Coord(83, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new ToggleMultipleMatches(inventoryRule))
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+        // Add button to remove rule
+        addWindow(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+        size = new Coord(140, 44);
         this.container = container;
     }
 
-    public DisplayUnitInventoryRule(ItemSlotMatch inventoryRule, Scrollable container) {
+    public DisplayUnitInventoryRule(final ItemSlotMatch inventoryRule, Scrollable container) {
         ruleId = RULEID.SLOT;
         // Add TextBox to set string slotId --> will eventually be scroll list
         // Add TextBox to set string armorSlot (--> eventually scroll list that selected id + damage?)
-        // Add Toggle to set multipleMatches
-        size = new Coord(40, 20);
+        addWindow(new DisplayUnitTextField(new Coord(52, 2), new Coord(30, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, 2, new ValidatorInt() {
+
+                    @Override
+                    public boolean isStringValid(String text) {
+                        if (!super.isStringValid(text)) {
+                            return false;
+                        }
+                        Integer slotId = Integer.parseInt(text);
+                        if (inventoryRule.armorSlot) {
+                            return slotId >= 0
+                                    && slotId < Minecraft.getMinecraft().thePlayer.inventory.armorInventory.length;
+                        } else {
+                            return slotId >= 0
+                                    && slotId < Minecraft.getMinecraft().thePlayer.inventory.mainInventory.length;
+                        }
+                    }
+
+                    @Override
+                    public void setString(String text) {
+                        inventoryRule.setSlotId(Integer.parseInt(text));
+                    }
+
+                    @Override
+                    public String getString() {
+                        return Integer.toString(inventoryRule.getSlotId());
+                    }
+                }));
+        // Add Toggle for ifArmorSlot
+        addWindow(new DisplayUnitToggle(new Coord(83, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new Toggle() {
+
+                    @Override
+                    public void toggle() {
+                        inventoryRule.armorSlot = !inventoryRule.armorSlot;
+                        /* Reset armor slot such that the slotId is still properly bounded */
+                        inventoryRule.setSlotId(inventoryRule.getSlotId());
+                    }
+
+                    @Override
+                    public boolean isToggled() {
+                        return inventoryRule.armorSlot;
+                    }
+                }).setIconImageResource(new GuiIconImageResource(new Coord(202, 23), new Coord(12, 16))));
+        // Add button to remove rule
+        addWindow(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+        size = new Coord(105, 22);
         this.container = container;
+    }
+
+    private static class ItemIdTextField implements Validator {
+        private ItemIdMatch matchRule;
+
+        public ItemIdTextField(ItemIdMatch matchRule) {
+            this.matchRule = matchRule;
+        }
+
+        @Override
+        public boolean isCharacterValid(char eventCharacter) {
+            return ChatAllowedCharacters.isAllowedCharacter(eventCharacter);
+        }
+
+        @Override
+        public boolean isStringValid(String text) {
+            return Item.field_150901_e.getObject(text) != null;
+        }
+
+        @Override
+        public void setString(String text) {
+            matchRule.itemId = text;
+        }
+
+        @Override
+        public String getString() {
+            return matchRule.itemId;
+        }
+    }
+
+    private static class ToggleMultipleMatches implements Toggle {
+        private ItemIdMatch matchRule;
+
+        public ToggleMultipleMatches(ItemIdMatch matchRule) {
+            this.matchRule = matchRule;
+        }
+
+        @Override
+        public void toggle() {
+            matchRule.multipleMatches = !matchRule.multipleMatches;
+        }
+
+        @Override
+        public boolean isToggled() {
+            return matchRule.multipleMatches;
+        }
     }
 
     @Override
@@ -125,7 +287,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
 
     @Override
     public void renderSubDisplay(Minecraft mc, Coord position) {
-        FontRenderer fontrenderer = mc.fontRenderer;
+        FontRenderer fontRenderer = mc.fontRenderer;
         mc.getTextureManager().bindTexture(guiButton);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glEnable(GL11.GL_BLEND);
@@ -135,13 +297,24 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
             DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(000,
                     000), new Coord(127, 127));
         } else {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, getSize(), new Coord(000,
-                    128), new Coord(127, 127));
+            // DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, getSize(), new
+            // Coord(000,
+            // 128), new Coord(127, 127));
         }
+
+        String shortName = (String) fontRenderer.listFormattedStringToWidth(ruleId.displayName, getSize().x).get(0);
+        // Note posZ-4+getSize/2. -4 is to 'center' the string vertically, and getSize/2 is to move center to the
+        // middle button
+        DisplayRenderHelper.drawString(fontRenderer, shortName + ":", position.x + 3, position.z
+                + fontRenderer.FONT_HEIGHT / 2, 16777120, true);
     }
 
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
+        SimpleAction action = super.mousePosition(localMouse);
+        if (action != ActionResult.NOACTION) {
+            return action;
+        }
         isMouseOver = DisplayHelper.isCursorOverDisplay(localMouse, this);
         return isMouseOver ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
     }

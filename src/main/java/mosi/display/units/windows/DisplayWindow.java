@@ -8,6 +8,7 @@ import java.util.Queue;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitMoveable;
@@ -140,6 +141,9 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
      * @return StopProcessing - true if processing should be stopped
      */
     private boolean processActionResult(ActionResult action, DisplayUnit provider) {
+        if (provider != null && provider instanceof DisplayUnitInventoryRule) {
+            boolean blah = true;
+        }
         switch (action.interaction) {
         case CLOSE:
             if (action.display.isPresent()) {
