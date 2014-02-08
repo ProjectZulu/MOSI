@@ -27,39 +27,56 @@ import com.google.gson.JsonObject;
 public abstract class DisplayWindow extends DisplayUnitMoveable {
     public static final String DISPLAY_ID = "DisplayUnitWindow";
 
-    protected final ArrayList<DisplayUnit> children;
+    /**
+     * Windows are child displays that, while depending on the parent display fulfill some isolated role such as a
+     * pop-up to select an item. Windows should be able to be closed without closing the parent.
+     */
+    private ArrayList<DisplayUnit> windows;
+    /**
+     * Elements are part of the children of the current window, such as a text field and buttons that should exist as
+     * long as the parent exists
+     */
+    protected final ArrayList<DisplayUnit> elements;
+
     // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
     private final Queue<DisplayUnit> priority;
 
     public DisplayWindow() {
-        super(new Coord(0, 0));
-        this.children = new ArrayList<DisplayUnit>();
-        this.priority = new ArrayDeque<DisplayUnit>();
+        this(new Coord(0, 0));
     }
 
     public DisplayWindow(Coord coord) {
         super(coord);
-        this.children = new ArrayList<DisplayUnit>();
+        this.windows = new ArrayList<DisplayUnit>();
         this.priority = new ArrayDeque<DisplayUnit>();
+        this.elements = new ArrayList<DisplayUnit>();
     }
 
-    public boolean addWindow(DisplayUnit window) {
-        return children.add(window);
+    public final void addWindow(DisplayUnit window) {
+        windows.add(0, window);
     }
 
-    public boolean removeWindow(DisplayUnit window) {
-        return children.remove(window);
+    public final boolean removeWindow(DisplayUnit window) {
+        return windows.remove(window);
     }
 
-    protected void clearWindows() {
-        children.clear();
+    protected final void clearWindows() {
+        windows.clear();
+    }
+
+    public boolean addElement(DisplayUnit element) {
+        return elements.add(element);
+    }
+    
+    public boolean removeElement(DisplayUnit element) {
+        return elements.remove(element);
     }
 
     @Override
     public final String getType() {
         StringBuilder sb = new StringBuilder();
         sb.append(DISPLAY_ID).append(":").append(getSubType()).append("[");
-        Iterator<DisplayUnit> iterator = children.iterator();
+        Iterator<DisplayUnit> iterator = windows.iterator();
         while (iterator.hasNext()) {
             DisplayUnit window = iterator.next();
             sb.append(window.getType());
@@ -77,27 +94,41 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     public void onUpdate(Minecraft mc, int ticks) {
         while (!priority.isEmpty()) {
             DisplayUnit display = priority.poll();
-            children.remove(display);
-            children.add(0, display);
+            windows.remove(display);
+            windows.add(0, display);
         }
 
-        for (DisplayUnit display : children) {
-            display.onUpdate(mc, ticks);
+        for (DisplayUnit window : windows) {
+            window.onUpdate(mc, ticks);
+        }
+
+        for (DisplayUnit element : elements) {
+            element.onUpdate(mc, ticks);
         }
     }
 
     @Override
     public boolean shouldRender(Minecraft mc) {
-        // Does DisplayWindow do any rendering?
         return true;
     }
 
     @Override
     public final void renderDisplay(Minecraft mc, Coord position) {
         renderSubDisplay(mc, position);
-        for (DisplayUnit window : children) {
+        
+        for (int i = elements.size() - 1; i >= 0; i--) {
+            DisplayUnit element = elements.get(i);
+            element.renderDisplay(mc,
+                    DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), element));
+        }
+        
+        /**
+         * Reverse iteration we are doing back to front rendering and top of list is considered 'front' i.e. given
+         * priority for clicks
+         */
+        for (int i = windows.size() - 1; i >= 0; i--) {
+            DisplayUnit window = windows.get(i);
             window.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), window));
-            // window.renderDisplay(mc, DisplayHelper.determineScreenPositionFromDisplay(mc, window));
         }
     }
 
@@ -115,22 +146,38 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
 
     @Override
     public SimpleAction mousePosition(Coord localMouse) {
-        for (DisplayUnit window : children) {
+        for (DisplayUnit window : windows) {
             SimpleAction action = window.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
                     localMouse, this, window));
             if (action.stopActing) {
                 return action;
             }
         }
+
+        for (DisplayUnit element : elements) {
+            SimpleAction action = element.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
+                    localMouse, this, element));
+            if (action.stopActing) {
+                return action;
+            }
+        }
+
         return ActionResult.NOACTION;
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        for (DisplayUnit window : children) {
-            if (processActionResult(window.mouseAction(
+        for (DisplayUnit window : windows) {
+            if (processWindowActionResult(window.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window), action,
                     actionData), window)) {
+                return ActionResult.SIMPLEACTION;
+            }
+        }
+        for (DisplayUnit element : elements) {
+            if (processElementActionResult(element.mouseAction(
+                    DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
+                    actionData), element)) {
                 return ActionResult.SIMPLEACTION;
             }
         }
@@ -140,31 +187,31 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     /**
      * @return StopProcessing - true if processing should be stopped
      */
-    private boolean processActionResult(ActionResult action, DisplayUnit provider) {
+    private boolean processWindowActionResult(ActionResult action, DisplayUnit provider) {
         if (provider != null && provider instanceof DisplayUnitInventoryRule) {
             boolean blah = true;
         }
         switch (action.interaction) {
         case CLOSE:
             if (action.display.isPresent()) {
-                children.remove(action.display);
+                windows.remove(action.display);
             }
             break;
         case REPLACE:
             if (action.display.isPresent()) {
-                children.remove(provider);
-                children.add(action.display.get());
+                windows.remove(provider);
+                windows.add(action.display.get());
             }
             break;
         case REPLACE_ALL:
-            children.clear();
+            windows.clear();
             if (action.display.isPresent()) {
-                children.add(action.display.get());
+                windows.add(action.display.get());
             }
             break;
         case OPEN:
             if (action.display.isPresent()) {
-                children.add(action.display.get());
+                windows.add(action.display.get());
             }
             break;
         case NONE:
@@ -177,10 +224,44 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
         return action.stopActing;
     }
 
+    private boolean processElementActionResult(ActionResult action, DisplayUnit provider) {
+        if (provider != null && provider instanceof DisplayUnitInventoryRule) {
+            boolean blah = true;
+        }
+        switch (action.interaction) {
+        case CLOSE:
+            if (action.display.isPresent()) {
+                windows.remove(action.display);
+            }
+            break;
+        case REPLACE:
+            throw new IllegalArgumentException("Display ELEMENTS do not support 'REPLACE' Interaction");
+        case REPLACE_ALL:
+            windows.clear();
+            if (action.display.isPresent()) {
+                addWindow(action.display.get());
+            }
+            break;
+        case OPEN:
+            if (action.display.isPresent()) {
+                addWindow(action.display.get());
+            }
+            break;
+        case NONE:
+            break;
+        }
+        return action.stopActing;
+    }
+
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        for (DisplayUnit window : children) {
-            if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
+        for (DisplayUnit window : windows) {
+            if (processWindowActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
+                return ActionResult.SIMPLEACTION;
+            }
+        }
+        for (DisplayUnit element : elements) {
+            if (processElementActionResult(element.keyTyped(eventCharacter, eventKey), element)) {
                 return ActionResult.SIMPLEACTION;
             }
         }

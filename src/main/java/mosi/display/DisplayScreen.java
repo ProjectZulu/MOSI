@@ -83,7 +83,13 @@ public class DisplayScreen extends GuiScreen {
             displayUnit.mousePosition(localMouse);
         }
         GL11.glDisable(GL11.GL_DEPTH_TEST);
-        for (DisplayUnit displayUnit : windows) {
+        
+        /**
+         * Reverse iteration we are doing back to front rendering and top of list is considered 'front' i.e. given
+         * priority for clicks
+         */
+        for (int i = windows.size() - 1; i >= 0; i--) {
+            DisplayUnit displayUnit = windows.get(i);
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
             Coord screenPos = DisplayHelper.determineScreenPositionFromDisplay(getMinecraft(), new Coord(0, 0),

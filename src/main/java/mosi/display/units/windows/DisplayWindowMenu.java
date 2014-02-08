@@ -80,13 +80,13 @@ public class DisplayWindowMenu extends DisplayWindow {
     }
 
     @Override
-    public boolean addWindow(DisplayUnit window) {
-        if (super.addWindow(window)) {
+    public boolean addElement(DisplayUnit element) {
+        if (super.addElement(element)) {
             int minX = 0;
             int maxX = 0;
             int minY = 0;
             int maxY = 0;
-            for (DisplayUnit display : children) {
+            for (DisplayUnit display : elements) {
                 Coord offset = display.getOffset();
                 Coord size = display.getSize();
                 minX = Math.min(offset.x, minX);
@@ -106,13 +106,13 @@ public class DisplayWindowMenu extends DisplayWindow {
     }
 
     @Override
-    public boolean removeWindow(DisplayUnit window) {
-        if (super.removeWindow(window)) {
+    public boolean removeElement(DisplayUnit window) {
+        if (super.removeElement(window)) {
             int minX = 0;
             int maxX = 0;
             int minY = 0;
             int maxY = 0;
-            for (DisplayUnit display : children) {
+            for (DisplayUnit display : elements) {
                 Coord offset = display.getOffset();
                 minX = Math.min(offset.x, minX);
                 maxX = Math.max(offset.x, maxX);
