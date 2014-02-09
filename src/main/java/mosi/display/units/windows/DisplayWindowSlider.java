@@ -63,6 +63,9 @@ public class DisplayWindowSlider implements DisplayUnit {
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
         this.scrolled = scrolled;
+        this.mousePosOnClick = offset;
+        this.offsetPosOnClick = offset;
+
     }
 
     public DisplayWindowSlider setZLevel(float zLevel) {
@@ -161,7 +164,7 @@ public class DisplayWindowSlider implements DisplayUnit {
     }
 
     @Override
-    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {        
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
         if (!hoverChecker.isHoverFound() && hoverAction == HoverAction.HOVER) {
             isMouseOver = true;
             hoverChecker.markHoverFound();
@@ -197,6 +200,19 @@ public class DisplayWindowSlider implements DisplayUnit {
         case RELEASE:
             clickedOn = false;
             return ActionResult.NOACTION;
+        case SCROLL:
+            if (!clickedOn) {
+                int scrollFactor = actionData[0] / 120;
+                if (scrollVertically) {
+                    offset = offset.add(0, scrollHeight * scrollFactor / 20);
+                } else {
+                    offset = offsetPosOnClick.add(scrollHeight * scrollFactor / 20, 0);
+                }
+                ensureScrollBounded();
+                scrolled.setScrollDistance(getScrollDistance(), scrollHeight);
+                return ActionResult.SIMPLEACTION;
+            }
+            break;
         }
         return ActionResult.NOACTION;
     }

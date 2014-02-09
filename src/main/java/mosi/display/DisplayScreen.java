@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import mosi.DisplayUnitRegistry;
+import mosi.Log;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.HoverAction;
@@ -17,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
@@ -125,6 +127,35 @@ public class DisplayScreen extends GuiScreen {
     }
 
     @Override
+    public void func_146274_d() {
+        super.func_146274_d();
+        int mouseScaledX = Mouse.getEventX() * this.field_146294_l / this.field_146297_k.displayWidth;
+        int mouseScaledY = this.field_146295_m - Mouse.getEventY() * this.field_146295_m
+                / this.field_146297_k.displayHeight - 1;
+        int scrollAmount = Mouse.getEventDWheel();
+        if (scrollAmount != 0) {
+            Log.log().info("Scroll evetn with [%s]", scrollAmount);
+            for (DisplayUnit window : windows) {
+                Coord localMouse = DisplayHelper
+                        .localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
+                if (processActionResult(window.mouseAction(localMouse, MouseAction.SCROLL, scrollAmount), window)) {
+                    return;
+                }
+            }
+
+            ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+            for (DisplayUnit displayUnit : displayList) {
+                Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+                        displayUnit);
+                if (processActionResult(displayUnit.mouseAction(localMouse, MouseAction.SCROLL, scrollAmount),
+                        displayUnit)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
     protected void mouseClicked(int mouseScaledX, int mouseScaledY, int eventbutton) {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
         for (DisplayUnit window : windows) {
@@ -153,6 +184,7 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
         super.func_146286_b(mouseScaledX, mouseScaledY, which);
+        Log.log().info("mouseMovedOrUp");
         if (which == 0 || which == 1) {
             for (DisplayUnit window : windows) {
                 Coord localMouse = DisplayHelper
@@ -176,6 +208,7 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146273_a(int mouseScaledX, int mouseScaledY, int lastButtonClicked, long timeSinceMouseClick) {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
+        Log.log().info("mouseClickMove");
         for (DisplayUnit window : windows) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
             if (processActionResult(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
@@ -196,6 +229,7 @@ public class DisplayScreen extends GuiScreen {
 
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
+        Log.log().info("keyTyped");
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit window : windows) {
             if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {

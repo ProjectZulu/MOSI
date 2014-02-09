@@ -43,6 +43,8 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
         case RELEASE:
             clickedOn = false;
             return ActionResult.NOACTION;
+        case SCROLL:
+            break;
         }
         return ActionResult.NOACTION;
     }

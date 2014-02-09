@@ -84,8 +84,9 @@ public interface DisplayUnit {
         /* vararg 0: int lastButtonClicked */
         CLICK_MOVE,
         /* No arguments */
-        RELEASE;
-        // TODO: Scroll with varargs 0: int directionAmount?
+        RELEASE,
+        /* varargs 0: scroll direction amount, typically multiples of 120 though can vary by mouse */
+        SCROLL;
     }
 
     /**

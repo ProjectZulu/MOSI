@@ -214,6 +214,8 @@ public class DisplayUnitButton implements DisplayUnit {
                 isClicked = false;
                 return ActionResult.NOACTION;
             }
+        case SCROLL:
+            break;
         }
         return ActionResult.NOACTION;
     }
