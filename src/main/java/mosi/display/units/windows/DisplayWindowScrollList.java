@@ -1,26 +1,14 @@
 package mosi.display.units.windows;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
-import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
-import mosi.display.inventoryrules.InventoryRules;
-import mosi.display.inventoryrules.ItemHandMatch;
-import mosi.display.inventoryrules.ItemIdMatch;
-import mosi.display.inventoryrules.ItemMetaMatch;
-import mosi.display.inventoryrules.ItemSlotMatch;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitInventoryRule;
-import mosi.display.units.DisplayUnitItem;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitSettable;
-import mosi.display.units.windows.DisplayWindowMenu.PositionTextValidator;
 import mosi.display.units.windows.DisplayWindowSlider.Sliden;
+import mosi.display.units.windows.button.CloseClick;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -29,6 +17,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Optional;
 
 /**
  * Vertical scrolling list that handles placement of a list of renderable DisplayUnits based on their sizes
@@ -79,6 +69,8 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
         this.slider = new DisplayWindowSlider(new Coord(0, this.headerSize), new Coord(sliderWidth, sliderWidth),
                 this.scrollLength, true, VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO, this);
         this.scrollable = scrollable;
+        addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(80, 20), VerticalAlignment.BOTTOM_ABSO,
+                HorizontalAlignment.CENTER_ABSO, new CloseClick(this), Optional.of("Close")));
     }
 
     @Override
