@@ -17,10 +17,10 @@ import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
-import mosi.display.units.windows.DisplayWindowMenu.PositionTextValidator;
-import mosi.display.units.windows.DisplayWindowMenu.ToggleHorizAlign;
-import mosi.display.units.windows.DisplayWindowMenu.ToggleVertAlign;
 import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.text.PositionTextValidator;
+import mosi.display.units.windows.toggle.ToggleHorizAlign;
+import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
@@ -33,7 +33,6 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitCountable, DisplayUnitSettable {

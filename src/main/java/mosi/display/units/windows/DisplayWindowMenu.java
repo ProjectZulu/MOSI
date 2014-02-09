@@ -1,6 +1,8 @@
 package mosi.display.units.windows;
 
 import mosi.display.DisplayRenderHelper;
+import mosi.display.resource.ImageResource;
+import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnitSettable;
 import mosi.display.units.windows.DisplayUnitTextField.Validator;
@@ -17,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 /**
- * Simple menu implementation. It is essentially list of buttons/interactables
+ * Simple menu implementation: plain background screens which automatically resizes to fit its elements;
  */
 public class DisplayWindowMenu extends DisplayWindow {
     public static final String DISPLAY_ID = "DisplayWindowMenu";
@@ -27,51 +29,23 @@ public class DisplayWindowMenu extends DisplayWindow {
     private HorizontalAlignment horizAlign;
     private VerticalAlignment vertAlign;
     private Coord size;
+    private ImageResource backgroundImage;
 
     public DisplayWindowMenu(Coord coord, HorizontalAlignment horizAlign, VerticalAlignment vertAlign) {
         super(coord);
         this.horizAlign = horizAlign;
         this.vertAlign = vertAlign;
         this.size = new Coord(20, 20);
+        setDefaultImageResource();
     }
 
-    public static class PositionTextValidator implements Validator {
-        private DisplayUnitSettable display;
-        private boolean xCoord;
+    public DisplayWindowMenu setBackgroundImage(ImageResource backgroundImage) {
+        this.backgroundImage = backgroundImage;
+        return this;
+    }
 
-        public PositionTextValidator(DisplayUnitSettable settableDisplay, boolean xCoord) {
-            this.display = settableDisplay;
-            this.xCoord = xCoord;
-        }
-
-        @Override
-        public boolean isCharacterValid(char eventCharacter) {
-            return ('-' == eventCharacter || Character.isDigit(eventCharacter))
-                    && ChatAllowedCharacters.isAllowedCharacter(eventCharacter);
-        }
-
-        @Override
-        public boolean isStringValid(String text) {
-            return StringHelper.isInteger(text);
-        }
-
-        @Override
-        public void setString(String text) {
-            if (xCoord) {
-                display.setOffset(new Coord(Integer.parseInt(text), display.getOffset().z));
-            } else {
-                display.setOffset(new Coord(display.getOffset().x, Integer.parseInt(text)));
-            }
-        }
-
-        @Override
-        public String getString() {
-            if (xCoord) {
-                return Integer.toString(display.getOffset().x);
-            } else {
-                return Integer.toString(display.getOffset().z);
-            }
-        }
+    private final void setDefaultImageResource() {
+        backgroundImage = new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127));
     }
 
     @Override
@@ -121,50 +95,6 @@ public class DisplayWindowMenu extends DisplayWindow {
         }
     }
 
-    public static class ToggleVertAlign implements Toggle {
-        private DisplayUnitSettable displayToSet;
-        private VerticalAlignment alignmentToSet;
-
-        public ToggleVertAlign(DisplayUnitSettable displayToSet, VerticalAlignment alignment) {
-            this.displayToSet = displayToSet;
-            this.alignmentToSet = alignment;
-        }
-
-        @Override
-        public void toggle() {
-            displayToSet.setVerticalAlignment(alignmentToSet);
-            // Reset position to prevent display from becoming lost outside screen
-            displayToSet.setOffset(new Coord(0, 0));
-        }
-
-        @Override
-        public boolean isToggled() {
-            return displayToSet.getVerticalAlignment() == alignmentToSet;
-        }
-    }
-
-    public static class ToggleHorizAlign implements Toggle {
-        private DisplayUnitSettable displayToSet;
-        private HorizontalAlignment alignmentToSet;
-
-        public ToggleHorizAlign(DisplayUnitSettable displayToSet, HorizontalAlignment alignment) {
-            this.displayToSet = displayToSet;
-            this.alignmentToSet = alignment;
-        }
-
-        @Override
-        public void toggle() {
-            displayToSet.setHorizontalAlignment(alignmentToSet);
-            // Reset position to prevent display from becoming lost outside screen
-            displayToSet.setOffset(new Coord(0, 0));
-        }
-
-        @Override
-        public boolean isToggled() {
-            return displayToSet.getHorizontalAlignment() == alignmentToSet;
-        }
-    }
-
     @Override
     public String getSubType() {
         return DISPLAY_ID;
@@ -188,12 +118,12 @@ public class DisplayWindowMenu extends DisplayWindow {
     @Override
     public void renderSubDisplay(Minecraft mc, Coord position) {
         FontRenderer fontrenderer = mc.fontRenderer;
-        mc.getTextureManager().bindTexture(guiButton); // widgets
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        mc.getTextureManager().bindTexture(backgroundImage.getImageToBind()); // widgets
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
-                new Coord(000, 128), new Coord(127, 127));
+                backgroundImage.getImageUV(), backgroundImage.getImageSize());
     }
 }
