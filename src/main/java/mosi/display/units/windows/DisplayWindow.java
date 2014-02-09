@@ -9,8 +9,6 @@ import java.util.Queue;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
-import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnitMoveable;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
@@ -150,23 +148,27 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker alreadyHovering) {
         for (DisplayUnit window : windows) {
-            SimpleAction action = window.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
-                    localMouse, this, window));
-            if (action.stopActing) {
-                return action.parentResult();
+            Coord childCoords = DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window);
+            HoverAction childHover = HoverAction.OUTSIDE;
+            if (DisplayHelper.isCursorOverDisplay(childCoords, window)) {
+                childHover = !alreadyHovering.isHoverFound() ? HoverAction.HOVER : HoverAction.BLOCKED;
             }
+            window.mousePosition(childCoords, childHover, alreadyHovering);
         }
 
         for (DisplayUnit element : elements) {
-            SimpleAction action = element.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
-                    localMouse, this, element));
-            if (action.stopActing) {
-                return action.parentResult();
+            Coord childCoords = DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element);
+            HoverAction childHover = HoverAction.OUTSIDE;
+            if (DisplayHelper.isCursorOverDisplay(childCoords, element)) {
+                childHover = !alreadyHovering.isHoverFound() ? HoverAction.HOVER : HoverAction.BLOCKED;
             }
+            element.mousePosition(childCoords, childHover, alreadyHovering);
         }
-        return ActionResult.NOACTION;
+        if (hoverAction != HoverAction.OUTSIDE) {
+            alreadyHovering.markHoverFound();
+        }
     }
 
     @Override

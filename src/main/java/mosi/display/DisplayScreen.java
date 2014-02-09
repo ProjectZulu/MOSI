@@ -12,7 +12,10 @@ import mosi.Log;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HoverAction;
+import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.MouseAction;
+import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -86,16 +89,25 @@ public class DisplayScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseScaledX, int mouseScaledY, float renderPartialTicks) {
         super.drawScreen(mouseScaledX, mouseScaledY, renderPartialTicks);
+
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
-        for (DisplayUnit displayUnit : displayList) {
-            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
-                    displayUnit);
-            displayUnit.mousePosition(localMouse);
+        HoverTracker hoverChecker = new HoverTracker();
+        for (DisplayUnit window : windows) {
+            Coord childCoords = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
+            HoverAction childHover = HoverAction.OUTSIDE;
+            if (DisplayHelper.isCursorOverDisplay(childCoords, window)) {
+                childHover = !hoverChecker.isHoverFound() ? HoverAction.HOVER : HoverAction.BLOCKED;
+            }
+            window.mousePosition(childCoords, childHover, hoverChecker);
         }
-        for (DisplayUnit displayUnit : windows) {
-            Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
+        for (DisplayUnit displayUnit : displayList) {
+            Coord childCoords = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
-            displayUnit.mousePosition(localMouse);
+            HoverAction childHover = HoverAction.OUTSIDE;
+            if (DisplayHelper.isCursorOverDisplay(childCoords, displayUnit)) {
+                childHover = !hoverChecker.isHoverFound() ? HoverAction.HOVER : HoverAction.BLOCKED;
+            }
+            displayUnit.mousePosition(childCoords, childHover, hoverChecker);
         }
         GL11.glDisable(GL11.GL_DEPTH_TEST);
 

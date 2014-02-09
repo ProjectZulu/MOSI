@@ -18,6 +18,8 @@ import mosi.display.DisplayUnitFactory;
 import mosi.display.resource.ImageResource;
 import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.HoverAction;
+import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 
@@ -116,14 +118,16 @@ public class DisplayUnitTextBoard implements DisplayUnit {
 
         for (int i = 0; i < displayText.size(); i++) {
             String displayLine = displayText.get(i);
-            DisplayRenderHelper.drawString(fontRenderer, displayLine, position.x + 5, position.z + fontRenderer.FONT_HEIGHT / 2 + i
-                    * fontRenderer.FONT_HEIGHT, 16777120, true);
+            DisplayRenderHelper.drawString(fontRenderer, displayLine, position.x + 5, position.z
+                    + fontRenderer.FONT_HEIGHT / 2 + i * fontRenderer.FONT_HEIGHT, 16777120, true);
         }
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        return ActionResult.NOACTION;
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
+        if (hoverAction == HoverAction.HOVER) {
+            hoverChecker.markHoverFound();
+        }
     }
 
     @Override

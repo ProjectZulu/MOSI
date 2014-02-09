@@ -48,8 +48,36 @@ public interface DisplayUnit {
      */
     public void renderDisplay(Minecraft mc, Coord position);
 
-    // TODO: Change from mousePOsition to MouseOver similar to MouseAction with enum ENTER, HOVER_MOVE, EXIT
-    public SimpleAction mousePosition(Coord localMouse);
+    /**
+     * Simple class to simplify parent responsibility by simply continuing to pass the same object and ensure contract
+     * that foundHover is unmarked after being found.
+     */
+    public static class HoverTracker {
+        private boolean foundHover = false;
+
+        public void markHoverFound() {
+            foundHover = true;
+        }
+
+        public boolean isHoverFound() {
+            return foundHover;
+        }
+    }
+
+    public enum HoverAction {
+        /* The Mouse is inside the bounds of this display */
+        HOVER,
+        /* The Mouse is inside the bounds of this display, but there is a display above this one */
+        BLOCKED,
+        /* The mouse is outside the bounds of this display */
+        OUTSIDE;
+    }
+
+    /**
+     * @param hoverAction Specifies if the mouse is what the
+     * @param alreadyHovering Is if a previous window has already found to have the mouse hovering over it.
+     */
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker alreadyHovering);
 
     public enum MouseAction {
         /* vararg 0: int EventButton */
@@ -58,6 +86,7 @@ public interface DisplayUnit {
         CLICK_MOVE,
         /* No arguments */
         RELEASE;
+        // TODO: Scroll with varargs 0: int directionAmount?
     }
 
     /**

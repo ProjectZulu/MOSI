@@ -7,6 +7,8 @@ import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
 import mosi.display.hiderules.HideThresholdRule;
 import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HoverAction;
+import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
@@ -221,8 +223,10 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        return ActionResult.NOACTION;
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
+        if (hoverAction == HoverAction.HOVER) {
+            hoverChecker.markHoverFound();
+        }
     }
 
     @Override

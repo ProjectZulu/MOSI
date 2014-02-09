@@ -7,6 +7,8 @@ import mosi.display.resource.ImageResource;
 import mosi.display.resource.SimpleImageResource;
 import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnit.HoverAction;
+import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
@@ -172,9 +174,13 @@ public class DisplayUnitToggle implements DisplayUnit {
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        isMouseOver = DisplayHelper.isCursorOverDisplay(localMouse, this);
-        return isMouseOver ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
+        if (!hoverChecker.isHoverFound() && hoverAction == HoverAction.HOVER) {
+            isMouseOver = true;
+            hoverChecker.markHoverFound();
+        } else {
+            isMouseOver = false;
+        }
     }
 
     @Override

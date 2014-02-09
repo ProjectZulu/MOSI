@@ -159,21 +159,29 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        if (slider.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, slider)).stopActing) {
-            return ActionResult.SIMPLEACTION;
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
+        // TODO: Why is Slider not an element?
+        {
+            Coord childCoords = DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, slider);
+            HoverAction childAction = HoverAction.OUTSIDE;
+            if (DisplayHelper.isCursorOverDisplay(childCoords, slider)) {
+                childAction = !hoverChecker.isHoverFound() ? HoverAction.HOVER : HoverAction.BLOCKED;
+            }
+            slider.mousePosition(childCoords, childAction, hoverChecker);
         }
 
         for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
-                if (element.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this,
-                        element)).stopActing) {
-                    return ActionResult.SIMPLEACTION;
+                Coord childCoords = DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this,
+                        element);
+                HoverAction childAction = HoverAction.OUTSIDE;
+                if (DisplayHelper.isCursorOverDisplay(childCoords, element)) {
+                    childAction = !hoverChecker.isHoverFound() ? HoverAction.HOVER : HoverAction.BLOCKED;
                 }
+                element.mousePosition(childCoords, childAction, hoverChecker);
             }
         }
-
-        return super.mousePosition(localMouse);
+        super.mousePosition(localMouse, hoverAction, hoverChecker);
     }
 
     @Override

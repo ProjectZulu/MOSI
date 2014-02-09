@@ -8,6 +8,7 @@ import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ItemMetaMatch;
 import mosi.display.inventoryrules.ItemSlotMatch;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.HoverAction;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitTextField;
@@ -310,13 +311,14 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        SimpleAction action = super.mousePosition(localMouse);
-        if (action != ActionResult.NOACTION) {
-            return action;
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
+        super.mousePosition(localMouse, hoverAction, hoverChecker);
+        if (!hoverChecker.isHoverFound() && hoverAction == HoverAction.HOVER) {
+            isMouseOver = true;
+            hoverChecker.markHoverFound();
+        } else {
+            isMouseOver = false;
         }
-        isMouseOver = DisplayHelper.isCursorOverDisplay(localMouse, this);
-        return isMouseOver ? ActionResult.SIMPLEACTION : ActionResult.NOACTION;
     }
 
     @Override

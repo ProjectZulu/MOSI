@@ -10,6 +10,7 @@ import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ScrollableInventoryRules;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
@@ -373,8 +374,10 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     }
 
     @Override
-    public SimpleAction mousePosition(Coord localMouse) {
-        return ActionResult.NOACTION;
+    public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
+        if(hoverAction == HoverAction.HOVER) {
+            hoverChecker.markHoverFound();
+        }
     }
 
     @Override
