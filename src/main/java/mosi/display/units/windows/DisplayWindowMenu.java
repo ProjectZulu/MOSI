@@ -201,9 +201,4 @@ public class DisplayWindowMenu extends DisplayWindow {
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
                 new Coord(000, 128), new Coord(127, 127));
     }
-
-    @Override
-    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        return super.mouseAction(localMouse, action, actionData);
-    }
 }
