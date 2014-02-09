@@ -14,10 +14,12 @@ import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
+import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.text.PositionTextValidator;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
@@ -382,9 +384,14 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
             menu.addElement(new DisplayUnitButton(new Coord(0, 80), new Coord(100, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
                         private InventoryRules rules;
+                        private VerticalAlignment parentVert;
+                        private HorizontalAlignment parentHorz;
 
-                        private Clicker init(InventoryRules rules) {
+                        private Clicker init(InventoryRules rules, VerticalAlignment parentVert,
+                                HorizontalAlignment parentHorz) {
                             this.rules = rules;
+                            this.parentVert = parentVert;
+                            this.parentHorz = parentHorz;
                             return this;
                         }
 
@@ -399,7 +406,42 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                                     25, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
                                     new ScrollableInventoryRules(rules)), true);
                         }
-                    }.init(countingRules), "Inventory Rules"));
+                    }.init(countingRules, getVerticalAlignment(), getHorizontalAlignment()), "Inventory Rules"));
+
+            menu.addElement(new DisplayUnitButton(new Coord(0, 105), new Coord(100, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Clicker() {
+                        private HideRules rules;
+                        private VerticalAlignment parentVert;
+                        private HorizontalAlignment parentHorz;
+
+                        private Clicker init(HideRules rules, VerticalAlignment parentVert,
+                                HorizontalAlignment parentHorz) {
+                            this.rules = rules;
+                            this.parentVert = parentVert;
+                            this.parentHorz = parentHorz;
+                            return this;
+                        }
+
+                        @Override
+                        public ActionResult onClick() {
+                            return ActionResult.SIMPLEACTION;
+                        }
+
+                        @Override
+                        public ActionResult onRelease() {
+                            DisplayWindowMenu menu = new DisplayWindowMenu(new Coord(0, 0), parentHorz, parentVert)
+                                    .forceSize(new Coord(245, 85)).setBackgroundImage(null);
+                            menu.addElement(new DisplayUnitTextBoard(new Coord(0, -28), VerticalAlignment.BOTTOM_ABSO,
+                                    HorizontalAlignment.CENTER_ABSO,
+                                    "Hide Rules are not supported via GUI at this time.",
+                                    "You may use the GSON configuration files for editing this property.",
+                                    "Hopefully someday Soon."));
+                            menu.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 25),
+                                    VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO,
+                                    new CloseClick(menu), "Close"));
+                            return new ReplaceAction(menu, true);
+                        }
+                    }.init(hidingRules, getVerticalAlignment(), getHorizontalAlignment()), "Hide Rules"));
 
             menu.addElement(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
