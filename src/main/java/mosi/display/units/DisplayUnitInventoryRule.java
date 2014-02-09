@@ -1,6 +1,5 @@
 package mosi.display.units;
 
-import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.inventoryrules.ItemHandMatch;
@@ -8,8 +7,6 @@ import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ItemMetaMatch;
 import mosi.display.inventoryrules.ItemSlotMatch;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
-import mosi.display.units.DisplayUnit.HoverAction;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitTextField.Validator;

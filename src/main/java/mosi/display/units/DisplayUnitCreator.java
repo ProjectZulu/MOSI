@@ -1,9 +1,9 @@
 package mosi.display.units;
 
-import net.minecraft.client.Minecraft;
 import mosi.DisplayUnitRegistry.DisplayChanger;
 import mosi.display.units.windows.DisplayWindow;
 import mosi.utilities.Coord;
+import net.minecraft.client.Minecraft;
 
 //TODO: This is currntly more a reminder than an implementation
 public class DisplayUnitCreator extends DisplayWindow {

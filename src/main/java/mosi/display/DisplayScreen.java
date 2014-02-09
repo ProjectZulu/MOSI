@@ -5,21 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import org.lwjgl.opengl.GL11;
-
 import mosi.DisplayUnitRegistry;
-import mosi.Log;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.HoverAction;
 import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.MouseAction;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
 

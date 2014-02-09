@@ -3,8 +3,6 @@ package mosi.display;
 import mosi.DisplayUnitRegistry;
 import mosi.MOSI;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 

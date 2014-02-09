@@ -1,7 +1,5 @@
 package mosi.display.units.action;
 
-import java.util.ArrayList;
-
 import mosi.display.units.DisplayUnit;
 
 public class OpenAction extends ReplaceAction {

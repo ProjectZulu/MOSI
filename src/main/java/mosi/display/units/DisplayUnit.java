@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import mosi.display.DisplayUnitFactory;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 

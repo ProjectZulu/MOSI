@@ -1,7 +1,7 @@
 package mosi.display.units.windows.text;
 
-import net.minecraft.util.ChatAllowedCharacters;
 import mosi.display.units.windows.DisplayUnitTextField.Validator;
+import net.minecraft.util.ChatAllowedCharacters;
 
 public abstract class RegularTextValidator implements Validator {
 

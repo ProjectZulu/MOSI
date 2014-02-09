@@ -1,6 +1,5 @@
 package mosi.display.hiderules;
 
-import mosi.Log;
 
 
 public class HideThresholdRule implements HideRule {

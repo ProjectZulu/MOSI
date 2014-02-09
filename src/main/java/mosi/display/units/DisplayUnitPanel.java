@@ -4,10 +4,6 @@ import java.util.List;
 
 import mosi.Log;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.units.DisplayUnit.ActionResult;
-import mosi.display.units.DisplayUnit.HoverAction;
-import mosi.display.units.DisplayUnit.HoverTracker;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 

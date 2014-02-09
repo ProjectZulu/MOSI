@@ -1,7 +1,5 @@
 package mosi.display;
 
-import org.lwjgl.opengl.GL11;
-
 import mosi.DisplayUnitRegistry;
 import mosi.display.units.DisplayUnit;
 import mosi.utilities.Coord;
@@ -9,6 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Post;
+
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
 

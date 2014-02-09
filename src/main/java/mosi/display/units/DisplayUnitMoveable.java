@@ -1,8 +1,6 @@
 package mosi.display.units;
 
-import mosi.Log;
 import mosi.display.DisplayHelper;
-import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.utilities.Coord;
 
 import org.lwjgl.input.Keyboard;
