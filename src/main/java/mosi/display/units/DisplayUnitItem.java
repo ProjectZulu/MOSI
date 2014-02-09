@@ -10,8 +10,8 @@ import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ScrollableInventoryRules;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
-import mosi.display.units.DisplayUnit.ActionResult.INTERACTION;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextField;
@@ -396,9 +396,9 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
                         @Override
                         public ActionResult onRelease() {
-                            return new ActionResult(true, INTERACTION.REPLACE_ALL, new DisplayWindowScrollList(
-                                    new Coord(0, 0), new Coord(140, 200), 20, VerticalAlignment.TOP_ABSO,
-                                    HorizontalAlignment.LEFT_ABSO, new ScrollableInventoryRules(rules)));
+                            return new ReplaceAction(new DisplayWindowScrollList(new Coord(0, 0), new Coord(140, 200),
+                                    20, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new ScrollableInventoryRules(rules)), true);
                         }
                     }.init(countingRules), Optional.of("Inventory Rules")));
 
@@ -428,7 +428,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
 
-            return new ActionResult(true, INTERACTION.REPLACE_ALL, menu);
+            return new ReplaceAction(menu, true);
         }
 
         return super.mouseAction(localMouse, action, actionData);

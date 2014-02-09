@@ -3,14 +3,14 @@ package mosi.display.units.windows;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitInventoryRule;
-import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
+import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnitMoveable;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
@@ -38,7 +38,11 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
      */
     protected final ArrayList<DisplayUnit> elements;
 
-    // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
+    /**
+     * Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
+     * 
+     * Displays added to priority that do not exist in the window list should will be ignored during processing.
+     */
     private final Queue<DisplayUnit> priority;
 
     public DisplayWindow() {
@@ -67,7 +71,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     public boolean addElement(DisplayUnit element) {
         return elements.add(element);
     }
-    
+
     public boolean removeElement(DisplayUnit element) {
         return elements.remove(element);
     }
@@ -94,8 +98,9 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     public void onUpdate(Minecraft mc, int ticks) {
         while (!priority.isEmpty()) {
             DisplayUnit display = priority.poll();
-            windows.remove(display);
-            windows.add(0, display);
+            if (windows.remove(display)) {
+                windows.add(0, display);
+            }
         }
 
         for (DisplayUnit window : windows) {
@@ -115,13 +120,13 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     @Override
     public final void renderDisplay(Minecraft mc, Coord position) {
         renderSubDisplay(mc, position);
-        
+
         for (int i = elements.size() - 1; i >= 0; i--) {
             DisplayUnit element = elements.get(i);
             element.renderDisplay(mc,
                     DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), element));
         }
-        
+
         /**
          * Reverse iteration we are doing back to front rendering and top of list is considered 'front' i.e. given
          * priority for clicks
@@ -168,14 +173,14 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         for (DisplayUnit window : windows) {
-            if (processWindowActionResult(window.mouseAction(
+            if (processActionResult(window.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window), action,
                     actionData), window)) {
                 return ActionResult.SIMPLEACTION;
             }
         }
         for (DisplayUnit element : elements) {
-            if (processElementActionResult(element.mouseAction(
+            if (processActionResult(element.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
                     actionData), element)) {
                 return ActionResult.SIMPLEACTION;
@@ -187,81 +192,41 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     /**
      * @return StopProcessing - true if processing should be stopped
      */
-    private boolean processWindowActionResult(ActionResult action, DisplayUnit provider) {
+    private boolean processActionResult(ActionResult action, DisplayUnit provider) {
         if (provider != null && provider instanceof DisplayUnitInventoryRule) {
             boolean blah = true;
         }
-        switch (action.interaction) {
-        case CLOSE:
-            if (action.display.isPresent()) {
-                windows.remove(action.display);
-            }
-            break;
-        case REPLACE:
-            if (action.display.isPresent()) {
-                windows.remove(provider);
-                windows.add(action.display.get());
-            }
-            break;
-        case REPLACE_ALL:
-            windows.clear();
-            if (action.display.isPresent()) {
-                windows.add(action.display.get());
-            }
-            break;
-        case OPEN:
-            if (action.display.isPresent()) {
-                windows.add(action.display.get());
-            }
-            break;
-        case NONE:
-            if (action.stopActing) {
-                // Some interaction occurred in that display, elevate it to receive events sooner
-                priority.add(provider);
-            }
-            break;
-        }
-        return action.stopActing;
-    }
 
-    private boolean processElementActionResult(ActionResult action, DisplayUnit provider) {
-        if (provider != null && provider instanceof DisplayUnitInventoryRule) {
-            boolean blah = true;
+        if (action.closeAll()) {
+            clearWindows();
+        } else {
+            List<DisplayUnit> displaysToClose = action.screensToClose();
+            for (DisplayUnit displayUnit : displaysToClose) {
+                removeWindow(displayUnit);
+            }
         }
-        switch (action.interaction) {
-        case CLOSE:
-            if (action.display.isPresent()) {
-                windows.remove(action.display);
-            }
-            break;
-        case REPLACE:
-            throw new IllegalArgumentException("Display ELEMENTS do not support 'REPLACE' Interaction");
-        case REPLACE_ALL:
-            windows.clear();
-            if (action.display.isPresent()) {
-                addWindow(action.display.get());
-            }
-            break;
-        case OPEN:
-            if (action.display.isPresent()) {
-                addWindow(action.display.get());
-            }
-            break;
-        case NONE:
-            break;
+
+        List<DisplayUnit> displaysToOpen = action.screensToOpen();
+        for (DisplayUnit displayUnit : displaysToOpen) {
+            addWindow(displayUnit);
         }
-        return action.stopActing;
+
+        if (action.shouldStop()) {
+            // Some interaction occurred in that display, elevate it to receive events sooner
+            priority.add(provider);
+        }
+        return action.shouldStop();
     }
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
         for (DisplayUnit window : windows) {
-            if (processWindowActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
+            if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
                 return ActionResult.SIMPLEACTION;
             }
         }
         for (DisplayUnit element : elements) {
-            if (processElementActionResult(element.keyTyped(eventCharacter, eventKey), element)) {
+            if (processActionResult(element.keyTyped(eventCharacter, eventKey), element)) {
                 return ActionResult.SIMPLEACTION;
             }
         }

@@ -187,7 +187,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         if (slider.mouseAction(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, slider),
-                action, actionData).stopActing) {
+                action, actionData).shouldStop()) {
             return ActionResult.SIMPLEACTION;
         }
 
@@ -195,7 +195,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
             if (element.isVisibleInScroll()) {
                 if (element.mouseAction(
                         DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
-                        actionData).stopActing) {
+                        actionData).shouldStop()) {
                     return ActionResult.SIMPLEACTION;
                 }
             }
@@ -206,13 +206,13 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        if (slider.keyTyped(eventCharacter, eventKey).stopActing) {
+        if (slider.keyTyped(eventCharacter, eventKey).shouldStop()) {
             return ActionResult.SIMPLEACTION;
         }
 
         for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
-                if (element.keyTyped(eventCharacter, eventKey).stopActing) {
+                if (element.keyTyped(eventCharacter, eventKey).shouldStop()) {
                     return ActionResult.SIMPLEACTION;
                 }
             }

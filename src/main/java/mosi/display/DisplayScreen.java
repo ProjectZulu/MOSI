@@ -2,6 +2,7 @@ package mosi.display;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 import org.lwjgl.opengl.GL11;
@@ -9,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.utilities.Coord;
@@ -29,6 +31,18 @@ public class DisplayScreen extends GuiScreen {
     private ArrayList<DisplayUnit> windows;
     // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
     private Queue<DisplayUnit> priority;
+
+    public void addWindow(DisplayUnit displayUnit) {
+        windows.add(displayUnit);
+    }
+
+    public void removeWindow(DisplayUnit displayUnit) {
+        windows.remove(displayUnit);
+    }
+
+    protected final void clearWindows() {
+        windows.clear();
+    }
 
     // Helper for when parent minecraft field is obfuscarted
     public Minecraft getMinecraft() {
@@ -54,8 +68,9 @@ public class DisplayScreen extends GuiScreen {
         super.updateScreen();
         while (!priority.isEmpty()) {
             DisplayUnit display = priority.poll();
-            windows.remove(display);
-            windows.add(0, display);
+            if (windows.remove(display)) {
+                windows.add(0, display);
+            }
         }
 
         for (DisplayUnit display : windows) {
@@ -83,7 +98,7 @@ public class DisplayScreen extends GuiScreen {
             displayUnit.mousePosition(localMouse);
         }
         GL11.glDisable(GL11.GL_DEPTH_TEST);
-        
+
         /**
          * Reverse iteration we are doing back to front rendering and top of list is considered 'front' i.e. given
          * priority for clicks
@@ -104,7 +119,7 @@ public class DisplayScreen extends GuiScreen {
         super.mouseClicked(mouseScaledX, mouseScaledY, eventbutton);
         for (DisplayUnit window : windows) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
-            if (processAction(window.mouseAction(localMouse, MouseAction.CLICK, eventbutton), window)) {
+            if (processActionResult(window.mouseAction(localMouse, MouseAction.CLICK, eventbutton), window)) {
                 return;
             }
         }
@@ -113,7 +128,7 @@ public class DisplayScreen extends GuiScreen {
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
-            if (processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
+            if (processActionResult(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
                 break;
             }
         }
@@ -132,14 +147,14 @@ public class DisplayScreen extends GuiScreen {
             for (DisplayUnit window : windows) {
                 Coord localMouse = DisplayHelper
                         .localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
-                processAction(window.mouseAction(localMouse, MouseAction.RELEASE), window);
+                processActionResult(window.mouseAction(localMouse, MouseAction.RELEASE), window);
             }
 
             ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                         displayUnit);
-                processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit);
+                processActionResult(displayUnit.mouseAction(localMouse, MouseAction.RELEASE), displayUnit);
             }
         }
     }
@@ -153,7 +168,7 @@ public class DisplayScreen extends GuiScreen {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
         for (DisplayUnit window : windows) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
-            if (processAction(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
+            if (processActionResult(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
                 return;
             }
         }
@@ -162,7 +177,7 @@ public class DisplayScreen extends GuiScreen {
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
-            if (processLimitedAction(displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked),
+            if (processActionResult(displayUnit.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked),
                     displayUnit)) {
                 return;
             }
@@ -173,141 +188,42 @@ public class DisplayScreen extends GuiScreen {
     protected void keyTyped(char eventCharacter, int eventKey) {
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit window : windows) {
-            if (processAction(window.keyTyped(eventCharacter, eventKey), window)) {
+            if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
                 return;
             }
         }
 
         for (DisplayUnit displayUnit : displayList) {
-            if (processLimitedAction(displayUnit.keyTyped(eventCharacter, eventKey), displayUnit)) {
+            if (processActionResult(displayUnit.keyTyped(eventCharacter, eventKey), displayUnit)) {
                 return;
             }
         }
         super.keyTyped(eventCharacter, eventKey);
     }
 
-    /**
-     * DisplayUnits are a unique case in the Window hierarchy in that they are not windows and cannot be closed
-     * directly. DisplayUnitRegistry. DisplayChanger is to be used to remove/add and should be passed the DisplayWindow
-     * upon construction.
-     * 
-     * @param provider May be null if provider is not DisplayWindow in which case it CANNOT be closed
-     * @return StopProcessing - true if processing should be stopped
-     */
-    private boolean processLimitedAction(ActionResult action, DisplayUnit provider) {
-        switch (action.interaction) {
-        case CLOSE:
-            if (action.display.isPresent()) {
-                windows.remove(action.display);
-            }
-            break;
-        case REPLACE:
-            throw new IllegalArgumentException("DisplayUnit does not support 'REPLACE' Interaction");
-        case REPLACE_ALL:
-            windows.clear();
-            if (action.display.isPresent()) {
-                windows.add(action.display.get());
-            }
-            break;
-        case OPEN:
-            if (action.display.isPresent()) {
-                windows.add(action.display.get());
-            }
-            break;
-        case NONE:
-            break;
+    private boolean processActionResult(ActionResult action, DisplayUnit provider) {
+        if (provider != null && provider instanceof DisplayUnitInventoryRule) {
+            boolean blah = true;
         }
-        return action.stopActing;
-    }
 
-    /**
-     * @param provider May be null if provider is not DisplayWindow in which case it CANNOT be closed
-     * @return StopProcessing - true if processing should be stopped
-     */
-    private boolean processAction(ActionResult action, DisplayUnit provider) {
-        switch (action.interaction) {
-        case CLOSE:
-            if (action.display.isPresent()) {
-                windows.remove(action.display);
+        if (action.closeAll()) {
+            clearWindows();
+        } else {
+            List<DisplayUnit> displaysToClose = action.screensToClose();
+            for (DisplayUnit displayUnit : displaysToClose) {
+                removeWindow(displayUnit);
             }
-            break;
-        case REPLACE:
-            if (provider != null && action.display.isPresent()) {
-                windows.add(action.display.get());
-                windows.remove(provider);
-            }
-            break;
-        case REPLACE_ALL:
-            windows.clear();
-            if (action.display.isPresent()) {
-                windows.add(action.display.get());
-            }
-            break;
-        case OPEN:
-            if (action.display.isPresent()) {
-                windows.add(action.display.get());
-            }
-            break;
-        case NONE:
-            if (action.stopActing) {
-                // Some interaction occurred in that display, elevate it to receive events sooner
-                priority.add(provider);
-            }
-            break;
         }
-        return action.stopActing;
-    }
 
-    // private Coord determineScreenPosition(Minecraft mc, int mouseScaledX, int mouseScaledY, DisplayUnit display) {
-    // ScaledResolution scaledResolition = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-    // Coord displaySize = display.getSize();
-    // Coord scaledMouse = new Coord(mouseScaledX, mouseScaledY);
-    // VerticalAlignment vertAlign = display.getVerticalAlignment();
-    // HorizontalAlignment horizonAlign = display.getHorizontalAlignment();
-    // int horzCoord = getHorizontalCoord(horizonAlign, scaledResolition, scaledMouse, displaySize);
-    // int vertCoord = getVerticalPosition(vertAlign, scaledResolition, scaledMouse, displaySize);
-    // return new Coord(horzCoord, vertCoord);
-    // }
-    //
-    // private int getHorizontalCoord(HorizontalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
-    // Coord displaySize) {
-    // // Reminder do NOT do integer division for %
-    // int percOffset = (int) (displayOffset.x * 100f / resolution.getScaledWidth());
-    // switch (vertAlign) {
-    // default:
-    // case LEFT_ABSO:
-    // return displayOffset.x;
-    // case LEFT_PERC:
-    // return percOffset;
-    // case CENTER_ABSO:
-    // return displayOffset.x - resolution.getScaledWidth() / 2;
-    // case CENTER_PERC:
-    // return percOffset - 50;
-    // case RIGHT_ABSO:
-    // return displayOffset.x - resolution.getScaledWidth();
-    // case RIGHT_PERC:
-    // return percOffset - 100;
-    // }
-    // }
-    //
-    // private int getVerticalPosition(VerticalAlignment vertAlign, ScaledResolution resolution, Coord displayOffset,
-    // Coord displaySize) {
-    // // Reminder do NOT do integer division for %
-    // int percOffset = (int) (displayOffset.z * 100f / resolution.getScaledHeight());
-    // switch (vertAlign) {
-    // default:
-    // case TOP_ABSO:
-    // return displayOffset.z;
-    // case TOP_PECR:
-    // return percOffset;
-    // case CENTER_ABSO:
-    // return displayOffset.z - resolution.getScaledHeight() / 2;
-    // case CENTER_PERC:
-    // return percOffset - 50;
-    // case BOTTOM_ABSO:
-    // return displayOffset.z - resolution.getScaledHeight();
-    // case BOTTOM_PERC:
-    // return percOffset - 100;
-    // }
-    // }
+        List<DisplayUnit> displaysToOpen = action.screensToOpen();
+        for (DisplayUnit displayUnit : displaysToOpen) {
+            addWindow(displayUnit);
+        }
+
+        if (action.shouldStop()) {
+            // Some interaction occurred in that display, elevate it to receive events sooner
+            priority.add(provider);
+        }
+        return action.shouldStop();
+    }
 }

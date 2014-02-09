@@ -1,11 +1,13 @@
 package mosi.display.units;
 
+import java.util.Collections;
+import java.util.List;
+
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 /**
@@ -58,52 +60,44 @@ public interface DisplayUnit {
         RELEASE;
     }
 
-    public static class ActionResult {
-        /* i.e. This action occured on KeyPress.Y, no other Displays should receive the keypress event. */
-        public final boolean stopActing;
-        /* Whether display should be set as the active window */
-        public final INTERACTION interaction;
-        public final Optional<DisplayUnit> display;
+    public static interface ActionResult {
+
+        public abstract boolean shouldStop();
+
+        public boolean closeAll();
+
+        public List<DisplayUnit> screensToClose();
+
+        public List<DisplayUnit> screensToOpen();
 
         public static final SimpleAction NOACTION = new SimpleAction(false);
         public static final SimpleAction SIMPLEACTION = new SimpleAction(true);
 
-        /**
-         * Provides the parent/containter of this DisplayUnit knowleadge of how to react to the ActionResult Note that
-         * in all cases, open can only occur on non-null instances
-         */
-        public enum INTERACTION {
-            /* Do nothing, nado, zero, ziltch. display instance will be ignored */
-            NONE,
-            /* add, in addition to other displays if supported */
-            OPEN,
-            /* CLOSE provided displays instance if present */
-            CLOSE,
-            /* CLOSE the ActionResult provider instance and add provided, if supported */
-            REPLACE,
-            /* close ALL OTHER displays on the current level and add provided instance if not null */
-            REPLACE_ALL;
-        }
+        public static final class SimpleAction implements ActionResult {
+            public final boolean stopActing;
 
-        private ActionResult(boolean stopActing) {
-            this.stopActing = stopActing;
-            this.interaction = INTERACTION.NONE;
-            this.display = Optional.absent();
-        }
-
-        public ActionResult(boolean stopActing, INTERACTION interaction, DisplayUnit display) {
-            this.stopActing = stopActing;
-            this.interaction = interaction;
-            this.display = Optional.of(display);
-        }
-
-        /*
-         * Action that can only ever have stopActing true/false, used when returning GUIs wouldn't make sense. i.e.
-         * Highlighting mouseOver a button
-         */
-        public static final class SimpleAction extends ActionResult {
             private SimpleAction(boolean stopActing) {
-                super(stopActing);
+                this.stopActing = stopActing;
+            }
+
+            @Override
+            public final boolean shouldStop() {
+                return stopActing;
+            }
+
+            @Override
+            public final List<DisplayUnit> screensToClose() {
+                return Collections.EMPTY_LIST;
+            }
+
+            @Override
+            public final boolean closeAll() {
+                return false;
+            }
+
+            @Override
+            public final List<DisplayUnit> screensToOpen() {
+                return Collections.EMPTY_LIST;
             }
         }
     }
