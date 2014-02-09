@@ -397,7 +397,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                         @Override
                         public ActionResult onRelease() {
                             return new ReplaceAction(new DisplayWindowScrollList(new Coord(0, 0), new Coord(140, 200),
-                                    20, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    25, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
                                     new ScrollableInventoryRules(rules)), true);
                         }
                     }.init(countingRules), Optional.of("Inventory Rules")));

@@ -60,9 +60,25 @@ public interface DisplayUnit {
         RELEASE;
     }
 
+    /**
+     * ActionResults are how DisplayUnits interact with other windows.
+     */
     public static interface ActionResult {
 
+        /**
+         * Determines when the display hierarchy should stop being processed and ActionResult should be returned to
+         * parent.
+         */
         public abstract boolean shouldStop();
+
+        /**
+         * This ActionResult to passed to the Parent, if it exists. Default implementations return a SimpleAction based
+         * on shouldStop(). This is used to tell the parent to stop processing. Advanced uses include having parents
+         * close a parent window.
+         * 
+         * Note: ParentResult is only used when shouldStop returns true.
+         */
+        public abstract ActionResult parentResult();
 
         public boolean closeAll();
 
@@ -98,6 +114,11 @@ public interface DisplayUnit {
             @Override
             public final List<DisplayUnit> screensToOpen() {
                 return Collections.EMPTY_LIST;
+            }
+
+            @Override
+            public final SimpleAction parentResult() {
+                return this;
             }
         }
     }

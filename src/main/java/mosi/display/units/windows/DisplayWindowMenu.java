@@ -1,10 +1,7 @@
 package mosi.display.units.windows;
 
-import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnit.ActionResult;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitSettable;
 import mosi.display.units.windows.DisplayUnitTextField.Validator;
 import mosi.display.units.windows.DisplayUnitToggle.Toggle;
@@ -18,8 +15,6 @@ import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
-
-import com.sun.xml.internal.ws.message.StringHeader;
 
 /**
  * Simple menu implementation. It is essentially list of buttons/interactables

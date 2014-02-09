@@ -155,7 +155,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
             SimpleAction action = window.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
                     localMouse, this, window));
             if (action.stopActing) {
-                return action;
+                return action.parentResult();
             }
         }
 
@@ -163,27 +163,28 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
             SimpleAction action = element.mousePosition(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(),
                     localMouse, this, element));
             if (action.stopActing) {
-                return action;
+                return action.parentResult();
             }
         }
-
         return ActionResult.NOACTION;
     }
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         for (DisplayUnit window : windows) {
-            if (processActionResult(window.mouseAction(
+            ActionResult result = window.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window), action,
-                    actionData), window)) {
-                return ActionResult.SIMPLEACTION;
+                    actionData);
+            if (processActionResult(result, window)) {
+                return result.parentResult();
             }
         }
         for (DisplayUnit element : elements) {
-            if (processActionResult(element.mouseAction(
+            ActionResult result = element.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
-                    actionData), element)) {
-                return ActionResult.SIMPLEACTION;
+                    actionData);
+            if (processActionResult(result, element)) {
+                return result.parentResult();
             }
         }
         return super.mouseAction(localMouse, action, actionData);
@@ -193,10 +194,6 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
      * @return StopProcessing - true if processing should be stopped
      */
     private boolean processActionResult(ActionResult action, DisplayUnit provider) {
-        if (provider != null && provider instanceof DisplayUnitInventoryRule) {
-            boolean blah = true;
-        }
-
         if (action.closeAll()) {
             clearWindows();
         } else {
@@ -221,13 +218,15 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
         for (DisplayUnit window : windows) {
-            if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
-                return ActionResult.SIMPLEACTION;
+            ActionResult result = window.keyTyped(eventCharacter, eventKey);
+            if (processActionResult(result, window)) {
+                return result.parentResult();
             }
         }
         for (DisplayUnit element : elements) {
-            if (processActionResult(element.keyTyped(eventCharacter, eventKey), element)) {
-                return ActionResult.SIMPLEACTION;
+            ActionResult result = element.keyTyped(eventCharacter, eventKey);
+            if (processActionResult(result, element)) {
+                return result.parentResult();
             }
         }
         return super.keyTyped(eventCharacter, eventKey);
