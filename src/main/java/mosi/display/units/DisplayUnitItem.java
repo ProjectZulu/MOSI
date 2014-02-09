@@ -400,7 +400,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                                     25, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
                                     new ScrollableInventoryRules(rules)), true);
                         }
-                    }.init(countingRules), Optional.of("Inventory Rules")));
+                    }.init(countingRules), "Inventory Rules"));
 
             menu.addElement(new DisplayUnitTextField(new Coord(-17, 4), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));

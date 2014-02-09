@@ -64,17 +64,17 @@ public class DisplayUnitButton implements DisplayUnit {
 
     public DisplayUnitButton(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
             Clicker clicker) {
-        this(offset, size, vertAlign, horizAlign, clicker, Optional.<String> absent());
+        this(offset, size, vertAlign, horizAlign, clicker, null);
     }
 
     public DisplayUnitButton(Coord offset, Coord size, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
-            Clicker clicker, Optional<String> displayText) {
+            Clicker clicker, String displayText) {
         this.offset = offset;
         this.size = size;
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
         this.clicker = clicker;
-        this.displayText = displayText;
+        this.displayText = displayText != null ? Optional.of(displayText) : Optional.<String> absent();
         iconImage = Optional.absent();
         setDefaultImageResources();
     }

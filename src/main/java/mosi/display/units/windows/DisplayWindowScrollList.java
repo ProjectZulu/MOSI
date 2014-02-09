@@ -70,7 +70,7 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
                 this.scrollLength, true, VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO, this);
         this.scrollable = scrollable;
         addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(80, 20), VerticalAlignment.BOTTOM_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new CloseClick(this), Optional.of("Close")));
+                HorizontalAlignment.CENTER_ABSO, new CloseClick(this), "Close"));
     }
 
     @Override
