@@ -8,14 +8,24 @@ import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
 import mosi.display.hiderules.HideThresholdRule;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.action.ReplaceAction;
+import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
+import mosi.display.units.windows.DisplayUnitButton.Clicker;
+import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.text.AnalogCounterPositionValidator;
+import mosi.display.units.windows.text.DigitalCounterPositionValidator;
 import mosi.display.units.windows.text.PositionTextValidator;
 import mosi.display.units.windows.text.RegularTextValidator;
 import mosi.display.units.windows.text.ValidatorBoundedInt;
+import mosi.display.units.windows.toggle.ToggleAnalogCounter;
+import mosi.display.units.windows.toggle.ToggleDigitalCounter;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
@@ -205,7 +215,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
 
-            // TODO Add TextBoard to state what the text field means
+            /* Potion Tracking Setting */
             menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 80), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, "Track ID:").setBackgroundImage(null));
 
@@ -237,6 +247,61 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                             return Integer.toString(display.trackedPotion);
                         }
                     }.init(this)));
+
+            /* Open HideRules Editor */
+            menu.addElement(new DisplayUnitButton(new Coord(0, 95), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Clicker() {
+                        private HideRules rules;
+                        private VerticalAlignment parentVert;
+                        private HorizontalAlignment parentHorz;
+
+                        private Clicker init(HideRules rules, VerticalAlignment parentVert,
+                                HorizontalAlignment parentHorz) {
+                            this.rules = rules;
+                            this.parentVert = parentVert;
+                            this.parentHorz = parentHorz;
+                            return this;
+                        }
+
+                        @Override
+                        public ActionResult onClick() {
+                            return ActionResult.SIMPLEACTION;
+                        }
+
+                        @Override
+                        public ActionResult onRelease() {
+                            DisplayWindowMenu menu = new DisplayWindowMenu(new Coord(0, 0), parentHorz, parentVert)
+                                    .forceSize(new Coord(245, 85)).setBackgroundImage(null);
+                            menu.addElement(new DisplayUnitTextBoard(new Coord(0, -28), VerticalAlignment.BOTTOM_ABSO,
+                                    HorizontalAlignment.CENTER_ABSO,
+                                    "Hide Rules are not supported via GUI at this time.",
+                                    "You may use the GSON configuration files for editing this property.",
+                                    "Hopefully someday Soon."));
+                            menu.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 25),
+                                    VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO,
+                                    new CloseClick(menu), "Close"));
+                            return new ReplaceAction(menu, true);
+                        }
+                    }.init(hidingRules, getVerticalAlignment(), getHorizontalAlignment()), "Hide Rules"));
+
+            /* Analog Bar Settings */
+            menu.addElement(new DisplayUnitToggle(new Coord(-24, 110), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(21, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, false)));
+
+            /* Digital Counter Settings */
+            menu.addElement(new DisplayUnitToggle(new Coord(22, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitTextField(new Coord(-23, 131), new Coord(22, 15),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
+                    new DigitalCounterPositionValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
 
             return new ReplaceAction(menu, true);
         }
