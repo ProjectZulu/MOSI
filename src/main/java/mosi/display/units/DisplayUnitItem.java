@@ -15,12 +15,15 @@ import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
+import mosi.display.units.windows.DisplayUnitTextField.Validator;
 import mosi.display.units.windows.DisplayUnitToggle;
+import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
 import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.text.PositionTextValidator;
 import mosi.display.units.windows.text.RegularTextValidator;
+import mosi.display.units.windows.text.ValidatorInt;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
@@ -373,7 +376,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
     @Override
     public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
-        if(hoverAction == HoverAction.HOVER) {
+        if (hoverAction == HoverAction.HOVER) {
             hoverChecker.markHoverFound();
         }
     }
@@ -383,7 +386,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
                     getVerticalAlignment());
-
+            /* Nickname textField */
             menu.addElement(new DisplayUnitTextField(new Coord(0, 4), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 13, new RegularTextValidator() {
                         private DisplayUnitItem display;
@@ -403,7 +406,7 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                             return display.nickname;
                         }
                     }.init(this)));
-
+            /* Generic DisplayUnitEditable Settings */
             menu.addElement(new DisplayUnitTextField(new Coord(-17, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(+18, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
@@ -429,8 +432,8 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
-
-            menu.addElement(new DisplayUnitButton(new Coord(0, 77), new Coord(80, 20), VerticalAlignment.TOP_ABSO,
+            /* Open Inventory Editor */
+            menu.addElement(new DisplayUnitButton(new Coord(0, 77), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
                         private InventoryRules rules;
                         private VerticalAlignment parentVert;
@@ -455,8 +458,8 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                                     25, parentVert, parentHorz, new ScrollableInventoryRules(rules)), true);
                         }
                     }.init(countingRules, getVerticalAlignment(), getHorizontalAlignment()), "Count Rules"));
-
-            menu.addElement(new DisplayUnitButton(new Coord(0, 98), new Coord(80, 20), VerticalAlignment.TOP_ABSO,
+            /* Open HideRules Editor */
+            menu.addElement(new DisplayUnitButton(new Coord(0, 92), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
                         private HideRules rules;
                         private VerticalAlignment parentVert;
@@ -491,6 +494,123 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
                         }
                     }.init(hidingRules, getVerticalAlignment(), getHorizontalAlignment()), "Hide Rules"));
 
+            /* Analog Bar Settings */
+            menu.addElement(new DisplayUnitToggle(new Coord(-24, 110), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Toggle() {
+                        DisplayUnitItem display;
+
+                        public Toggle init(DisplayUnitItem display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void toggle() {
+                            display.displayAnalogBar = !display.displayAnalogBar;
+                        }
+
+                        @Override
+                        public boolean isToggled() {
+                            return display.displayAnalogBar;
+                        }
+                    }.init(this)).setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
+                        private DisplayUnitItem display;
+
+                        public Validator init(DisplayUnitItem display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.analogOffset = new Coord(Integer.parseInt(text), display.analogOffset.z);
+                        }
+
+                        @Override
+                        public String getString() {
+                            return Integer.toString(display.analogOffset.x);
+                        }
+                    }.init(this)));
+            menu.addElement(new DisplayUnitTextField(new Coord(21, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
+                        private DisplayUnitItem display;
+
+                        public Validator init(DisplayUnitItem display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.analogOffset = new Coord(display.analogOffset.x, Integer.parseInt(text));
+                        }
+
+                        @Override
+                        public String getString() {
+                            return Integer.toString(display.analogOffset.z);
+                        }
+                    }.init(this)));
+
+            /* Digital Counter Settings */
+            menu.addElement(new DisplayUnitToggle(new Coord(22, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Toggle() {
+                        DisplayUnitItem display;
+
+                        public Toggle init(DisplayUnitItem display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void toggle() {
+                            display.displayNumericCounter = !display.displayNumericCounter;
+                        }
+
+                        @Override
+                        public boolean isToggled() {
+                            return display.displayNumericCounter;
+                        }
+                    }.init(this)).setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitTextField(new Coord(-23, 131), new Coord(22, 15),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
+                        private DisplayUnitItem display;
+
+                        public Validator init(DisplayUnitItem display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.analogOffset = new Coord(Integer.parseInt(text), display.analogOffset.z);
+                        }
+
+                        @Override
+                        public String getString() {
+                            return Integer.toString(display.analogOffset.x);
+                        }
+                    }.init(this)));
+            menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
+                        private DisplayUnitItem display;
+
+                        public Validator init(DisplayUnitItem display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.analogOffset = new Coord(display.analogOffset.x, Integer.parseInt(text));
+                        }
+
+                        @Override
+                        public String getString() {
+                            return Integer.toString(display.analogOffset.z);
+                        }
+                    }.init(this)));
             return new ReplaceAction(menu, true);
         }
 
