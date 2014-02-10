@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.gson.JsonObject;
 
-public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUnitCountable, DisplayUnitSettable {
+public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnitCountable, DisplayUnitSettable {
     public static final String DISPLAY_ID = "DisplayUnitPotion";
     public static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
@@ -38,8 +38,6 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
     public String nickname = "";
     // Frequency to search player inventory for updated item statistics, most commonly quantity
     public int updateFrequency;
-    // For display purposes
-    public int textDisplayColor;
     public int trackedPotion; // Id of Potion to be tracked
 
     public int trackedCount; // Value of tracked property, always duration for Potions
@@ -53,50 +51,23 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
         return hidingRules;
     }
 
-    public boolean displayAnalogBar;
-    public boolean displayNumericCounter;
-    public Coord analogOffset;
-    public Coord digitalOffset;
     private VerticalAlignment vertAlign = VerticalAlignment.CENTER_ABSO;
     private HorizontalAlignment horizAlign = HorizontalAlignment.CENTER_ABSO;
 
-    public DisplayUnitPotion setEnableDigital(boolean enabled, Coord digitalOffset) {
-        this.displayNumericCounter = enabled;
-        this.digitalOffset = digitalOffset;
-        return this;
-    }
-
-    public DisplayUnitPotion disableDigital() {
-        this.displayNumericCounter = false;
-        return this;
-    }
-
     public DisplayUnitPotion() {
-        super(new Coord(0, 0));
+        super(new Coord(0, 0), true, false);
         updateFrequency = 20;
         trackedPotion = 1;// Defaults to Speed, choice is arbitrary
-        textDisplayColor = 1030655;
         maxAnalogDuration = 60 * 20;
-        displayAnalogBar = true;
-        displayNumericCounter = false;
-        analogOffset = new Coord(1, 18);
-        digitalOffset = new Coord(1, 18);
         hidingRules = new HideRules();
         hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
     }
 
     public DisplayUnitPotion(int updateFrequency, int trackedPotion) {
-        super(new Coord(0, 0));
+        super(new Coord(0, 0), true, false);
         this.updateFrequency = updateFrequency;
         this.trackedPotion = trackedPotion;
-        this.textDisplayColor = 1030655;
         this.maxAnalogDuration = 60 * 20;
-        this.displayAnalogBar = true;
-        this.displayNumericCounter = false;
-        this.displayAnalogBar = false;
-        this.displayNumericCounter = false;
-        this.analogOffset = new Coord(1, 18);
-        this.digitalOffset = new Coord(1, 18);
         this.hidingRules = new HideRules();
         hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
     }
@@ -160,13 +131,12 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
 
     @Override
     public void renderDisplay(Minecraft mc, Coord position) {
-        mc.renderEngine.bindTexture(countdown);
-        if (displayAnalogBar) {
-            renderAnalogBar(mc, position, analogOffset, trackedCount, maxAnalogDuration);
+        if (isAnalogEnabled()) {
+            renderAnalogBar(mc, position, getAnalogOffset(), trackedCount, maxAnalogDuration);
         }
 
-        if (displayNumericCounter) {
-            renderCounterBar(mc, position, digitalOffset, trackedCount);
+        if (isDigitalEnabled()) {
+            renderCounterBar(mc, position, getDigitalOffset(), trackedCount);
         }
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.renderEngine.bindTexture(inventory);
@@ -175,76 +145,6 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
         int iconYCoord = 198 + iconIndex / 8 * 18;
         DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, -9.0f, position.x, position.z, iconXCoord,
                 iconYCoord, 18, 18);
-    }
-
-    /**
-     * Used to Draw Analog Bar.
-     * 
-     * @param mc The Minecraft Instance
-     * @param centerOfDisplay The Center Position where the bar needs to be offset From.
-     * @param analogValue The value representing how full the Bar is
-     * @param analogMax The value that represents the width of the full bar.
-     */
-    protected void renderAnalogBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int analogValue, int analogMax) {
-        mc.renderEngine.bindTexture(countdown);
-        int scaledValue = scaleAnalogizeValue(analogValue, analogMax);
-        DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                centerOfDisplay.z + offSet.z, 0, 0, 16, 3);
-        if (scaledValue > 9) {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 3, scaledValue, 3);
-        } else if (scaledValue > 4) {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 6, scaledValue, 3);
-        } else {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 9, scaledValue, 3);
-        }
-    }
-
-    /**
-     * Scale a tracked value from range [0-analogMax] to fit the display bars resolution of [0-16]
-     */
-    private int scaleAnalogizeValue(int analogValue, int analogMax) {
-        if (analogValue > analogMax) {
-            analogValue = analogMax;
-        }
-        if (analogValue < 0) {
-            analogValue = 0;
-        }
-        return (int) ((float) (analogValue) / (float) (analogMax) * 18);
-    }
-
-    /**
-     * Used to Draw Analog Bar.
-     * 
-     * @param mc The Minecraft Instance
-     * @param fontRenderer The fontRenderer
-     * @param centerOfDisplay The Center Position where the bar is offset From.
-     * @param analogValue The value representing how full the Bar is
-     * @param analogMax The value that represents the width of the full bar.
-     */
-    protected void renderCounterBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int counterAmount) {
-        int totalSeconds = counterAmount / 20;
-
-        /* Get Duration in Seconds */
-        int seconds = totalSeconds % 60;
-        /* Get Duration in Minutes */
-        int minutes = (totalSeconds / 60) % 60;
-        String formattedTime;
-        if (seconds < 10) {
-            formattedTime = Integer.toString(minutes);
-        } else if (minutes == 0) {
-            formattedTime = String.format("%02d", seconds);
-        } else {
-            formattedTime = minutes + ":" + String.format("%02d", seconds);
-        }
-
-        String displayAmount = Integer.toString(counterAmount);
-        // 8 is constant chosen by testing to keep the displaystring roughly center. It just works.
-        mc.fontRenderer.drawString(formattedTime,
-                centerOfDisplay.x + (8 - mc.fontRenderer.getStringWidth(formattedTime) / 2) + offSet.x,
-                centerOfDisplay.z + offSet.z, textDisplayColor);
     }
 
     @Override
@@ -305,10 +205,10 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
 
-            //TODO Add TextBoard to state what the text field means
+            // TODO Add TextBoard to state what the text field means
             menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 80), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, "Track ID:").setBackgroundImage(null));
-            
+
             menu.addElement(new DisplayUnitTextField(new Coord(23, 80), new Coord(18, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, Potion.potionTypes.length - 1) {
 
@@ -337,7 +237,7 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
                             return Integer.toString(display.trackedPotion);
                         }
                     }.init(this)));
-           
+
             return new ReplaceAction(menu, true);
         }
         return super.mouseAction(localMouse, action, actionData);

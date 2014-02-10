@@ -21,9 +21,13 @@ import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
 import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.text.AnalogCounterPositionValidator;
+import mosi.display.units.windows.text.DigitalCounterPositionValidator;
 import mosi.display.units.windows.text.PositionTextValidator;
 import mosi.display.units.windows.text.RegularTextValidator;
 import mosi.display.units.windows.text.ValidatorInt;
+import mosi.display.units.windows.toggle.ToggleAnalogCounter;
+import mosi.display.units.windows.toggle.ToggleDigitalCounter;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
@@ -40,7 +44,7 @@ import org.lwjgl.opengl.GL12;
 
 import com.google.gson.JsonObject;
 
-public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitCountable, DisplayUnitSettable {
+public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCountable, DisplayUnitSettable {
     public static final String DISPLAY_ID = "DisplayUnitItem";
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
 
@@ -50,8 +54,6 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     // Frequency to search player inventory for updated item statistics, most commonly quantity
     private int updateFrequency = 20;
 
-    // For display purposes
-    private int textDisplayColor = 1030655;
     // Display ItemStack used when counting rules do not find an ItemStack
     private ItemStack missingDisplayStack;
     // Matching rules for Counting
@@ -59,20 +61,15 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
     private HideRules hidingRules;
     private TrackMode trackMode;
 
-    boolean displayAnalogBar = true;
-    boolean displayNumericCounter = true;
-
     // Information required to display
     private DisplayStats displayStats;
     private DisplayStats prevDisplayStat;
 
-    private Coord analogOffset = new Coord(16, 13);
-    private Coord digitalOffset = new Coord(16, -4);
     private VerticalAlignment vertAlign = VerticalAlignment.CENTER_ABSO;
     private HorizontalAlignment horizAlign = HorizontalAlignment.CENTER_ABSO;
 
     public DisplayUnitItem() {
-        super(new Coord(0, 0));
+        super(new Coord(0, 0), true, true);
         displayOnHud = true;
         nickname = "";
         trackMode = TrackMode.QUANTITY;
@@ -113,8 +110,8 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
     @Override
     public Coord getSize() {
-        return new Coord(largestXDistance(getOffset().x, analogOffset.x, digitalOffset.x), largestZDistance(
-                getOffset().z, analogOffset.z, digitalOffset.z));
+        return new Coord(largestXDistance(getOffset().x, getAnalogOffset().x, getDigitalOffset().x), largestZDistance(
+                getOffset().z, getAnalogOffset().z, getDigitalOffset().z));
     }
 
     private int largestXDistance(int iconCoord, int anaOffset, int digOffset) {
@@ -251,12 +248,12 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         if (displayStats == null) {
             return;
         }
-        if (displayAnalogBar) {
-            renderAnalogBar(mc, position, analogOffset, displayStats.trackedCount, displayStats.maximumCount);
+        if (isAnalogEnabled()) {
+            renderAnalogBar(mc, position, getAnalogOffset(), displayStats.trackedCount, displayStats.maximumCount);
         }
         GL11.glDisable(GL11.GL_BLEND);
-        if (displayNumericCounter) {
-            renderCounterBar(mc, position, digitalOffset, displayStats.trackedCount);
+        if (isDigitalEnabled()) {
+            renderCounterBar(mc, position, getDigitalOffset(), displayStats.trackedCount);
         }
 
         GL11.glPushMatrix();
@@ -295,71 +292,72 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
         }
     }
 
-    /**
-     * Used to Draw Analog Bar.
-     * 
-     * @param mc The Minecraft Instance
-     * @param centerOfDisplay The Center Position where the bar needs to be offset From.
-     * @param analogValue The value representing how full the Bar is
-     * @param analogMax The value that represents the width of the full bar.
-     */
-    protected void renderAnalogBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int analogValue, int analogMax) {
-        mc.renderEngine.bindTexture(countdown);
-        int scaledValue = scaleAnalogizeValue(analogValue, analogMax);
-        DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                centerOfDisplay.z + offSet.z, 0, 0, 16, 3);
-        if (scaledValue > 9) {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 3, scaledValue, 3);
-        } else if (scaledValue > 4) {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 6, scaledValue, 3);
-        } else {
-            DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
-                    centerOfDisplay.z + offSet.z, 0, 9, scaledValue, 3);
-        }
-    }
-
-    /**
-     * Scale a tracked value from range [0-analogMax] to fit the display bars resolution of [0-16]
-     */
-    private int scaleAnalogizeValue(int analogValue, int analogMax) {
-        if (analogValue > analogMax) {
-            analogValue = analogMax;
-        }
-        if (analogValue < 0) {
-            analogValue = 0;
-        }
-        return (int) ((float) (analogValue) / (float) (analogMax) * 18);
-    }
-
-    /**
-     * Used to Draw Analog Bar.
-     * 
-     * @param mc The Minecraft Instance
-     * @param fontRenderer The fontRenderer
-     * @param centerOfDisplay The Center Position where the bar is offset From.
-     * @param analogValue The value representing how full the Bar is
-     * @param analogMax The value that represents the width of the full bar.
-     */
-    protected void renderCounterBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int counterAmount) {
-        String displayAmount = Integer.toString(counterAmount);
-        switch (getHorizontalAlignment()) {
-        case CENTER_ABSO:
-            mc.fontRenderer.drawString(displayAmount,
-                    centerOfDisplay.x + 8 - mc.fontRenderer.getStringWidth(displayAmount) / 2 + offSet.x,
-                    centerOfDisplay.z - offSet.z, textDisplayColor);
-            break;
-        case LEFT_ABSO:
-            mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x + offSet.x, centerOfDisplay.z - offSet.z,
-                    textDisplayColor);
-            break;
-        case RIGHT_ABSO:
-            mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x - mc.fontRenderer.getStringWidth(displayAmount)
-                    + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
-            break;
-        }
-    }
+    // /**
+    // * Used to Draw Analog Bar.
+    // *
+    // * @param mc The Minecraft Instance
+    // * @param centerOfDisplay The Center Position where the bar needs to be offset From.
+    // * @param analogValue The value representing how full the Bar is
+    // * @param analogMax The value that represents the width of the full bar.
+    // */
+    // protected void renderAnalogBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int analogValue, int analogMax)
+    // {
+    // mc.renderEngine.bindTexture(countdown);
+    // int scaledValue = scaleAnalogizeValue(analogValue, analogMax);
+    // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
+    // centerOfDisplay.z + offSet.z, 0, 0, 16, 3);
+    // if (scaledValue > 9) {
+    // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
+    // centerOfDisplay.z + offSet.z, 0, 3, scaledValue, 3);
+    // } else if (scaledValue > 4) {
+    // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
+    // centerOfDisplay.z + offSet.z, 0, 6, scaledValue, 3);
+    // } else {
+    // DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 10.0f, centerOfDisplay.x + offSet.x,
+    // centerOfDisplay.z + offSet.z, 0, 9, scaledValue, 3);
+    // }
+    // }
+    //
+    // /**
+    // * Scale a tracked value from range [0-analogMax] to fit the display bars resolution of [0-16]
+    // */
+    // private int scaleAnalogizeValue(int analogValue, int analogMax) {
+    // if (analogValue > analogMax) {
+    // analogValue = analogMax;
+    // }
+    // if (analogValue < 0) {
+    // analogValue = 0;
+    // }
+    // return (int) ((float) (analogValue) / (float) (analogMax) * 18);
+    // }
+    //
+    // /**
+    // * Used to Draw Analog Bar.
+    // *
+    // * @param mc The Minecraft Instance
+    // * @param fontRenderer The fontRenderer
+    // * @param centerOfDisplay The Center Position where the bar is offset From.
+    // * @param analogValue The value representing how full the Bar is
+    // * @param analogMax The value that represents the width of the full bar.
+    // */
+    // protected void renderCounterBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int counterAmount) {
+    // String displayAmount = Integer.toString(counterAmount);
+    // switch (getHorizontalAlignment()) {
+    // case CENTER_ABSO:
+    // mc.fontRenderer.drawString(displayAmount,
+    // centerOfDisplay.x + 8 - mc.fontRenderer.getStringWidth(displayAmount) / 2 + offSet.x,
+    // centerOfDisplay.z - offSet.z, textDisplayColor);
+    // break;
+    // case LEFT_ABSO:
+    // mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x + offSet.x, centerOfDisplay.z - offSet.z,
+    // textDisplayColor);
+    // break;
+    // case RIGHT_ABSO:
+    // mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x - mc.fontRenderer.getStringWidth(displayAmount)
+    // + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
+    // break;
+    // }
+    // }
 
     /**
      * Helper method that Maps the real value provided (representing damage typically) to a different scale (typically
@@ -496,121 +494,23 @@ public class DisplayUnitItem extends DisplayUnitMoveable implements DisplayUnitC
 
             /* Analog Bar Settings */
             menu.addElement(new DisplayUnitToggle(new Coord(-24, 110), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new Toggle() {
-                        DisplayUnitItem display;
-
-                        public Toggle init(DisplayUnitItem display) {
-                            this.display = display;
-                            return this;
-                        }
-
-                        @Override
-                        public void toggle() {
-                            display.displayAnalogBar = !display.displayAnalogBar;
-                        }
-
-                        @Override
-                        public boolean isToggled() {
-                            return display.displayAnalogBar;
-                        }
-                    }.init(this)).setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(12, 16))));
+                    HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(12, 16))));
             menu.addElement(new DisplayUnitTextField(new Coord(-2, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
-                        private DisplayUnitItem display;
-
-                        public Validator init(DisplayUnitItem display) {
-                            this.display = display;
-                            return this;
-                        }
-
-                        @Override
-                        public void setString(String text) {
-                            display.analogOffset = new Coord(Integer.parseInt(text), display.analogOffset.z);
-                        }
-
-                        @Override
-                        public String getString() {
-                            return Integer.toString(display.analogOffset.x);
-                        }
-                    }.init(this)));
+                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(21, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
-                        private DisplayUnitItem display;
-
-                        public Validator init(DisplayUnitItem display) {
-                            this.display = display;
-                            return this;
-                        }
-
-                        @Override
-                        public void setString(String text) {
-                            display.analogOffset = new Coord(display.analogOffset.x, Integer.parseInt(text));
-                        }
-
-                        @Override
-                        public String getString() {
-                            return Integer.toString(display.analogOffset.z);
-                        }
-                    }.init(this)));
+                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, false)));
 
             /* Digital Counter Settings */
             menu.addElement(new DisplayUnitToggle(new Coord(22, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new Toggle() {
-                        DisplayUnitItem display;
-
-                        public Toggle init(DisplayUnitItem display) {
-                            this.display = display;
-                            return this;
-                        }
-
-                        @Override
-                        public void toggle() {
-                            display.displayNumericCounter = !display.displayNumericCounter;
-                        }
-
-                        @Override
-                        public boolean isToggled() {
-                            return display.displayNumericCounter;
-                        }
-                    }.init(this)).setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(12, 16))));
+                    HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(12, 16))));
             menu.addElement(new DisplayUnitTextField(new Coord(-23, 131), new Coord(22, 15),
-                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
-                        private DisplayUnitItem display;
-
-                        public Validator init(DisplayUnitItem display) {
-                            this.display = display;
-                            return this;
-                        }
-
-                        @Override
-                        public void setString(String text) {
-                            display.analogOffset = new Coord(Integer.parseInt(text), display.analogOffset.z);
-                        }
-
-                        @Override
-                        public String getString() {
-                            return Integer.toString(display.analogOffset.x);
-                        }
-                    }.init(this)));
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
+                    new DigitalCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new ValidatorInt() {
-                        private DisplayUnitItem display;
+                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
 
-                        public Validator init(DisplayUnitItem display) {
-                            this.display = display;
-                            return this;
-                        }
-
-                        @Override
-                        public void setString(String text) {
-                            display.analogOffset = new Coord(display.analogOffset.x, Integer.parseInt(text));
-                        }
-
-                        @Override
-                        public String getString() {
-                            return Integer.toString(display.analogOffset.z);
-                        }
-                    }.init(this)));
             return new ReplaceAction(menu, true);
         }
 
