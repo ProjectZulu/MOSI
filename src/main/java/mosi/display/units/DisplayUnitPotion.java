@@ -157,6 +157,38 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                 iconYCoord, 18, 18);
     }
 
+    /**
+     * Used to Draw Analog Bar.
+     * 
+     * @param mc The Minecraft Instance
+     * @param fontRenderer The fontRenderer
+     * @param centerOfDisplay The Center Position where the bar is offset From.
+     * @param analogValue The value representing how full the Bar is
+     * @param analogMax The value that represents the width of the full bar.
+     */
+    protected void renderCounterBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int counterAmount) {
+        int totalSeconds = counterAmount / 20;
+
+        /* Get Duration in Seconds */
+        int seconds = totalSeconds % 60;
+        /* Get Duration in Minutes */
+        int minutes = (totalSeconds / 60) % 60;
+        String formattedTime;
+        if (seconds < 10) {
+            formattedTime = Integer.toString(minutes);
+        } else if (minutes == 0) {
+            formattedTime = String.format("%02d", seconds);
+        } else {
+            formattedTime = minutes + ":" + String.format("%02d", seconds);
+        }
+
+        String displayAmount = Integer.toString(counterAmount);
+        // 8 is constant chosen by testing to keep the displaystring roughly center. It just works.
+        mc.fontRenderer.drawString(formattedTime,
+                centerOfDisplay.x + (8 - mc.fontRenderer.getStringWidth(formattedTime) / 2) + offSet.x,
+                centerOfDisplay.z + offSet.z, textDisplayColor);
+    }
+
     @Override
     public void mousePosition(Coord localMouse, HoverAction hoverAction, HoverTracker hoverChecker) {
         if (hoverAction == HoverAction.HOVER) {

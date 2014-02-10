@@ -15,7 +15,7 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
     private boolean displayNumericCounter;
     private Coord analogOffset;
     private Coord digitalOffset;
-    private int textDisplayColor;
+    public int textDisplayColor;
 
     public DisplayUnitCounter(Coord offset, boolean displayAnalogBar, boolean displayNumericCounter) {
         super(offset);
@@ -114,25 +114,21 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
      * @param analogMax The value that represents the width of the full bar.
      */
     protected void renderCounterBar(Minecraft mc, Coord centerOfDisplay, Coord offSet, int counterAmount) {
-        int totalSeconds = counterAmount / 20;
-
-        /* Get Duration in Seconds */
-        int seconds = totalSeconds % 60;
-        /* Get Duration in Minutes */
-        int minutes = (totalSeconds / 60) % 60;
-        String formattedTime;
-        if (seconds < 10) {
-            formattedTime = Integer.toString(minutes);
-        } else if (minutes == 0) {
-            formattedTime = String.format("%02d", seconds);
-        } else {
-            formattedTime = minutes + ":" + String.format("%02d", seconds);
-        }
-
         String displayAmount = Integer.toString(counterAmount);
-        // 8 is constant chosen by testing to keep the displaystring roughly center. It just works.
-        mc.fontRenderer.drawString(formattedTime,
-                centerOfDisplay.x + (8 - mc.fontRenderer.getStringWidth(formattedTime) / 2) + offSet.x,
-                centerOfDisplay.z + offSet.z, textDisplayColor);
+        switch (getHorizontalAlignment()) {
+        case CENTER_ABSO:
+            mc.fontRenderer.drawString(displayAmount,
+                    centerOfDisplay.x + 8 - mc.fontRenderer.getStringWidth(displayAmount) / 2 + offSet.x,
+                    centerOfDisplay.z - offSet.z, textDisplayColor);
+            break;
+        case LEFT_ABSO:
+            mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x + offSet.x, centerOfDisplay.z - offSet.z,
+                    textDisplayColor);
+            break;
+        case RIGHT_ABSO:
+            mc.fontRenderer.drawString(displayAmount, centerOfDisplay.x - mc.fontRenderer.getStringWidth(displayAmount)
+                    + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
+            break;
+        }
     }
 }
