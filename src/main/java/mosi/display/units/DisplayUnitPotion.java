@@ -1,11 +1,23 @@
 package mosi.display.units;
 
 import mosi.DefaultProps;
+import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideRule.Operator;
 import mosi.display.hiderules.HideRules;
 import mosi.display.hiderules.HideThresholdRule;
+import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.action.ReplaceAction;
+import mosi.display.units.windows.DisplayUnitTextBoard;
+import mosi.display.units.windows.DisplayUnitTextField;
+import mosi.display.units.windows.DisplayUnitToggle;
+import mosi.display.units.windows.DisplayWindowMenu;
+import mosi.display.units.windows.text.PositionTextValidator;
+import mosi.display.units.windows.text.RegularTextValidator;
+import mosi.display.units.windows.text.ValidatorBoundedInt;
+import mosi.display.units.windows.toggle.ToggleHorizAlign;
+import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
@@ -17,7 +29,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.gson.JsonObject;
 
-public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUnitCountable {
+public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUnitCountable, DisplayUnitSettable {
     public static final String DISPLAY_ID = "DisplayUnitPotion";
     public static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
     public static final ResourceLocation countdown = new ResourceLocation(DefaultProps.mosiKey, "countdown.png");
@@ -45,6 +57,8 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
     public boolean displayNumericCounter;
     public Coord analogOffset;
     public Coord digitalOffset;
+    private VerticalAlignment vertAlign = VerticalAlignment.CENTER_ABSO;
+    private HorizontalAlignment horizAlign = HorizontalAlignment.CENTER_ABSO;
 
     public DisplayUnitPotion setEnableDigital(boolean enabled, Coord digitalOffset) {
         this.displayNumericCounter = enabled;
@@ -98,13 +112,28 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
     }
 
     @Override
+    public Coord setOffset(Coord offset) {
+        return this.offset = offset;
+    }
+
+    @Override
     public VerticalAlignment getVerticalAlignment() {
-        return VerticalAlignment.CENTER_ABSO;
+        return vertAlign;
+    }
+
+    @Override
+    public VerticalAlignment setVerticalAlignment(VerticalAlignment alignment) {
+        return vertAlign = alignment;
     }
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.CENTER_ABSO;
+        return horizAlign;
+    }
+
+    @Override
+    public HorizontalAlignment setHorizontalAlignment(HorizontalAlignment alignment) {
+        return horizAlign = alignment;
     }
 
     @Override
@@ -227,6 +256,90 @@ public class DisplayUnitPotion extends DisplayUnitMoveable implements DisplayUni
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
+            DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
+                    getVerticalAlignment());
+            menu.addElement(new DisplayUnitTextField(new Coord(0, 4), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 13, new RegularTextValidator() {
+                        private DisplayUnitPotion display;
+
+                        public RegularTextValidator init(DisplayUnitPotion display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.nickname = text;
+                        }
+
+                        @Override
+                        public String getString() {
+                            return display.nickname;
+                        }
+                    }.init(this)));
+
+            menu.addElement(new DisplayUnitTextField(new Coord(-17, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(+18, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, false)));
+
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(12, 16))));
+
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(12, 16))));
+
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
+
+            //TODO Add TextBoard to state what the text field means
+            menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 80), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Track ID:").setBackgroundImage(null));
+            
+            menu.addElement(new DisplayUnitTextField(new Coord(23, 80), new Coord(18, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, Potion.potionTypes.length - 1) {
+
+                        private DisplayUnitPotion display;
+
+                        public ValidatorBoundedInt init(DisplayUnitPotion display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public boolean isStringValid(String text) {
+                            if (!super.isStringValid(text)) {
+                                return false;
+                            }
+                            return Potion.potionTypes[Integer.parseInt(text)] != null;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.trackedPotion = Integer.parseInt(text);
+                        }
+
+                        @Override
+                        public String getString() {
+                            return Integer.toString(display.trackedPotion);
+                        }
+                    }.init(this)));
+           
+            return new ReplaceAction(menu, true);
+        }
         return super.mouseAction(localMouse, action, actionData);
     }
 

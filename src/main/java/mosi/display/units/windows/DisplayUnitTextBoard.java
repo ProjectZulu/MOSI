@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 
+import com.google.common.base.Optional;
 import com.google.gson.JsonObject;
 
 import mosi.display.DisplayRenderHelper;
@@ -32,7 +33,7 @@ public class DisplayUnitTextBoard implements DisplayUnit {
     private Coord size;
     private VerticalAlignment vertAlign;
     private HorizontalAlignment horizAlign;
-    private ImageResource backgroundImage;
+    private Optional<ImageResource> backgroundImage;
     private ArrayList<String> displayText;
 
     public DisplayUnitTextBoard(Coord offset, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
@@ -54,7 +55,13 @@ public class DisplayUnitTextBoard implements DisplayUnit {
     }
 
     private final void setDefaultImageResource() {
-        backgroundImage = new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127));
+        backgroundImage = Optional.<ImageResource> of(new GuiButtonImageResource(new Coord(129, 000), new Coord(127,
+                127)));
+    }
+
+    public final DisplayUnitTextBoard setBackgroundImage(ImageResource backgrounImage) {
+        backgroundImage = backgrounImage != null ? Optional.of(backgrounImage) : Optional.<ImageResource> absent();
+        return this;
     }
 
     private final Coord calculateSize() {
@@ -112,9 +119,11 @@ public class DisplayUnitTextBoard implements DisplayUnit {
         GL11.glEnable(GL11.GL_BLEND);
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        mc.getTextureManager().bindTexture(backgroundImage.getImageToBind()); // widgets
-        DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
-                backgroundImage.getImageUV(), backgroundImage.getImageSize());
+        if (backgroundImage.isPresent()) {
+            mc.getTextureManager().bindTexture(backgroundImage.get().getImageToBind()); // widgets
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
+                    backgroundImage.get().getImageUV(), backgroundImage.get().getImageSize());
+        }
 
         for (int i = 0; i < displayText.size(); i++) {
             String displayLine = displayText.get(i);
