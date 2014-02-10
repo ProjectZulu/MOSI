@@ -248,13 +248,6 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
         if (displayStats == null) {
             return;
         }
-        if (isAnalogEnabled()) {
-            renderAnalogBar(mc, position, getAnalogOffset(), displayStats.trackedCount, displayStats.maximumCount);
-        }
-        GL11.glDisable(GL11.GL_BLEND);
-        if (isDigitalEnabled()) {
-            renderCounterBar(mc, position, getDigitalOffset(), displayStats.trackedCount);
-        }
 
         GL11.glPushMatrix();
         GL11.glEnable(GL12.GL_RESCALE_NORMAL);
@@ -270,9 +263,16 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
         GL11.glDisable(GL11.GL_BLEND);
         RenderHelper.disableStandardItemLighting();
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glPopMatrix();
+
+        if (isAnalogEnabled()) {
+            renderAnalogBar(mc, position, getAnalogOffset(), displayStats.trackedCount, displayStats.maximumCount);
+        }
+
+        if (isDigitalEnabled()) {
+            renderCounterBar(mc, position, getDigitalOffset(), displayStats.trackedCount);
+        }
     }
 
     public DisplayStats getDisplayInfo(Minecraft mc) {

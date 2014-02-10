@@ -22,7 +22,7 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
         this.displayAnalogBar = displayAnalogBar;
         this.displayNumericCounter = displayNumericCounter;
         this.analogOffset = new Coord(1, 18);
-        this.digitalOffset = new Coord(1, 18);
+        this.digitalOffset = new Coord(1, 0);
         this.textDisplayColor = 1030655;
     }
 

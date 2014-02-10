@@ -30,6 +30,7 @@ import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -141,13 +142,6 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
 
     @Override
     public void renderDisplay(Minecraft mc, Coord position) {
-        if (isAnalogEnabled()) {
-            renderAnalogBar(mc, position, getAnalogOffset(), trackedCount, maxAnalogDuration);
-        }
-
-        if (isDigitalEnabled()) {
-            renderCounterBar(mc, position, getDigitalOffset(), trackedCount);
-        }
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         mc.renderEngine.bindTexture(inventory);
         int iconIndex = Potion.potionTypes[trackedPotion].getStatusIconIndex();
@@ -155,6 +149,14 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
         int iconYCoord = 198 + iconIndex / 8 * 18;
         DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, -9.0f, position.x, position.z, iconXCoord,
                 iconYCoord, 18, 18);
+
+        if (isAnalogEnabled()) {
+            renderAnalogBar(mc, position, getAnalogOffset(), trackedCount, maxAnalogDuration);
+        }
+
+        if (isDigitalEnabled()) {
+            renderCounterBar(mc, position, getDigitalOffset(), trackedCount);
+        }
     }
 
     /**
