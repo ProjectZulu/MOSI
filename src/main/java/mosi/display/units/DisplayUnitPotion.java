@@ -94,8 +94,8 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     }
 
     @Override
-    public Coord setOffset(Coord offset) {
-        return this.offset = offset;
+    public void setOffset(Coord offset) {
+        this.offset = offset;
     }
 
     @Override
@@ -104,8 +104,8 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     }
 
     @Override
-    public VerticalAlignment setVerticalAlignment(VerticalAlignment alignment) {
-        return vertAlign = alignment;
+    public void setVerticalAlignment(VerticalAlignment alignment) {
+        vertAlign = alignment;
     }
 
     @Override
@@ -114,8 +114,8 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     }
 
     @Override
-    public HorizontalAlignment setHorizontalAlignment(HorizontalAlignment alignment) {
-        return horizAlign = alignment;
+    public void setHorizontalAlignment(HorizontalAlignment alignment) {
+        horizAlign = alignment;
     }
 
     @Override

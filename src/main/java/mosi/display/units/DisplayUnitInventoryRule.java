@@ -249,8 +249,8 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     }
 
     @Override
-    public Coord setOffset(Coord offset) {
-        return this.offset = offset;
+    public void setOffset(Coord offset) {
+        this.offset = offset;
     }
 
     @Override
@@ -264,13 +264,13 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     }
 
     @Override
-    public VerticalAlignment setVerticalAlignment(VerticalAlignment alignment) {
-        return vertAlign = alignment;
+    public void setVerticalAlignment(VerticalAlignment alignment) {
+        vertAlign = alignment;
     }
 
     @Override
-    public HorizontalAlignment setHorizontalAlignment(HorizontalAlignment alignment) {
-        return horizAlign = alignment;
+    public void setHorizontalAlignment(HorizontalAlignment alignment) {
+        horizAlign = alignment;
     }
 
     @Override
