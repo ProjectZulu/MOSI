@@ -186,28 +186,35 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        if (slider.mouseAction(DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, slider),
-                action, actionData).shouldStop()) {
-            return ActionResult.SIMPLEACTION;
+        {
+            ActionResult result = slider.mouseAction(
+                    DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, slider), action,
+                    actionData);
+            if (processActionResult(result, slider)) {
+                return result.parentResult();
+            }
         }
 
         for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
-                if (element.mouseAction(
+                ActionResult result = element.mouseAction(
                         DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
-                        actionData).shouldStop()) {
-                    return ActionResult.SIMPLEACTION;
+                        actionData);
+                if (processActionResult(result, element)) {
+                    return result.parentResult();
                 }
             }
         }
-
         return super.mouseAction(localMouse, action, actionData);
     }
 
     @Override
     public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        if (slider.keyTyped(eventCharacter, eventKey).shouldStop()) {
-            return ActionResult.SIMPLEACTION;
+        {
+            ActionResult result = slider.keyTyped(eventCharacter, eventKey);
+            if (processActionResult(result, slider)) {
+                return result.parentResult();
+            }
         }
 
         for (ScrollableElement element : scrollable.getElements()) {

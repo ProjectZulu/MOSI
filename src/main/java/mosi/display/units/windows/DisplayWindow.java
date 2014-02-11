@@ -195,7 +195,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     /**
      * @return StopProcessing - true if processing should be stopped
      */
-    private boolean processActionResult(ActionResult action, DisplayUnit provider) {
+    protected boolean processActionResult(ActionResult action, DisplayUnit provider) {
         if (action.closeAll()) {
             clearWindows();
         } else {

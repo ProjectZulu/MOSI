@@ -1,6 +1,7 @@
 package mosi.display.units;
 
 import mosi.DefaultProps;
+import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;

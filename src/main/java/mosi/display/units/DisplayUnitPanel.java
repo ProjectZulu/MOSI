@@ -3,13 +3,24 @@ package mosi.display.units;
 import java.util.List;
 
 import mosi.Log;
+import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.inventoryrules.ScrollableSubDisplays;
+import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.action.ReplaceAction;
+import mosi.display.units.windows.DisplayUnitTextField;
+import mosi.display.units.windows.DisplayUnitToggle;
+import mosi.display.units.windows.DisplayWindowMenu;
+import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.text.PositionTextValidator;
+import mosi.display.units.windows.toggle.ToggleHorizAlign;
+import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 
 import com.google.gson.JsonObject;
 
-public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements DisplayUnit {
+public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements DisplayUnit, DisplayUnitSettable {
 
     // Frequency to determine how often the update loop is run
     private int updateFrequency = 20;
@@ -21,6 +32,9 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     private boolean showEmpty;
     // This is a cache of the previous number of displays that were actually rendered
     private transient int previousDisplaySize = 0;
+
+    private VerticalAlignment vertAlign;
+    private HorizontalAlignment horizAlign;
 
     public enum DisplayMode {
         // Fills entire columns before rows
@@ -40,6 +54,8 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         gridRows = 3;
         gridCols = 2;
         showEmpty = true;
+        vertAlign = VerticalAlignment.CENTER_ABSO;
+        horizAlign = HorizontalAlignment.CENTER_ABSO;
     }
 
     public DisplayUnitPanel(DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty) {
@@ -88,13 +104,27 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     }
 
     @Override
+    public void setOffset(Coord offset) {
+        this.offset = offset;
+    }
+
+    @Override
+    public void setVerticalAlignment(VerticalAlignment alignment) {
+        vertAlign = alignment;
+    }
+
+    public void setHorizontalAlignment(HorizontalAlignment alignment) {
+        horizAlign = alignment;
+    }
+
+    @Override
     public final VerticalAlignment getVerticalAlignment() {
-        return VerticalAlignment.CENTER_ABSO;
+        return vertAlign;
     }
 
     @Override
     public final HorizontalAlignment getHorizontalAlignment() {
-        return HorizontalAlignment.CENTER_ABSO;
+        return horizAlign;
     }
 
     @Override
@@ -175,6 +205,42 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
 
     @Override
     public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
+            DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
+                    getVerticalAlignment());
+            /* Generic DisplayUnitEditable Settings */
+            menu.addElement(new DisplayUnitTextField(new Coord(-17, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(+18, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, false)));
+
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(12, 16))));
+
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(12, 16))));
+
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(12, 16))));
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
+
+            menu.addElement(new DisplayWindowScrollList(new Coord(90, 00), new Coord(90, 160), 20,
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new ScrollableSubDisplays(
+                            getDisplaysToRender())));
+
+            return new ReplaceAction(menu, true);
+        }
         return super.mouseAction(localMouse, action, actionData);
     }
 
