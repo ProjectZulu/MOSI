@@ -88,12 +88,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     public String getType() {
         return DISPLAY_ID;
     }
-
-    @Override
-    public Coord getSize() {
-        return new Coord(18, 18);
-    }
-
+    
     @Override
     public void setOffset(Coord offset) {
         this.offset = offset;

@@ -46,7 +46,8 @@ public class DisplayWindowMenu extends DisplayWindow {
     }
 
     public DisplayWindowMenu setBackgroundImage(ImageResource backgroundImage) {
-        this.backgroundImage = backgroundImage != null ? Optional.of(backgroundImage) : Optional.<ImageResource>absent();
+        this.backgroundImage = backgroundImage != null ? Optional.of(backgroundImage) : Optional
+                .<ImageResource> absent();
         return this;
     }
 
@@ -129,5 +130,15 @@ public class DisplayWindowMenu extends DisplayWindow {
             DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -10.0f, position, getSize(),
                     backgroundImage.get().getImageUV(), backgroundImage.get().getImageSize());
         }
+    }
+
+    @Override
+    public ActionResult subMouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        return ActionResult.NOACTION;
+    }
+
+    @Override
+    public ActionResult subKeyTyped(char eventCharacter, int eventKey) {
+        return ActionResult.NOACTION;
     }
 }

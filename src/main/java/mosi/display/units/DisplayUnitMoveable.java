@@ -27,10 +27,12 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
         switch (action) {
         case CLICK:
             // actionData[0] == EventButton, 0 == Left-Click, 1 == Right-Click
-            if (actionData[0] == 0 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
-                clickedOn = true;
-                mousePosOnClick = localMouse;
-                offsetPosOnClick = offset;
+            if (DisplayHelper.isCursorOverDisplay(localMouse, this)) {
+                if(actionData[0] == 0) {
+                    clickedOn = true;
+                    mousePosOnClick = localMouse;
+                    offsetPosOnClick = offset;
+                }
                 return ActionResult.SIMPLEACTION;
             }
             break;

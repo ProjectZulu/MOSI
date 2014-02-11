@@ -66,6 +66,48 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
         return digitalOffset;
     }
 
+    @Override
+    public Coord getSize() {
+        return new Coord(largestXDistance(getOffset().x, getAnalogOffset().x, getDigitalOffset().x), largestZDistance(
+                getOffset().z, getAnalogOffset().z, getDigitalOffset().z));
+    }
+
+    private int largestXDistance(int iconCoord, int anaOffset, int digOffset) {
+        // icon is 16x16 and its base is origin (0,0) for analog and digital offsets
+        int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 16 : anaOffset;
+        int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
+        if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
+        } else if (farEdgePointAnalog >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog - farEdgePointDigit),
+                    16 - farEdgePointDigit);
+        } else if (farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit - farEdgePointAnalog),
+                    16 - farEdgePointAnalog);
+        } else {
+            // Else Case both are < 0
+            return Math.max(16 - farEdgePointAnalog, 16 - farEdgePointDigit);
+        }
+    }
+
+    private int largestZDistance(int iconCoord, int anaOffset, int digOffset) {
+        // icon is 16x16 and its base is origin (0,0) for analog and digital offsets
+        int farEdgePointAnalog = anaOffset >= 0 ? anaOffset + 4 : anaOffset;
+        int farEdgePointDigit = digOffset >= 0 ? digOffset + 8 : digOffset;
+        if (farEdgePointAnalog >= 0 && farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointDigit), 16);
+        } else if (farEdgePointAnalog >= 0) {
+            return Math.max(Math.max(farEdgePointAnalog, farEdgePointAnalog - farEdgePointDigit),
+                    16 - farEdgePointDigit);
+        } else if (farEdgePointDigit >= 0) {
+            return Math.max(Math.max(farEdgePointDigit, farEdgePointDigit - farEdgePointAnalog),
+                    16 - farEdgePointAnalog);
+        } else {
+            // Else Case both are < 0
+            return Math.max(16 - farEdgePointAnalog, 16 - farEdgePointDigit);
+        }
+    }
+    
     /**
      * Used to Draw Analog Bar.
      * 

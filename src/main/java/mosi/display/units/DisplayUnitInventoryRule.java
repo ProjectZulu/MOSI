@@ -319,13 +319,13 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     }
 
     @Override
-    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
-        return super.mouseAction(localMouse, action, actionData);
+    public ActionResult subMouseAction(Coord localMouse, MouseAction action, int... actionData) {
+        return ActionResult.NOACTION;
     }
 
     @Override
-    public ActionResult keyTyped(char eventCharacter, int eventKey) {
-        return super.keyTyped(eventCharacter, eventKey);
+    public ActionResult subKeyTyped(char eventCharacter, int eventKey) {
+        return ActionResult.NOACTION;
     }
 
     @Override

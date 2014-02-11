@@ -185,13 +185,13 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
     }
 
     @Override
-    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+    public ActionResult subMouseAction(Coord localMouse, MouseAction action, int... actionData) {
         {
             ActionResult result = slider.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, slider), action,
                     actionData);
-            if (processActionResult(result, slider)) {
-                return result.parentResult();
+            if (result.shouldStop()) {
+                return result;
             }
         }
 
@@ -200,31 +200,31 @@ public class DisplayWindowScrollList extends DisplayWindow implements Sliden {
                 ActionResult result = element.mouseAction(
                         DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
                         actionData);
-                if (processActionResult(result, element)) {
-                    return result.parentResult();
+                if (result.shouldStop()) {
+                    return result;
                 }
             }
         }
-        return super.mouseAction(localMouse, action, actionData);
+        return ActionResult.NOACTION;
     }
 
     @Override
-    public ActionResult keyTyped(char eventCharacter, int eventKey) {
+    public ActionResult subKeyTyped(char eventCharacter, int eventKey) {
         {
             ActionResult result = slider.keyTyped(eventCharacter, eventKey);
-            if (processActionResult(result, slider)) {
-                return result.parentResult();
+            if (result.shouldStop()) {
+                return result;
             }
         }
 
         for (ScrollableElement element : scrollable.getElements()) {
             if (element.isVisibleInScroll()) {
-                if (element.keyTyped(eventCharacter, eventKey).shouldStop()) {
-                    return ActionResult.SIMPLEACTION;
+                ActionResult result = element.keyTyped(eventCharacter, eventKey);
+                if (result.shouldStop()) {
+                    return result;
                 }
             }
         }
-        return super.keyTyped(eventCharacter, eventKey);
+        return ActionResult.NOACTION;
     }
-
 }

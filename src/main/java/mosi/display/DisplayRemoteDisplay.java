@@ -160,7 +160,7 @@ public class DisplayRemoteDisplay implements DisplayUnitSettable {
         }
         throw new IllegalArgumentException("Invalid Vertical Alignment scenario");
     }
-    
+
     private int remoteYCoord(int localY, int displaySize, VerticalAlignment localAlign, VerticalAlignment remoteAlign) {
         if (localAlign == remoteAlign) {
             return localY;

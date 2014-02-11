@@ -61,6 +61,6 @@ public class ScrollableSubDisplays implements Scrollable {
 
     @Override
     public boolean removeElement(ScrollableElement element) {
-        throw new UnsupportedOperationException("Operation not supported, yet?");
+        return false;
     }
 }

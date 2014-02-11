@@ -172,7 +172,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     }
 
     @Override
-    public ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
+    public final ActionResult mouseAction(Coord localMouse, MouseAction action, int... actionData) {
         for (DisplayUnit window : windows) {
             ActionResult result = window.mouseAction(
                     DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, window), action,
@@ -189,13 +189,19 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
                 return result.parentResult();
             }
         }
+        ActionResult result = subMouseAction(localMouse, action, actionData);
+        if (processActionResult(result, this)) {
+            return result.parentResult();
+        }
         return super.mouseAction(localMouse, action, actionData);
     }
+
+    public abstract ActionResult subMouseAction(Coord localMouse, MouseAction action, int... actionData);
 
     /**
      * @return StopProcessing - true if processing should be stopped
      */
-    protected boolean processActionResult(ActionResult action, DisplayUnit provider) {
+    private boolean processActionResult(ActionResult action, DisplayUnit provider) {
         if (action.closeAll()) {
             clearWindows();
         } else {
@@ -218,7 +224,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     }
 
     @Override
-    public ActionResult keyTyped(char eventCharacter, int eventKey) {
+    public final ActionResult keyTyped(char eventCharacter, int eventKey) {
         for (DisplayUnit window : windows) {
             ActionResult result = window.keyTyped(eventCharacter, eventKey);
             if (processActionResult(result, window)) {
@@ -231,9 +237,17 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
                 return result.parentResult();
             }
         }
+
+        ActionResult result = subKeyTyped(eventCharacter, eventKey);
+        if (processActionResult(result, this)) {
+            return result.parentResult();
+        }
+
         return super.keyTyped(eventCharacter, eventKey);
     }
 
+    public abstract ActionResult subKeyTyped(char eventCharacter, int eventKey);
+    
     public void saveWindow() {
 
     }

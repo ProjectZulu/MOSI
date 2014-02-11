@@ -235,7 +235,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
 
-            menu.addElement(new DisplayWindowScrollList(new Coord(90, 00), new Coord(90, 160), 20,
+            menu.addWindow(new DisplayWindowScrollList(new Coord(90, 00), new Coord(90, 160), 20,
                     VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new ScrollableSubDisplays(
                             getDisplaysToRender())));
 
