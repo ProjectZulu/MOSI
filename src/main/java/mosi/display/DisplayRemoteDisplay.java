@@ -111,7 +111,7 @@ public class DisplayRemoteDisplay implements DisplayUnitSettable {
         if (localAlign == HorizontalAlignment.LEFT_ABSO) {
             if (remoteAlign == HorizontalAlignment.CENTER_ABSO) {
                 return localX + remoteOffset - localOffset - displaySize / 2;
-            } else if (localAlign == HorizontalAlignment.RIGHT_ABSO) {
+            } else if (remoteAlign == HorizontalAlignment.RIGHT_ABSO) {
                 return localX + remoteOffset - localOffset - displaySize;
             }
         } else if (localAlign == HorizontalAlignment.CENTER_ABSO) {
@@ -123,7 +123,7 @@ public class DisplayRemoteDisplay implements DisplayUnitSettable {
         } else if (localAlign == HorizontalAlignment.RIGHT_ABSO) {
             if (remoteAlign == HorizontalAlignment.LEFT_ABSO) {
                 return localX + remoteOffset - localOffset + displaySize;
-            } else if (localAlign == HorizontalAlignment.CENTER_ABSO) {
+            } else if (remoteAlign == HorizontalAlignment.CENTER_ABSO) {
                 return localX + remoteOffset - localOffset + displaySize / 2;
             }
         }
@@ -142,7 +142,7 @@ public class DisplayRemoteDisplay implements DisplayUnitSettable {
         if (localAlign == VerticalAlignment.TOP_ABSO) {
             if (remoteAlign == VerticalAlignment.CENTER_ABSO) {
                 return localX + remoteOffset - localOffset - displaySize / 2;
-            } else if (localAlign == VerticalAlignment.BOTTOM_ABSO) {
+            } else if (remoteAlign == VerticalAlignment.BOTTOM_ABSO) {
                 return localX + remoteOffset - localOffset - displaySize;
             }
         } else if (localAlign == VerticalAlignment.CENTER_ABSO) {
@@ -154,7 +154,7 @@ public class DisplayRemoteDisplay implements DisplayUnitSettable {
         } else if (localAlign == VerticalAlignment.BOTTOM_ABSO) {
             if (remoteAlign == VerticalAlignment.TOP_ABSO) {
                 return localX + remoteOffset - localOffset + displaySize;
-            } else if (localAlign == VerticalAlignment.CENTER_ABSO) {
+            } else if (remoteAlign == VerticalAlignment.CENTER_ABSO) {
                 return localX + remoteOffset - localOffset + displaySize / 2;
             }
         }
