@@ -2,19 +2,27 @@ package mosi.display.units;
 
 import java.util.List;
 
+import javax.imageio.ImageReader;
+
 import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.ScrollableSubDisplays;
+import mosi.display.resource.ImageResource;
+import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
+import mosi.display.units.windows.DisplayUnitBoard;
+import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.text.PositionTextValidator;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
@@ -259,9 +267,25 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
 
                         @Override
                         public ActionResult onRelease() {
-                            return new ReplaceAction(new DisplayWindowScrollList<DisplayUnit>(new Coord(90, 00),
-                                    new Coord(90, 160), 20, parentVert, parentHorz, new ScrollableSubDisplays(
-                                            getDisplaysToRender())), true);
+                            DisplayWindowScrollList<DisplayUnit> slider = new DisplayWindowScrollList<DisplayUnit>(
+                                    new Coord(90, 00), new Coord(70, 100), 25, parentVert, parentHorz,
+                                    new ScrollableSubDisplays(getDisplaysToRender()));
+                            slider.addElement(new DisplayUnitButton(new Coord(-21, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(slider))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 44),
+                                            new Coord(12, 16))));
+                            slider.addElement(new DisplayUnitButton(new Coord(0, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(slider))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(165, 44),
+                                            new Coord(12, 16))));
+                            slider.addElement(new DisplayUnitButton(new Coord(+21, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(slider))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(201, 44),
+                                            new Coord(13, 16))));
+                            slider.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 20),
+                                    VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(
+                                            slider), "Close"));
+                            return new ReplaceAction(slider, true);
                         }
                     }.init(this, getVerticalAlignment(), getHorizontalAlignment()), "Sub Displays"));
             return new ReplaceAction(menu, true);

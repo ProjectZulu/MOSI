@@ -1,11 +1,11 @@
 package mosi.display.units.windows;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnit.ActionResult.SimpleAction;
 import mosi.display.units.DisplayUnitSettable;
 import mosi.display.units.windows.DisplayWindowSlider.Sliden;
 import mosi.display.units.windows.button.CloseClick;
@@ -38,6 +38,7 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
     private int scrolledDistance;
     private Coord size;
     private Scrollable<T> scrollable;
+    private Optional<Integer> selectedEntry = Optional.absent();
 
     @Override
     public void setScrollDistance(int scrollDistance, int scrollLength) {
@@ -81,8 +82,6 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         this.slider = new DisplayWindowSlider(new Coord(0, this.headerSize), new Coord(sliderWidth, sliderWidth),
                 this.scrollLength, true, VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO, this);
         this.scrollable = scrollable;
-        addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(80, 20), VerticalAlignment.BOTTOM_ABSO,
-                HorizontalAlignment.CENTER_ABSO, new CloseClick(this), "Close"));
     }
 
     @Override
@@ -145,10 +144,26 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, getSize(),
                 new Coord(000, 128), new Coord(127, 127));
 
+        if (selectedEntry.isPresent()) {
+            int index = 0;
+            for (ScrollableElement<T> element : scrollable.getElements()) {
+                if (element.isVisibleInScroll()) {
+                    if (selectedEntry.get().equals(index)) {
+                        Coord elemPos = DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(),
+                                element);
+                        DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, elemPos, new Coord(
+                                getSize().x - slider.getSize().x, element.getSize().z), new Coord(129, 129), new Coord(
+                                127, 127));
+                    }
+                    index++;
+                }
+            }
+        }
         for (ScrollableElement<T> element : scrollable.getElements()) {
             Coord elemPos = DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), element);
             // Should scroll visibility logic be done during rendering? Can it be done without absolute position?
             if (elemPos.z > position.z && elemPos.z < position.z + getSize().z - element.getSize().z) {
+                
                 element.setScrollVisibity(true);
                 element.renderDisplay(mc, elemPos);
             } else {
@@ -207,14 +222,25 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
             }
         }
 
-        for (ScrollableElement<T> element : scrollable.getElements()) {
+        Iterator<? extends ScrollableElement<T>> iterator = scrollable.getElements().iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            ScrollableElement<T> element = iterator.next();
             if (element.isVisibleInScroll()) {
                 ActionResult result = element.mouseAction(
                         DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
                         actionData);
-                if (result.shouldStop()) {
-                    return result;
+                if (selectedEntry.isPresent() && selectedEntry.get().equals(index)) {
+                    if (result.shouldStop()) {
+                        return result;
+                    }
+                } else {
+                    if (result.shouldStop()) {
+                        selectedEntry = Optional.of(index);
+                        return ActionResult.SIMPLEACTION;
+                    }
                 }
+                index++;
             }
         }
         return ActionResult.NOACTION;
