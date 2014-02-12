@@ -3,18 +3,19 @@ package mosi.display.inventoryrules;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnitInventoryRule;
 import mosi.display.units.windows.DisplayWindowScrollList.Scrollable;
 import mosi.display.units.windows.DisplayWindowScrollList.ScrollableElement;
 
-public class ScrollableInventoryRules implements Scrollable {
+public class ScrollableInventoryRules implements Scrollable<InventoryRule> {
 
     private InventoryRules rules;
-    ArrayList<ScrollableElement> scrollableList;
+    ArrayList<ScrollableElement<InventoryRule>> scrollableList;
 
     public ScrollableInventoryRules(InventoryRules rules) {
         this.rules = rules;
-        scrollableList = new ArrayList<ScrollableElement>();
+        scrollableList = new ArrayList<ScrollableElement<InventoryRule>>();
         // TODO: This is beyond ugly, something should be done... eventually
         for (InventoryRule inventoryRule : rules) {
             if (inventoryRule instanceof ItemHandMatch) {
@@ -32,14 +33,19 @@ public class ScrollableInventoryRules implements Scrollable {
     }
 
     @Override
-    public Collection<? extends ScrollableElement> getElements() {
+    public Collection<? extends ScrollableElement<InventoryRule>> getElements() {
         return scrollableList;
     }
 
     @Override
-    public boolean removeElement(ScrollableElement element) {
-        int index = scrollableList.indexOf(element);
-        rules.removeRule(index);
+    public boolean removeElement(ScrollableElement<InventoryRule> element) {
+        rules.remove(element.getSource());
         return scrollableList.remove(element);
+    }
+
+    @Override
+    public boolean addElement(ScrollableElement<InventoryRule> element) {
+        rules.add(element.getSource());
+        return scrollableList.add(element);
     }
 }

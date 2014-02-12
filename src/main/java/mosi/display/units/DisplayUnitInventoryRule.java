@@ -2,6 +2,7 @@ package mosi.display.units;
 
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.ItemHandMatch;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ItemMetaMatch;
@@ -31,7 +32,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.gson.JsonObject;
 
-public class DisplayUnitInventoryRule extends DisplayWindow implements ScrollableElement {
+public class DisplayUnitInventoryRule extends DisplayWindow implements ScrollableElement<InventoryRule> {
     public static final String DISPLAY_ID = "DisplayWindowMenu";
     private static final ResourceLocation guiButton = new ResourceLocation("mosi", "buttongui.png");
 
@@ -41,7 +42,8 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     private HorizontalAlignment horizAlign = HorizontalAlignment.LEFT_ABSO;
     private boolean isMouseOver;
     private boolean scrollVisibility;
-    private Scrollable container;
+    private Scrollable<InventoryRule> container;
+    private InventoryRule source;
 
     // TODO: A more generic way to get editable segments of InventoryRules. Theres only a few atm, so individual support
     // is manageable
@@ -63,18 +65,18 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
      * @param inventoryRule
      * @param Scrollable is used for this unit to remove itself, if possible
      */
-    public DisplayUnitInventoryRule(ItemHandMatch inventoryRule, Scrollable container) {
+    public DisplayUnitInventoryRule(ItemHandMatch inventoryRule, Scrollable<InventoryRule> container) {
         ruleId = RULEID.HAND;
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
                 .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
         size = new Coord(105, 22);
         this.container = container;
+        this.source = inventoryRule;
     }
 
-    //
-    public DisplayUnitInventoryRule(ItemIdMatch inventoryRule, Scrollable container) {
+    public DisplayUnitInventoryRule(ItemIdMatch inventoryRule, Scrollable<InventoryRule> container) {
         ruleId = RULEID.ID;
         // Add TextBox to set string id --> will eventually be scroll list
         addElement(new DisplayUnitTextField(new Coord(22, 2), new Coord(60, 20), VerticalAlignment.TOP_ABSO,
@@ -85,13 +87,14 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                 .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
                 .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
         size = new Coord(140, 24);
         this.container = container;
+        this.source = inventoryRule;
     }
 
-    public DisplayUnitInventoryRule(final ItemMetaMatch inventoryRule, Scrollable container) {
+    public DisplayUnitInventoryRule(final ItemMetaMatch inventoryRule, Scrollable<InventoryRule> container) {
         ruleId = RULEID.IDMETA;
         // Add TextBox to set string id --> will eventually be scroll list
         addElement(new DisplayUnitTextField(new Coord(2, 23), new Coord(60, 20), VerticalAlignment.TOP_ABSO,
@@ -130,13 +133,14 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                 .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
                 .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
         size = new Coord(140, 44);
         this.container = container;
+        this.source = inventoryRule;
     }
 
-    public DisplayUnitInventoryRule(final ItemSlotMatch inventoryRule, Scrollable container) {
+    public DisplayUnitInventoryRule(final ItemSlotMatch inventoryRule, Scrollable<InventoryRule> container) {
         ruleId = RULEID.SLOT;
         // Add TextBox to set string slotId --> will eventually be scroll list
         // Add TextBox to set string armorSlot (--> eventually scroll list that selected id + damage?)
@@ -186,10 +190,11 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                 }).setIconImageResource(new GuiIconImageResource(new Coord(202, 23), new Coord(12, 16))));
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton(this, container))
+                HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
                 .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
         size = new Coord(105, 22);
         this.container = container;
+        this.source = inventoryRule;
     }
 
     private static class ItemIdTextField implements Validator {
@@ -345,5 +350,10 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     @Override
     public boolean isVisibleInScroll() {
         return scrollVisibility;
+    }
+
+    @Override
+    public InventoryRule getSource() {
+        return source;
     }
 }

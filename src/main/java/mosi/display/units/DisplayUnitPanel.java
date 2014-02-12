@@ -5,9 +5,12 @@ import java.util.List;
 import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.ScrollableSubDisplays;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.action.ReplaceAction;
+import mosi.display.units.windows.DisplayUnitButton;
+import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
@@ -235,10 +238,32 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
 
-            menu.addWindow(new DisplayWindowScrollList(new Coord(90, 00), new Coord(90, 160), 20,
-                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new ScrollableSubDisplays(
-                            getDisplaysToRender())));
+            menu.addElement(new DisplayUnitButton(new Coord(0, 77), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Clicker() {
+                        private DisplayUnitPanel display;
+                        private VerticalAlignment parentVert;
+                        private HorizontalAlignment parentHorz;
 
+                        private Clicker init(DisplayUnitPanel display, VerticalAlignment parentVert,
+                                HorizontalAlignment parentHorz) {
+                            this.display = display;
+                            this.parentVert = parentVert;
+                            this.parentHorz = parentHorz;
+                            return this;
+                        }
+
+                        @Override
+                        public ActionResult onClick() {
+                            return ActionResult.SIMPLEACTION;
+                        }
+
+                        @Override
+                        public ActionResult onRelease() {
+                            return new ReplaceAction(new DisplayWindowScrollList<DisplayUnit>(new Coord(90, 00),
+                                    new Coord(90, 160), 20, parentVert, parentHorz, new ScrollableSubDisplays(
+                                            getDisplaysToRender())), true);
+                        }
+                    }.init(this, getVerticalAlignment(), getHorizontalAlignment()), "Sub Displays"));
             return new ReplaceAction(menu, true);
         }
         return super.mouseAction(localMouse, action, actionData);

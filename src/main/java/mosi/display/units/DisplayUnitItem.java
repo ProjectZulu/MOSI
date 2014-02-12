@@ -74,7 +74,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
         nickname = "";
         trackMode = TrackMode.QUANTITY;
         countingRules = new InventoryRules();
-        countingRules.addRule(new ItemIdMatch("grass", true));
+        countingRules.add(new ItemIdMatch("grass", true));
         hidingRules = new HideRules();
         // hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
         // hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
@@ -343,8 +343,9 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
 
                         @Override
                         public ActionResult onRelease() {
-                            return new ReplaceAction(new DisplayWindowScrollList(new Coord(0, 0), new Coord(140, 200),
-                                    25, parentVert, parentHorz, new ScrollableInventoryRules(rules)), true);
+                            return new ReplaceAction(new DisplayWindowScrollList<InventoryRule>(new Coord(0, 0),
+                                    new Coord(140, 200), 25, parentVert, parentHorz,
+                                    new ScrollableInventoryRules(rules)), true);
                         }
                     }.init(countingRules, getVerticalAlignment(), getHorizontalAlignment()), "Count Rules"));
             /* Open HideRules Editor */

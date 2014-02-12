@@ -5,11 +5,11 @@ import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayWindowScrollList.Scrollable;
 import mosi.display.units.windows.DisplayWindowScrollList.ScrollableElement;
 
-public class ScrobbleElementRemoveButton implements Clicker {
-    private ScrollableElement element;
-    private Scrollable container;
+public class ScrobbleElementRemoveButton<T> implements Clicker {
+    private ScrollableElement<T> element;
+    private Scrollable<T> container;
 
-    public ScrobbleElementRemoveButton(ScrollableElement element, Scrollable container) {
+    public ScrobbleElementRemoveButton(ScrollableElement<T> element, Scrollable<T> container) {
         this.element = element;
         this.container = container;
     }

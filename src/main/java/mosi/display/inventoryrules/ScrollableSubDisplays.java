@@ -4,21 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.gson.JsonObject;
-
 import mosi.display.DisplayRemoteDisplay;
-import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitSettable;
 import mosi.display.units.windows.DisplayWindowScrollList.Scrollable;
 import mosi.display.units.windows.DisplayWindowScrollList.ScrollableElement;
+import mosi.display.units.windows.list.EditableList;
 import mosi.utilities.Coord;
-import net.minecraft.client.Minecraft;
 
-public class ScrollableSubDisplays implements Scrollable {
-    private List<ScrollableRemoteDisplay> displays;
+public class ScrollableSubDisplays implements Scrollable<DisplayUnit> {
+    private EditableList<DisplayUnit> source;
+    private List<ScrollableElement<DisplayUnit>> displays;
 
-    private static class ScrollableRemoteDisplay extends DisplayRemoteDisplay implements ScrollableElement {
+    private static class ScrollableRemoteDisplay extends DisplayRemoteDisplay implements ScrollableElement<DisplayUnit> {
         public static final String DISPLAY_ID = "SubDisplay";
         private boolean scrollVisibility = false;
 
@@ -45,22 +42,42 @@ public class ScrollableSubDisplays implements Scrollable {
         public boolean isVisibleInScroll() {
             return scrollVisibility;
         }
+
+        @Override
+        public DisplayUnit getSource() {
+            return remoteDisplay;
+        }
     }
 
     public ScrollableSubDisplays(List<? extends DisplayUnit> displays) {
-        this.displays = new ArrayList<ScrollableRemoteDisplay>();
+        this.displays = new ArrayList<ScrollableElement<DisplayUnit>>();
         for (DisplayUnit displayUnit : displays) {
             this.displays.add(new ScrollableRemoteDisplay(displayUnit));
         }
     }
 
+    public ScrollableSubDisplays(EditableList<DisplayUnit> displaySource) {
+        this.source = displaySource;
+        this.displays = new ArrayList<ScrollableElement<DisplayUnit>>();
+        for (DisplayUnit displayUnit : this.source) {
+            this.displays.add(new ScrollableRemoteDisplay(displayUnit));
+        }
+    }
+
     @Override
-    public Collection<? extends ScrollableElement> getElements() {
+    public Collection<? extends ScrollableElement<DisplayUnit>> getElements() {
         return displays;
     }
 
     @Override
-    public boolean removeElement(ScrollableElement element) {
-        return false;
+    public boolean removeElement(ScrollableElement<DisplayUnit> element) {
+        source.remove(element.getSource());
+        return displays.remove(element);
+    }
+
+    @Override
+    public boolean addElement(ScrollableElement<DisplayUnit> element) {
+        source.add(element.getSource());
+        return displays.add(element);
     }
 }
