@@ -170,7 +170,6 @@ public class DisplayUnitButton implements DisplayUnit {
             mc.getTextureManager().bindTexture(iconImage.get().getImageToBind());
             Coord imageSize = iconImage.get().getImageSize();
             Coord iamgeUV = iconImage.get().getImageUV();
-            iamgeUV = new Coord(165, 2);
             DisplayRenderHelper.drawTexturedModalRect(Tessellator.instance, 1.0f, new Coord(position.x + getSize().x
                     / 2 - imageSize.x / 2, position.z + getSize().z / 2 - imageSize.z / 2), iamgeUV, imageSize);
         }
