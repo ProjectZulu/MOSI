@@ -44,8 +44,11 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         this.scrolledDistance = scrollDistance;
     }
 
-    // TODO: Should this implement Sliden Slider interface?
     public static interface Scrollable<T> {
+        /**
+         * Return list of elements to be scrolled, additions/subtractions should be made to list directly as changes are
+         * not gauranteed to write through: {@link#addElement} and {@link#removeElement} should be used instead.
+         */
         public abstract Collection<? extends ScrollableElement<T>> getElements();
 
         public abstract boolean addElement(ScrollableElement<T> element);
@@ -58,6 +61,11 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
 
         public abstract boolean isVisibleInScroll();
 
+        /**
+         * Be able to convert form ScrollableElement to T for removing from Scrollable wrapper to backing list of T
+         * 
+         * getSource may return the current isntance, say if T implements ScrollableElement.
+         */
         public abstract T getSource();
     }
 
