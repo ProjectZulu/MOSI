@@ -68,8 +68,8 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
 
     @Override
     public Coord getSize() {
-        return new Coord(largestXDistance(getOffset().x, getAnalogOffset().x, getDigitalOffset().x), largestZDistance(
-                getOffset().z, getAnalogOffset().z, getDigitalOffset().z));
+        return new Coord(largestXDistance(getOffset().x, getAnalogOffset().x, getDigitalOffset().x) + 2,
+                largestZDistance(getOffset().z, getAnalogOffset().z, getDigitalOffset().z) + 2);
     }
 
     private int largestXDistance(int iconCoord, int anaOffset, int digOffset) {
@@ -107,7 +107,7 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
             return Math.max(16 - farEdgePointAnalog, 16 - farEdgePointDigit);
         }
     }
-    
+
     /**
      * Used to Draw Analog Bar.
      * 
