@@ -89,7 +89,6 @@ public class DisplayScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseScaledX, int mouseScaledY, float renderPartialTicks) {
         super.drawScreen(mouseScaledX, mouseScaledY, renderPartialTicks);
-
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         HoverTracker hoverChecker = new HoverTracker();
         for (DisplayUnit window : windows) {
@@ -184,7 +183,6 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146286_b(int mouseScaledX, int mouseScaledY, int which) {
         super.func_146286_b(mouseScaledX, mouseScaledY, which);
-        Log.log().info("mouseMovedOrUp");
         if (which == 0 || which == 1) {
             for (DisplayUnit window : windows) {
                 Coord localMouse = DisplayHelper
@@ -208,7 +206,6 @@ public class DisplayScreen extends GuiScreen {
     @Override
     protected void func_146273_a(int mouseScaledX, int mouseScaledY, int lastButtonClicked, long timeSinceMouseClick) {
         super.func_146273_a(mouseScaledX, mouseScaledY, lastButtonClicked, timeSinceMouseClick);
-        Log.log().info("mouseClickMove");
         for (DisplayUnit window : windows) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
             if (processActionResult(window.mouseAction(localMouse, MouseAction.CLICK_MOVE, lastButtonClicked), window)) {
@@ -229,7 +226,6 @@ public class DisplayScreen extends GuiScreen {
 
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
-        Log.log().info("keyTyped");
         ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit window : windows) {
             if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
