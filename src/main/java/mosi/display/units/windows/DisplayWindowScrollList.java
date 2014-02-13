@@ -38,7 +38,6 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
     private int scrolledDistance;
     private Coord size;
     private Scrollable<T> scrollable;
-    private Optional<Integer> selectedEntry = Optional.absent();
 
     @Override
     public void setScrollDistance(int scrollDistance, int scrollLength) {
@@ -55,6 +54,10 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         public abstract boolean addElement(ScrollableElement<T> element);
 
         public abstract boolean removeElement(ScrollableElement<T> element);
+
+        public abstract void setSelected(ScrollableElement<T> element);
+
+        public abstract Optional<ScrollableElement<T>> getSelected();
     }
 
     public static interface ScrollableElement<T> extends DisplayUnitSettable {
@@ -171,11 +174,12 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, getSize(),
                 new Coord(000, 128), new Coord(127, 127));
 
+        Optional<ScrollableElement<T>> selectedEntry = scrollable.getSelected();
         if (selectedEntry.isPresent()) {
             int index = 0;
             for (ScrollableElement<T> element : scrollable.getElements()) {
                 if (element.isVisibleInScroll()) {
-                    if (selectedEntry.get().equals(index)) {
+                    if (selectedEntry.get().equals(element)) {
                         Coord elemPos = DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(),
                                 element);
                         DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, elemPos,
@@ -255,13 +259,14 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
                 ActionResult result = element.mouseAction(
                         DisplayHelper.localizeMouseCoords(Minecraft.getMinecraft(), localMouse, this, element), action,
                         actionData);
-                if (selectedEntry.isPresent() && selectedEntry.get().equals(index)) {
+                Optional<ScrollableElement<T>> selectedEntry = scrollable.getSelected();
+                if (selectedEntry.isPresent() && selectedEntry.get().equals(element)) {
                     if (result.shouldStop()) {
                         return result;
                     }
                 } else {
                     if (result.shouldStop()) {
-                        selectedEntry = Optional.of(index);
+                        scrollable.setSelected(element);
                         return ActionResult.SIMPLEACTION;
                     }
                 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 import mosi.display.DisplayRemoteDisplay;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.windows.DisplayWindowScrollList.Scrollable;
@@ -14,6 +16,7 @@ import mosi.utilities.Coord;
 public class ScrollableSubDisplays implements Scrollable<DisplayUnit> {
     private EditableList<DisplayUnit> source;
     private List<ScrollableElement<DisplayUnit>> displays;
+    private Optional<ScrollableElement<DisplayUnit>> selectedEntry = Optional.absent();
 
     private static class ScrollableRemoteDisplay extends DisplayRemoteDisplay implements ScrollableElement<DisplayUnit> {
         public static final String DISPLAY_ID = "SubDisplay";
@@ -79,5 +82,15 @@ public class ScrollableSubDisplays implements Scrollable<DisplayUnit> {
     public boolean addElement(ScrollableElement<DisplayUnit> element) {
         source.add(element.getSource());
         return displays.add(element);
+    }
+
+    @Override
+    public void setSelected(ScrollableElement<DisplayUnit> element) {
+        selectedEntry = element != null ? Optional.of(element) : Optional.<ScrollableElement<DisplayUnit>> absent();
+    }
+
+    @Override
+    public Optional<ScrollableElement<DisplayUnit>> getSelected() {
+        return selectedEntry;
     }
 }
