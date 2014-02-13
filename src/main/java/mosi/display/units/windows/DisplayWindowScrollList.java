@@ -109,22 +109,49 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         slider.onUpdate(mc, ticks);
         int listSize = 0;
         Collection<? extends ScrollableElement<T>> scrollDisplays = scrollable.getElements();
-        for (DisplayUnit element : scrollDisplays) {
-            listSize += element.getSize().z;
+        final int maxWidth = getSize().x - slider.getSize().x;
+        {
+            int listWidth = 0;
+            Coord previSize = new Coord(0, 0);
+            Iterator<? extends ScrollableElement<T>> iterator = scrollDisplays.iterator();
+            while (iterator.hasNext()) {
+                DisplayUnit element = iterator.next();
+                if (listWidth + previSize.x + element.getSize().x < maxWidth) {
+                    listWidth += previSize.x;
+                } else {
+                    listWidth = 0;
+                    listSize += previSize.z;
+                }
+
+                if (!iterator.hasNext()) {
+                    listWidth += element.getSize().x;
+                    listSize += element.getSize().z;
+                }
+                previSize = element.getSize();
+            }
         }
         listSize = listSize - (getSize().z - headerSize * 2);
+        int elementPosX = 0;
         int elementPosY = 0;
+        Coord prevSize = new Coord(0, 0);
         for (DisplayUnitSettable element : scrollDisplays) {
             element.setHorizontalAlignment(HorizontalAlignment.LEFT_ABSO);
             element.setVerticalAlignment(VerticalAlignment.TOP_ABSO);
+            if (elementPosX + prevSize.x + element.getSize().x < maxWidth) {
+                elementPosX += prevSize.x;
+            } else {
+                elementPosX = 0;
+                elementPosY += prevSize.z;
+            }
             /*
              * Do not include bottom of list; when scroll bar reached bottom, the bottom element should be at bottom of
              * screen not top
              */
             float scrollPerc = scrolledDistance * 1f / scrollLength;
             int zCoord = headerSize + elementPosY - (int) (scrollPerc * listSize);
-            elementPosY += element.getSize().z;
-            element.setOffset(new Coord(0, zCoord));
+            element.setOffset(new Coord(elementPosX, zCoord));
+
+            prevSize = element.getSize();
         }
         for (DisplayUnitSettable element : scrollDisplays) {
             element.onUpdate(mc, ticks);
@@ -151,9 +178,8 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
                     if (selectedEntry.get().equals(index)) {
                         Coord elemPos = DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(),
                                 element);
-                        DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, elemPos, new Coord(
-                                getSize().x - slider.getSize().x, element.getSize().z), new Coord(129, 129), new Coord(
-                                127, 127));
+                        DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, elemPos,
+                                element.getSize(), new Coord(129, 129), new Coord(127, 127));
                     }
                     index++;
                 }
@@ -163,7 +189,6 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
             Coord elemPos = DisplayHelper.determineScreenPositionFromDisplay(mc, position, getSize(), element);
             // Should scroll visibility logic be done during rendering? Can it be done without absolute position?
             if (elemPos.z > position.z && elemPos.z < position.z + getSize().z - element.getSize().z) {
-                
                 element.setScrollVisibity(true);
                 element.renderDisplay(mc, elemPos);
             } else {
