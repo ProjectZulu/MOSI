@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import mosi.display.units.windows.list.EditableList;
-
 import com.google.gson.JsonObject;
 
 /**
  * Convenience object Object containing list of rules that handles saving/to from a JSONObject
  */
-public class InventoryRules implements Iterable<InventoryRule>, EditableList<InventoryRule> {
+public class InventoryRules implements Iterable<InventoryRule> {
     private List<InventoryRule> rules;
 
     public InventoryRules() {
@@ -39,12 +37,10 @@ public class InventoryRules implements Iterable<InventoryRule>, EditableList<Inv
         return rules.iterator();
     }
 
-    @Override
     public void add(InventoryRule element) {
         rules.add(element);
     }
 
-    @Override
     public void remove(InventoryRule element) {
         rules.remove(element);
     }

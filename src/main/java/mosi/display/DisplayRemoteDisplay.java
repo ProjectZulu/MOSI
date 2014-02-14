@@ -14,16 +14,16 @@ import com.google.gson.JsonObject;
  * 
  * RemoteDisplay should not update the wrapped display, as it is likely updating elsewhere, if neccesary.
  */
-public class DisplayRemoteDisplay implements DisplayUnitSettable {
+public class DisplayRemoteDisplay<T extends DisplayUnit> implements DisplayUnitSettable {
     public static final String DISPLAY_ID = "SubDisplay";
 
-    protected DisplayUnit remoteDisplay;
+    protected T remoteDisplay;
 
     private Coord offset;
     private VerticalAlignment vertAlign;
     private HorizontalAlignment horizAlign;
 
-    public DisplayRemoteDisplay(DisplayUnit remoteDisplay) {
+    public DisplayRemoteDisplay(T remoteDisplay) {
         this.remoteDisplay = remoteDisplay;
     }
 

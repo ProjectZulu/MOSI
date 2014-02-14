@@ -4,25 +4,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.base.Optional;
-
 import mosi.display.DisplayRemoteDisplay;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.windows.DisplayWindowScrollList.Scrollable;
 import mosi.display.units.windows.DisplayWindowScrollList.ScrollableElement;
-import mosi.display.units.windows.list.EditableList;
 import mosi.utilities.Coord;
 
-public class ScrollableSubDisplays implements Scrollable<DisplayUnit> {
-    private EditableList<DisplayUnit> source;
-    private List<ScrollableElement<DisplayUnit>> displays;
-    private Optional<ScrollableElement<DisplayUnit>> selectedEntry = Optional.absent();
+import com.google.common.base.Optional;
 
-    private static class ScrollableRemoteDisplay extends DisplayRemoteDisplay implements ScrollableElement<DisplayUnit> {
+public class ScrollableSubDisplays<T extends DisplayUnit> implements Scrollable<T> {
+    private Collection<T> source;
+    private List<ScrollableElement<T>> displays;
+    private Optional<ScrollableElement<T>> selectedEntry = Optional.absent();
+
+    private static class ScrollableRemoteDisplay<T extends DisplayUnit> extends DisplayRemoteDisplay<T> implements
+            ScrollableElement<T> {
         public static final String DISPLAY_ID = "SubDisplay";
         private boolean scrollVisibility = false;
 
-        public ScrollableRemoteDisplay(DisplayUnit subDisplay) {
+        public ScrollableRemoteDisplay(T subDisplay) {
             super(subDisplay);
         }
 
@@ -47,50 +47,48 @@ public class ScrollableSubDisplays implements Scrollable<DisplayUnit> {
         }
 
         @Override
-        public DisplayUnit getSource() {
+        public T getSource() {
             return remoteDisplay;
         }
     }
 
-    public ScrollableSubDisplays(List<? extends DisplayUnit> displays) {
-        this.displays = new ArrayList<ScrollableElement<DisplayUnit>>();
-        for (DisplayUnit displayUnit : displays) {
-            this.displays.add(new ScrollableRemoteDisplay(displayUnit));
-        }
-    }
-
-    public ScrollableSubDisplays(EditableList<DisplayUnit> displaySource) {
+    public ScrollableSubDisplays(Collection<T> displaySource) {
         this.source = displaySource;
-        this.displays = new ArrayList<ScrollableElement<DisplayUnit>>();
-        for (DisplayUnit displayUnit : this.source) {
-            this.displays.add(new ScrollableRemoteDisplay(displayUnit));
+        this.displays = new ArrayList<ScrollableElement<T>>();
+        for (T displayUnit : this.source) {
+            this.displays.add(new ScrollableRemoteDisplay<T>(displayUnit));
         }
     }
 
     @Override
-    public Collection<? extends ScrollableElement<DisplayUnit>> getElements() {
+    public Collection<? extends ScrollableElement<T>> getElements() {
         return displays;
     }
 
     @Override
-    public boolean removeElement(ScrollableElement<DisplayUnit> element) {
+    public boolean removeElement(ScrollableElement<T> element) {
         source.remove(element.getSource());
         return displays.remove(element);
     }
 
+    public boolean addElement(T element) {
+        source.add(element);
+        return displays.add(new ScrollableRemoteDisplay<T>(element));
+    }
+
     @Override
-    public boolean addElement(ScrollableElement<DisplayUnit> element) {
+    public boolean addElement(ScrollableElement<T> element) {
         source.add(element.getSource());
         return displays.add(element);
     }
 
     @Override
-    public void setSelected(ScrollableElement<DisplayUnit> element) {
-        selectedEntry = element != null ? Optional.of(element) : Optional.<ScrollableElement<DisplayUnit>> absent();
+    public void setSelected(ScrollableElement<T> element) {
+        selectedEntry = element != null ? Optional.of(element) : Optional.<ScrollableElement<T>> absent();
     }
 
     @Override
-    public Optional<ScrollableElement<DisplayUnit>> getSelected() {
+    public Optional<ScrollableElement<T>> getSelected() {
         return selectedEntry;
     }
 }
