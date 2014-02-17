@@ -6,7 +6,6 @@ import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideExpression;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
-import mosi.display.units.DisplayUnit.ActionResult;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
@@ -372,7 +371,9 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                     new DigitalCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
-
+            
+            menu.addElement(new DisplayUnitButton(new Coord(0, 147), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             return new ReplaceAction(menu, true);
         }
         return super.mouseAction(localMouse, action, actionData);

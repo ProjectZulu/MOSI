@@ -2,7 +2,6 @@ package mosi.display.units;
 
 import mosi.DefaultProps;
 import mosi.display.DisplayHelper;
-import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideExpression;
 import mosi.display.inventoryrules.InventoryRule;
@@ -10,17 +9,12 @@ import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ScrollableInventoryRules;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
-import mosi.display.units.DisplayUnit.ActionResult;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
-import mosi.display.units.windows.DisplayUnitTextField.Validator;
 import mosi.display.units.windows.DisplayUnitToggle;
-import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
 import mosi.display.units.windows.button.CloseClick;
@@ -29,7 +23,6 @@ import mosi.display.units.windows.text.AnalogCounterPositionValidator;
 import mosi.display.units.windows.text.DigitalCounterPositionValidator;
 import mosi.display.units.windows.text.PositionTextValidator;
 import mosi.display.units.windows.text.RegularTextValidator;
-import mosi.display.units.windows.text.ValidatorInt;
 import mosi.display.units.windows.toggle.ToggleAnalogCounter;
 import mosi.display.units.windows.toggle.ToggleDigitalCounter;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
@@ -37,7 +30,6 @@ import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -455,6 +447,9 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
                     new DigitalCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
+            
+            menu.addElement(new DisplayUnitButton(new Coord(0, 147), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
 
             return new ReplaceAction(menu, true);
         }

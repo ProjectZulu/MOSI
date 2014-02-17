@@ -34,6 +34,8 @@ public class DisplayScreen extends GuiScreen {
     private ArrayList<DisplayUnit> windows;
     // Temporary list of displays that need to be moved higher in the display list (higher displays get events sooner)
     private Queue<DisplayUnit> priority;
+    // Temporary list of displays that need to be removed
+    private ArrayList<DisplayUnit> windowsToBeRemoved;
 
     public void addWindow(DisplayUnit displayUnit) {
         windows.add(displayUnit);
@@ -64,6 +66,7 @@ public class DisplayScreen extends GuiScreen {
         this.displayRegistry = displayRegistry;
         windows = new ArrayList<DisplayUnit>();
         priority = new ArrayDeque<DisplayUnit>();
+        windowsToBeRemoved = new ArrayList<DisplayUnit>();
     }
 
     @Override
@@ -78,6 +81,10 @@ public class DisplayScreen extends GuiScreen {
 
         for (DisplayUnit display : windows) {
             display.onUpdate(getMinecraft(), ticks);
+        }
+
+        for (DisplayUnit displayToRemove : windowsToBeRemoved) {
+            windows.remove(displayToRemove);
         }
         ticks++;
     }
@@ -247,11 +254,11 @@ public class DisplayScreen extends GuiScreen {
         }
 
         if (action.closeAll()) {
-            clearWindows();
+            windowsToBeRemoved.addAll(windows);
         } else {
             List<DisplayUnit> displaysToClose = action.screensToClose();
             for (DisplayUnit displayUnit : displaysToClose) {
-                removeWindow(displayUnit);
+                windowsToBeRemoved.add(displayUnit);
             }
         }
 
