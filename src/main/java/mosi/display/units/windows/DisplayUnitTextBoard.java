@@ -42,7 +42,7 @@ public class DisplayUnitTextBoard implements DisplayUnit {
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
         this.displayText = new ArrayList<String>(displayText.length + 2);
-        final int maxLineLength = 239; // Larger strings causes background issues withdrawing pattern, should be
+        final int maxLineLength = 249; // Larger strings causes background issues withdrawing pattern, should be
                                        // configurable
         for (String displayLine : displayText) {
             FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
