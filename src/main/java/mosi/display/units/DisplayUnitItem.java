@@ -10,6 +10,9 @@ import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
 import mosi.display.inventoryrules.ScrollableInventoryRules;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
@@ -21,6 +24,7 @@ import mosi.display.units.windows.DisplayUnitToggle.Toggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
 import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.button.SetHideExpressionClick;
 import mosi.display.units.windows.text.AnalogCounterPositionValidator;
 import mosi.display.units.windows.text.DigitalCounterPositionValidator;
 import mosi.display.units.windows.text.PositionTextValidator;
@@ -369,13 +373,64 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
                         @Override
                         public ActionResult onRelease() {
                             DisplayWindowMenu menu = new DisplayWindowMenu(new Coord(0, 0), parentHorz, parentVert)
-                                    .forceSize(new Coord(245, 85)).setBackgroundImage(null);
-                            menu.addElement(new DisplayUnitTextBoard(new Coord(0, -28), VerticalAlignment.BOTTOM_ABSO,
-                                    HorizontalAlignment.CENTER_ABSO,
-                                    "Hide Rules are not supported via GUI at this time.",
-                                    "You may use the GSON configuration files for editing this property.",
-                                    "Hopefully someday Soon."));
-                            menu.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 25),
+                                    .forceSize(new Coord(243, 140));
+                            menu.addElement(new DisplayUnitTextField(new Coord(3, -25), new Coord(237, 16),
+                                    VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.LEFT_ABSO, 200,
+                                    new RegularTextValidator() {
+
+                                        public boolean isStringValid(String text) {
+                                            if (super.isStringValid(text)) {
+                                                return rules.isExpressionValid(text);
+                                            } else {
+                                                return false;
+                                            }
+                                        };
+
+                                        @Override
+                                        public void setString(String text) {
+                                            rules.setExpression(text);
+                                        }
+
+                                        @Override
+                                        public String getString() {
+                                            return rules.getExpression();
+                                        }
+                                    }));
+
+                            menu.addElement(new DisplayUnitTextBoard(new Coord(0, 3), VerticalAlignment.TOP_ABSO,
+                                    HorizontalAlignment.LEFT_ABSO, "Select when to Hide or write your own.",
+                                    "   #{count} the tracked quantity", "   #{prevCount} the previous count",
+                                    "   #{unchanged} ticks count hasn't changed").setBackgroundImage(null));
+
+                            menu.addElement(new DisplayUnitButton(new Coord(3, 45), new Coord(57, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules, " "), "Don't"));
+                            menu.addElement(new DisplayUnitButton(new Coord(60, 45), new Coord(57, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules, "#{count}==0"), "Empty"));
+                            menu.addElement(new DisplayUnitButton(new Coord(117, 45), new Coord(57, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules, "(#{count} * 18 / #{maxCount}) > 3"), "High"));
+                            menu.addElement(new DisplayUnitButton(new Coord(174, 45), new Coord(64, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules, "(#{count} * 18 / #{maxCount}) > 6"), "Higher"));
+
+                            menu.addElement(new DisplayUnitButton(new Coord(3, 68), new Coord(57, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules, "#{unchanged}>60"), "3s Same"));
+                            menu.addElement(new DisplayUnitButton(new Coord(60, 68), new Coord(57, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules, "#{unchanged}>200"), "10s Same"));
+                            menu.addElement(new DisplayUnitButton(new Coord(117, 68), new Coord(57, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules,
+                                            "#{unchanged}>60&&(#{count} * 18 / #{maxCount}) > 3"), "High Same"));
+                            menu.addElement(new DisplayUnitButton(new Coord(174, 68), new Coord(64, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new SetHideExpressionClick(rules,
+                                            "#{unchanged}>60&&(#{count} * 18 / #{maxCount}) > 6"), "Higher Same"));
+
+                            menu.addElement(new DisplayUnitButton(new Coord(0, -3), new Coord(50, 20),
                                     VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO,
                                     new CloseClick(menu), "Close"));
                             return new ReplaceAction(menu, true);

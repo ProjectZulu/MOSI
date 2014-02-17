@@ -68,6 +68,7 @@ public class HideExpression {
     }
 
     public void update(Integer trackedCount, Integer prevTrackedCount, Integer maxCount, int ticksPerUpdate) {
+        prevTrackedCount = prevTrackedCount != null ? prevTrackedCount : 0;
         ticksUnchanged = trackedCount.equals(prevTrackedCount) ? ticksUnchanged + ticksPerUpdate : 0;
         if ("".equals(hideExpression)) {
             shouldHide = false;
