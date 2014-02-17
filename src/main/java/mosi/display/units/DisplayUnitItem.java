@@ -133,7 +133,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             displayStats = calculateDisplayStats(mc);
             Integer count = displayStats != null ? displayStats.trackedCount : null;
             Integer prevCount = prevDisplayStat != null ? prevDisplayStat.trackedCount : null;
-            hidingRules.update(count, prevCount, updateFrequency);
+            hidingRules.update(count, prevCount, displayStats.maximumCount, updateFrequency);
             if (displayStats != null) {
                 displayOnHud = !hidingRules.shouldHide();
             } else {

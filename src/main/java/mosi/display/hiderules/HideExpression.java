@@ -25,27 +25,65 @@ public class HideExpression {
         if (expression == null) {
             expression = "";
         }
-        evaluator = new Evaluator();
-        try {
-            evaluator.parse(expression);
-        } catch (EvaluationException e) {
-            throw new IllegalArgumentException("Invalid expression statement");
+        expression = expression.trim();
+        if ("".equals(expression)) {
+            evaluator = new Evaluator();
+        } else {
+            evaluator = new Evaluator();
+            try {
+                evaluator.parse(expression);
+            } catch (EvaluationException e) {
+                throw new IllegalArgumentException("Invalid expression statement");
+            }
         }
         this.hideExpression = expression;
         return this;
     }
 
-    public void update(Integer trackedCount, Integer prevTrackedCount, int ticksPerUpdate) {
-        ticksUnchanged = trackedCount.equals(prevTrackedCount) ? ticksUnchanged + ticksPerUpdate : 0;
-        evaluator.putVariable("count", Integer.toString(trackedCount));
-        evaluator.putVariable("unchanged", Integer.toString(ticksUnchanged));
+    public String getExpression() {
+        return hideExpression;
+    }
 
+    public boolean isExpressionValid(String expression) {
+        if (expression == null) {
+            return false;
+        }
+        expression = expression.trim();
+        if ("".equals(expression)) {
+            return true;
+        }
+
+        evaluator = new Evaluator();
         try {
-            shouldHide = "1.0".equals(evaluator.evaluate());
+            evaluator.parse(expression);
+            evaluator.putVariable("count", Integer.toString(0));
+            evaluator.putVariable("prevCount", Integer.toString(0));
+            evaluator.putVariable("maxCount", Integer.toString(1));
+            evaluator.putVariable("unchanged", Integer.toString(0));
+            evaluator.evaluate();
         } catch (EvaluationException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public void update(Integer trackedCount, Integer prevTrackedCount, Integer maxCount, int ticksPerUpdate) {
+        ticksUnchanged = trackedCount.equals(prevTrackedCount) ? ticksUnchanged + ticksPerUpdate : 0;
+        if ("".equals(hideExpression)) {
             shouldHide = false;
-            Log.log().severe("Failed to evaluate expression %s", evaluator.toString());
-            e.printStackTrace();
+        } else {
+            evaluator.putVariable("count", Integer.toString(trackedCount));
+            evaluator.putVariable("prevCount", Integer.toString(prevTrackedCount));
+            evaluator.putVariable("maxCount", Integer.toString(maxCount));
+            evaluator.putVariable("unchanged", Integer.toString(ticksUnchanged));
+            try {
+                String eval = evaluator.evaluate();
+                shouldHide = "1.0".equals(eval);
+            } catch (EvaluationException e) {
+                shouldHide = false;
+                Log.log().severe("Failed to evaluate expression %s", hideExpression);
+                e.printStackTrace();
+            }
         }
     }
 
