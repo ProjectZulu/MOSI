@@ -1,24 +1,18 @@
 package mosi.display.units;
 
 import mosi.DefaultProps;
-import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.hiderules.HideRule.Operator;
-import mosi.display.hiderules.HideRules;
-import mosi.display.hiderules.HideThresholdRule;
+import mosi.display.hiderules.HideExpression;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
-import mosi.display.units.DisplayUnit.ActionResult;
-import mosi.display.units.DisplayUnit.HorizontalAlignment;
-import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
+import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
-import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.text.AnalogCounterPositionValidator;
 import mosi.display.units.windows.text.DigitalCounterPositionValidator;
@@ -31,7 +25,6 @@ import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -57,9 +50,9 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     public int maxAnalogDuration; // in Ticks
 
     private transient boolean shouldDisplay;
-    private HideRules hidingRules;
+    private HideExpression hidingRules;
 
-    public HideRules getHideRules() {
+    public HideExpression getHideRules() {
         return hidingRules;
     }
 
@@ -71,8 +64,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
         updateFrequency = 20;
         trackedPotion = 1;// Defaults to Speed, choice is arbitrary
         maxAnalogDuration = 60 * 20;
-        hidingRules = new HideRules();
-        hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
+        this.hidingRules = new HideExpression();
     }
 
     public DisplayUnitPotion(int updateFrequency, int trackedPotion) {
@@ -80,15 +72,14 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
         this.updateFrequency = updateFrequency;
         this.trackedPotion = trackedPotion;
         this.maxAnalogDuration = 60 * 20;
-        this.hidingRules = new HideRules();
-        hidingRules.addRule(new HideThresholdRule(0, true, false, Operator.AND));
+        this.hidingRules = new HideExpression();
     }
 
     @Override
     public String getType() {
         return DISPLAY_ID;
     }
-    
+
     @Override
     public void setOffset(Coord offset) {
         this.offset = offset;
@@ -117,17 +108,13 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     @Override
     public void onUpdate(Minecraft mc, int ticks) {
         if (ticks % updateFrequency == 0) {
-            hidingRules = new HideRules();
-            hidingRules.addRule(new HideThresholdRule(1, false, false, Operator.AND));
-
             Potion potion = Potion.potionTypes[trackedPotion];
             mc.thePlayer.isPotionActive(potion);
             PotionEffect effect = mc.thePlayer.getActivePotionEffect(potion);
             trackedCount = effect != null ? effect.getDuration() : 0;
             this.prevTrackedCount = trackedCount;
-            hidingRules.update(trackedCount, prevTrackedCount);
-
-            shouldDisplay = Potion.potionTypes[trackedPotion] != null && !hidingRules.shouldHide(trackedCount);
+            hidingRules.update(trackedCount, prevTrackedCount, updateFrequency);
+            shouldDisplay = Potion.potionTypes[trackedPotion] != null && !hidingRules.shouldHide();
         }
     }
 
@@ -281,11 +268,11 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
             /* Open HideRules Editor */
             menu.addElement(new DisplayUnitButton(new Coord(0, 95), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
-                        private HideRules rules;
+                        private HideExpression rules;
                         private VerticalAlignment parentVert;
                         private HorizontalAlignment parentHorz;
 
-                        private Clicker init(HideRules rules, VerticalAlignment parentVert,
+                        private Clicker init(HideExpression rules, VerticalAlignment parentVert,
                                 HorizontalAlignment parentHorz) {
                             this.rules = rules;
                             this.parentVert = parentVert;

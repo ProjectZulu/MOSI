@@ -4,7 +4,7 @@ import mosi.DefaultProps;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
-import mosi.display.hiderules.HideRules;
+import mosi.display.hiderules.HideExpression;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
 import mosi.display.inventoryrules.ItemIdMatch;
@@ -58,7 +58,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
     private ItemStack missingDisplayStack;
     // Matching rules for Counting
     private InventoryRules countingRules;
-    private HideRules hidingRules;
+    private HideExpression hidingRules;
     private TrackMode trackMode;
 
     // Information required to display
@@ -75,9 +75,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
         trackMode = TrackMode.QUANTITY;
         countingRules = new InventoryRules();
         countingRules.add(new ItemIdMatch("grass", true));
-        hidingRules = new HideRules();
-        // hidingRules.addRule(new HideUnchangedRule(30, false, Operator.AND));
-        // hidingRules.addRule(new HideThresholdRule(10, true, false, Operator.AND));
+        this.hidingRules = new HideExpression().setExpression("(#{count}==0||#{count}>5)&&(#{unchanged}>60)");
         missingDisplayStack = new ItemStack(Blocks.dirt);
     }
 
@@ -135,9 +133,9 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             displayStats = calculateDisplayStats(mc);
             Integer count = displayStats != null ? displayStats.trackedCount : null;
             Integer prevCount = prevDisplayStat != null ? prevDisplayStat.trackedCount : null;
-            hidingRules.update(count, prevCount);
+            hidingRules.update(count, prevCount, updateFrequency);
             if (displayStats != null) {
-                displayOnHud = !hidingRules.shouldHide(count);
+                displayOnHud = !hidingRules.shouldHide();
             } else {
                 displayOnHud = false;
             }
@@ -351,11 +349,11 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             /* Open HideRules Editor */
             menu.addElement(new DisplayUnitButton(new Coord(0, 92), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
-                        private HideRules rules;
+                        private HideExpression rules;
                         private VerticalAlignment parentVert;
                         private HorizontalAlignment parentHorz;
 
-                        private Clicker init(HideRules rules, VerticalAlignment parentVert,
+                        private Clicker init(HideExpression rules, VerticalAlignment parentVert,
                                 HorizontalAlignment parentHorz) {
                             this.rules = rules;
                             this.parentVert = parentVert;
