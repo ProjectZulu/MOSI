@@ -1,5 +1,7 @@
 package mosi.display;
 
+import java.util.ArrayList;
+
 import mosi.DisplayUnitRegistry;
 import mosi.display.units.DisplayUnit;
 import mosi.utilities.Coord;
@@ -9,8 +11,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.Post;
 
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.ImmutableList;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -31,7 +31,7 @@ public class DisplayTicker {
         Minecraft mc = Minecraft.getMinecraft();
         // thePlayer != null == We are in the world, !currentScreen.doesGuiPauseGame == World logic is passing
         if (mc.thePlayer != null && (mc.currentScreen == null || !mc.currentScreen.doesGuiPauseGame())) {
-            ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+            ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 displayUnit.onUpdate(mc, inGameTicks);
             }
@@ -42,7 +42,7 @@ public class DisplayTicker {
     public void onRender(Post event) {
         if (event.type != null && event.type == ElementType.HOTBAR) {
             Minecraft mc = Minecraft.getMinecraft();
-            ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+            ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             for (DisplayUnit displayUnit : displayList) {
                 if (displayUnit.shouldRender(mc)) {

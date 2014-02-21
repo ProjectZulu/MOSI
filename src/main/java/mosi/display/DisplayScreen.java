@@ -7,12 +7,24 @@ import java.util.Queue;
 
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
+import mosi.display.inventoryrules.ScrollableSubDisplays;
+import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.DisplayUnit;
 import mosi.display.units.DisplayUnit.ActionResult;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
 import mosi.display.units.DisplayUnit.HoverAction;
 import mosi.display.units.DisplayUnit.HoverTracker;
 import mosi.display.units.DisplayUnit.MouseAction;
-import mosi.display.units.DisplayUnitInventoryRule;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnitItem;
+import mosi.display.units.DisplayUnitPotion;
+import mosi.display.units.action.ReplaceAction;
+import mosi.display.units.windows.DisplayUnitButton;
+import mosi.display.units.windows.DisplayUnitToggle;
+import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.button.AddScrollClick;
+import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.button.RemoveScrollToggle;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,6 +33,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -96,7 +109,7 @@ public class DisplayScreen extends GuiScreen {
     @Override
     public void drawScreen(int mouseScaledX, int mouseScaledY, float renderPartialTicks) {
         super.drawScreen(mouseScaledX, mouseScaledY, renderPartialTicks);
-        ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+        ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         HoverTracker hoverChecker = new HoverTracker();
         for (DisplayUnit window : windows) {
             Coord childCoords = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY, window);
@@ -149,7 +162,7 @@ public class DisplayScreen extends GuiScreen {
                 }
             }
 
-            ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+            ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                         displayUnit);
@@ -171,13 +184,41 @@ public class DisplayScreen extends GuiScreen {
             }
         }
 
-        ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+        ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
             if (processActionResult(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
                 break;
             }
+        }
+
+        if (eventbutton == 1) {
+            ScrollableSubDisplays<DisplayUnit> scrollable = new ScrollableSubDisplays<DisplayUnit>(displayList);
+            DisplayWindowScrollList<DisplayUnit> slider = new DisplayWindowScrollList<DisplayUnit>(new Coord(90, 00),
+                    new Coord(90, 100), 25, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO, scrollable);
+            slider.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.LEFT_ABSO, new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(
+                            scrollable) {
+                        @Override
+                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
+                            container.addElement(new DisplayUnitPotion());
+                        }
+                    }).setIconImageResource(new GuiIconImageResource(new Coord(147, 44), new Coord(12, 16))));
+            slider.addElement(new DisplayUnitButton(new Coord(23, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.LEFT_ABSO, new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(
+                            scrollable) {
+                        @Override
+                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
+                            container.addElement(new DisplayUnitItem());
+                        }
+                    }).setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(12, 16))));
+            slider.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.RIGHT_ABSO, new RemoveScrollToggle<DisplayUnit>(scrollable))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
+            slider.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 20), VerticalAlignment.BOTTOM_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new CloseClick(slider), "Close"));
+            processActionResult(new ReplaceAction(slider, true), Optional.<DisplayUnit> absent());
         }
     }
 
@@ -197,7 +238,7 @@ public class DisplayScreen extends GuiScreen {
                 processActionResult(window.mouseAction(localMouse, MouseAction.RELEASE), window);
             }
 
-            ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+            ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
             for (DisplayUnit displayUnit : displayList) {
                 Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                         displayUnit);
@@ -220,7 +261,7 @@ public class DisplayScreen extends GuiScreen {
             }
         }
 
-        ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+        ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit displayUnit : displayList) {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
@@ -233,7 +274,7 @@ public class DisplayScreen extends GuiScreen {
 
     @Override
     protected void keyTyped(char eventCharacter, int eventKey) {
-        ImmutableList<DisplayUnit> displayList = displayRegistry.currentDisplays();
+        ArrayList<DisplayUnit> displayList = displayRegistry.currentDisplays();
         for (DisplayUnit window : windows) {
             if (processActionResult(window.keyTyped(eventCharacter, eventKey), window)) {
                 return;
@@ -249,9 +290,10 @@ public class DisplayScreen extends GuiScreen {
     }
 
     private boolean processActionResult(ActionResult action, DisplayUnit provider) {
-        if (provider != null && provider instanceof DisplayUnitInventoryRule) {
-            boolean blah = true;
-        }
+        return processActionResult(action, provider != null ? Optional.of(provider) : Optional.<DisplayUnit> absent());
+    }
+
+    private boolean processActionResult(ActionResult action, Optional<DisplayUnit> provider) {
 
         if (action.closeAll()) {
             windowsToBeRemoved.addAll(windows);
@@ -267,9 +309,9 @@ public class DisplayScreen extends GuiScreen {
             addWindow(displayUnit);
         }
 
-        if (action.shouldStop()) {
+        if (action.shouldStop() && provider.isPresent()) {
             // Some interaction occurred in that display, elevate it to receive events sooner
-            priority.add(provider);
+            priority.add(provider.get());
         }
         return action.shouldStop();
     }
