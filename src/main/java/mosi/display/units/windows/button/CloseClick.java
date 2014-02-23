@@ -24,7 +24,7 @@ public class CloseClick implements Clicker {
 
     @Override
     public ActionResult onClick() {
-        return closeOnClick ? new CloseAction(displayToClose).setSelfAsParentAction() : ActionResult.NOACTION;
+        return closeOnClick ? new CloseAction(displayToClose).setSelfAsParentAction() : ActionResult.SIMPLEACTION;
     }
 
     @Override
