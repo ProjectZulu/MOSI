@@ -4,7 +4,7 @@ import mosi.display.units.windows.DisplayUnitTextField.Validator;
 import mosi.utilities.StringHelper;
 import net.minecraft.util.ChatAllowedCharacters;
 
-public abstract class ValidatorBoundedInt implements Validator {
+public abstract class ValidatorBoundedInt extends ValidatorInt {
     private int lowerBound;
     private int upperBound;
 
@@ -14,14 +14,8 @@ public abstract class ValidatorBoundedInt implements Validator {
     }
 
     @Override
-    public boolean isCharacterValid(char eventCharacter) {
-        return ('-' == eventCharacter || Character.isDigit(eventCharacter))
-                && ChatAllowedCharacters.isAllowedCharacter(eventCharacter);
-    }
-
-    @Override
     public boolean isStringValid(String text) {
-        if (!StringHelper.isInteger(text)) {
+        if (!super.isStringValid(text)) {
             return false;
         }
         int number = Integer.parseInt(text);

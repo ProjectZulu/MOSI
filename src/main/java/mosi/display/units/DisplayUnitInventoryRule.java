@@ -104,13 +104,12 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                 HorizontalAlignment.LEFT_ABSO, 5, new ValidatorBoundedInt(0, 65535) {
 
                     @Override
-                    public void setString(String text) {
-                        inventoryRule.setMinItemDamage(Integer.parseInt(text));
+                    public void setInt(int textValue) {
+                        inventoryRule.setMinItemDamage(textValue);
                     }
 
-                    @Override
-                    public String getString() {
-                        return Integer.toString(inventoryRule.getMinItemDamage());
+                    public int getValue() {
+                        return inventoryRule.getMinItemDamage();
                     }
                 }));
         // Add TextBox to set max string damage (--> eventually scroll list that selects id + damage?)
@@ -118,13 +117,12 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                 HorizontalAlignment.LEFT_ABSO, 5, new ValidatorBoundedInt(0, 65535) {
 
                     @Override
-                    public void setString(String text) {
-                        inventoryRule.setMaxItemDamage(Integer.parseInt(text));
+                    public void setInt(int textValue) {
+                        inventoryRule.setMaxItemDamage(textValue);
                     }
 
-                    @Override
-                    public String getString() {
-                        return Integer.toString(inventoryRule.getMaxItemDamage());
+                    public int getValue() {
+                        return inventoryRule.getMaxItemDamage();
                     }
                 }));
         // Add Toggle to set multipleMatches
@@ -163,14 +161,15 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                     }
 
                     @Override
-                    public void setString(String text) {
-                        inventoryRule.setSlotId(Integer.parseInt(text));
+                    public void setInt(int textValue) {
+                        inventoryRule.setSlotId(textValue);
                     }
 
                     @Override
-                    public String getString() {
-                        return Integer.toString(inventoryRule.getSlotId());
+                    public int getValue() {
+                        return inventoryRule.getSlotId();
                     }
+
                 }));
         // Add Toggle for ifArmorSlot
         addElement(new DisplayUnitToggle(new Coord(83, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,

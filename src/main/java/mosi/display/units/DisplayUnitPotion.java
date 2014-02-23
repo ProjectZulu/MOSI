@@ -255,14 +255,13 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                             return Potion.potionTypes[Integer.parseInt(text)] != null;
                         }
 
-                        @Override
-                        public void setString(String text) {
-                            display.trackedPotion = Integer.parseInt(text);
+                        public void setInt(int textValue) {
+                            display.trackedPotion = textValue;
                         }
 
                         @Override
-                        public String getString() {
-                            return Integer.toString(display.trackedPotion);
+                        public int getValue() {
+                            return display.trackedPotion;
                         }
                     }.init(this)));
 
@@ -371,7 +370,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                     new DigitalCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
-            
+
             menu.addElement(new DisplayUnitButton(new Coord(0, 147), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             return new ReplaceAction(menu, true);
