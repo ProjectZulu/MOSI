@@ -189,7 +189,7 @@ public class DisplayScreen extends GuiScreen {
             Coord localMouse = DisplayHelper.localizeMouseCoords(getMinecraft(), mouseScaledX, mouseScaledY,
                     displayUnit);
             if (processActionResult(displayUnit.mouseAction(localMouse, MouseAction.CLICK, eventbutton), displayUnit)) {
-                break;
+                return;
             }
         }
 

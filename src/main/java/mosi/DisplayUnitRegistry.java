@@ -14,9 +14,9 @@ import com.google.common.collect.ImmutableList.Builder;
 public class DisplayUnitRegistry {
 
     DisplayUnitFactory displayFactory;
-    private ImmutableList<DisplayUnit> displays = ImmutableList.<DisplayUnit> of();
+    private ArrayList<DisplayUnit> displays = new ArrayList<DisplayUnit>();
 
-    public ImmutableList<DisplayUnit> currentDisplays() {
+    public ArrayList<DisplayUnit> currentDisplays() {
         return displays;
     }
 
@@ -66,9 +66,8 @@ public class DisplayUnitRegistry {
         // builder.add(new DisplayUnitItem());
         // builder.add(new DisplayUnitPotion());
         // builder.add(new DisplayUnitPotion());
-        builder.add(new DisplayUnitUnsortedPanel());
+        displays.add(new DisplayUnitUnsortedPanel());
         // builder.add(new DisplayUnitSortedPanel());
-        displays = builder.build();
 
         // Load implicitly saves changes due to errors/corrections appear i.e. a number that cannot be below zero is set
         // to zero and should be set as such in the config

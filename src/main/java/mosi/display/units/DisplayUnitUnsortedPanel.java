@@ -16,6 +16,7 @@ import mosi.display.units.windows.DisplayWindowScrollList;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.button.AddScrollClick;
 import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.button.MoveScrollElementToggle;
 import mosi.display.units.windows.button.RemoveScrollToggle;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
@@ -81,7 +82,8 @@ public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
                         ScrollableSubDisplays<DisplayUnit> scrollable = new ScrollableSubDisplays<DisplayUnit>(
                                 childDisplays);
                         DisplayWindowScrollList<DisplayUnit> slider = new DisplayWindowScrollList<DisplayUnit>(
-                                new Coord(90, 00), new Coord(90, 100), 25, parentVert, parentHorz, scrollable);
+                                new Coord(90, 00), new Coord(135, 100), 25, parentVert, parentHorz, scrollable);
+                        // Add Element Buttons
                         slider.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
                                 new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {
@@ -102,11 +104,29 @@ public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
                                     }
                                 })
                                 .setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(12, 16))));
+                        slider.addElement(new DisplayUnitButton(new Coord(44, 2), new Coord(20, 20),
+                                VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {
 
+                                    @Override
+                                    public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
+                                        container.addElement(new DisplayUnitUnsortedPanel());
+                                    }
+                                })
+                                .setIconImageResource(new GuiIconImageResource(new Coord(111, 66), new Coord(12, 15))));
+                        // List interactive Buttons - Remove, MoveUp, MoveDown
                         slider.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
                                 new RemoveScrollToggle<DisplayUnit>(scrollable))
                                 .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
+                        slider.addElement(new DisplayUnitToggle(new Coord(-23, 2), new Coord(20, 20),
+                                VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                new MoveScrollElementToggle<DisplayUnit>(scrollable, 1))
+                                .setIconImageResource(new GuiIconImageResource(new Coord(165, 66), new Coord(12, 15))));
+                        slider.addElement(new DisplayUnitToggle(new Coord(-44, 2), new Coord(20, 20),
+                                VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                new MoveScrollElementToggle<DisplayUnit>(scrollable, -1))
+                                .setIconImageResource(new GuiIconImageResource(new Coord(147, 66), new Coord(12, 15))));
                         slider.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 20),
                                 VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(slider),
                                 "Close"));

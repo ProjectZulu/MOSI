@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import mosi.display.units.DisplayUnitItem.DisplayStats;
+import mosi.display.units.DisplayUnitItem.TrackMode;
+import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
+
 import com.google.gson.JsonObject;
 
 /**
@@ -16,6 +21,10 @@ public class InventoryRules implements Iterable<InventoryRule> {
         rules = new ArrayList<InventoryRule>();
     }
 
+    public List<InventoryRule> get() {
+        return rules;
+    }
+    
     public void size() {
         rules.size();
     }

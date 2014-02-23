@@ -44,6 +44,7 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         this.scrolledDistance = scrollDistance;
     }
 
+    // TODO: add/remove/up/down should in a subinterface as they are not needed in the base implementation
     public static interface Scrollable<T> {
         /**
          * Return list of elements to be scrolled, additions/subtractions should be made to list directly as changes are
@@ -56,6 +57,8 @@ public class DisplayWindowScrollList<T> extends DisplayWindow implements Sliden 
         public abstract boolean removeElement(ScrollableElement<T> element);
 
         public abstract void setSelected(ScrollableElement<T> element);
+                
+        public abstract void moveElement(ScrollableElement<T> element, int unitstoMove);
 
         public abstract Optional<ScrollableElement<T>> getSelected();
     }

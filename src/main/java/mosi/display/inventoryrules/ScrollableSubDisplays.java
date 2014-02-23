@@ -2,6 +2,7 @@ package mosi.display.inventoryrules;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import mosi.display.DisplayRemoteDisplay;
@@ -13,7 +14,7 @@ import mosi.utilities.Coord;
 import com.google.common.base.Optional;
 
 public class ScrollableSubDisplays<T extends DisplayUnit> implements Scrollable<T> {
-    private Collection<T> source;
+    private List<T> source;
     private List<ScrollableElement<T>> displays;
     private Optional<ScrollableElement<T>> selectedEntry = Optional.absent();
 
@@ -52,7 +53,7 @@ public class ScrollableSubDisplays<T extends DisplayUnit> implements Scrollable<
         }
     }
 
-    public ScrollableSubDisplays(Collection<T> displaySource) {
+    public ScrollableSubDisplays(List<T> displaySource) {
         this.source = displaySource;
         this.displays = new ArrayList<ScrollableElement<T>>();
         for (T displayUnit : this.source) {
@@ -80,6 +81,25 @@ public class ScrollableSubDisplays<T extends DisplayUnit> implements Scrollable<
     public boolean addElement(ScrollableElement<T> element) {
         source.add(element.getSource());
         return displays.add(element);
+    }
+
+    @Override
+    public void moveElement(ScrollableElement<T> element, int unitstoMove) {
+        int scrollIndex = displays.indexOf(element);
+        int sourceIndex = source.indexOf(element.getSource());
+        if (isSwapValid(displays, scrollIndex, unitstoMove) && isSwapValid(source, sourceIndex, unitstoMove)) {
+            Collections.swap(displays, scrollIndex, scrollIndex + unitstoMove);
+            Collections.swap(source, sourceIndex, sourceIndex + unitstoMove);
+        }
+    }
+
+    private <K> boolean isSwapValid(List<K> list, int index, int indexToMove) {
+        if (index >= 0 && index < list.size()) {
+            if (index + indexToMove >= 0 && index + indexToMove < list.size()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
