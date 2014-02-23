@@ -203,7 +203,7 @@ public class DisplayScreen extends GuiScreen {
                     VerticalAlignment.CENTER_ABSO);
             menu.addElement(new DisplayUnitTextBoard(new Coord(0, 2), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, "MOSI Menu").setBackgroundImage(null));
-            menu.addElement(new DisplayUnitButton(new Coord(0, 20), new Coord(90, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitButton(new Coord(0, 20), new Coord(90, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
                         private ArrayList<DisplayUnit> displayList;
 
@@ -275,7 +275,8 @@ public class DisplayScreen extends GuiScreen {
                             return new ReplaceAction(slider, true);
                         }
                     }.init(displayList), "Display Editor"));
-
+            menu.addElement(new DisplayUnitButton(new Coord(0, 50), new Coord(50, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             processActionResult(new ReplaceAction(menu, true), Optional.<DisplayUnit> absent());
         }
     }
