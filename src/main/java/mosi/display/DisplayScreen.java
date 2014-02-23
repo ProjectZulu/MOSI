@@ -18,12 +18,17 @@ import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.DisplayUnitItem;
 import mosi.display.units.DisplayUnitPotion;
+import mosi.display.units.DisplayUnitUnsortedPanel;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
+import mosi.display.units.windows.DisplayUnitButton.Clicker;
+import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitToggle;
+import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
 import mosi.display.units.windows.button.AddScrollClick;
 import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.button.MoveScrollElementToggle;
 import mosi.display.units.windows.button.RemoveScrollToggle;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
@@ -194,31 +199,84 @@ public class DisplayScreen extends GuiScreen {
         }
 
         if (eventbutton == 1) {
-            ScrollableSubDisplays<DisplayUnit> scrollable = new ScrollableSubDisplays<DisplayUnit>(displayList);
-            DisplayWindowScrollList<DisplayUnit> slider = new DisplayWindowScrollList<DisplayUnit>(new Coord(90, 00),
-                    new Coord(90, 100), 25, VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO, scrollable);
-            slider.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.LEFT_ABSO, new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(
-                            scrollable) {
-                        @Override
-                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
-                            container.addElement(new DisplayUnitPotion());
+            DisplayWindowMenu menu = new DisplayWindowMenu(new Coord(2, 2), HorizontalAlignment.CENTER_ABSO,
+                    VerticalAlignment.CENTER_ABSO);
+            menu.addElement(new DisplayUnitTextBoard(new Coord(0, 2), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "MOSI Menu").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitButton(new Coord(0, 20), new Coord(90, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new Clicker() {
+                        private ArrayList<DisplayUnit> displayList;
+
+                        public Clicker init(ArrayList<DisplayUnit> displayList) {
+                            this.displayList = displayList;
+                            return this;
                         }
-                    }).setIconImageResource(new GuiIconImageResource(new Coord(147, 44), new Coord(12, 16))));
-            slider.addElement(new DisplayUnitButton(new Coord(23, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.LEFT_ABSO, new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(
-                            scrollable) {
+
                         @Override
-                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
-                            container.addElement(new DisplayUnitItem());
+                        public ActionResult onClick() {
+                            return ActionResult.SIMPLEACTION;
                         }
-                    }).setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(12, 16))));
-            slider.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.RIGHT_ABSO, new RemoveScrollToggle<DisplayUnit>(scrollable))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
-            slider.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 20), VerticalAlignment.BOTTOM_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new CloseClick(slider), "Close"));
-            processActionResult(new ReplaceAction(slider, true), Optional.<DisplayUnit> absent());
+
+                        @Override
+                        public ActionResult onRelease() {
+                            ScrollableSubDisplays<DisplayUnit> scrollable = new ScrollableSubDisplays<DisplayUnit>(
+                                    displayList);
+                            DisplayWindowScrollList<DisplayUnit> slider = new DisplayWindowScrollList<DisplayUnit>(
+                                    new Coord(90, 00), new Coord(140, 200), 25, VerticalAlignment.TOP_ABSO,
+                                    HorizontalAlignment.LEFT_ABSO, scrollable);
+                            // Add Element Buttons
+                            slider.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {
+                                        @Override
+                                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
+                                            container.addElement(new DisplayUnitPotion());
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(147, 44), new Coord(12,
+                                    16))));
+                            slider.addElement(new DisplayUnitButton(new Coord(23, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {
+                                        @Override
+                                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
+                                            container.addElement(new DisplayUnitItem());
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(12,
+                                    16))));
+                            slider.addElement(new DisplayUnitButton(new Coord(44, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {
+
+                                        @Override
+                                        public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
+                                            container.addElement(new DisplayUnitUnsortedPanel());
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(111, 66), new Coord(12,
+                                    15))));
+                            // List interactive Buttons - Remove, MoveUp, MoveDown
+                            slider.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                    new RemoveScrollToggle<DisplayUnit>(scrollable))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(201, 44),
+                                            new Coord(13, 16))));
+                            slider.addElement(new DisplayUnitToggle(new Coord(-23, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                    new MoveScrollElementToggle<DisplayUnit>(scrollable, 1))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(165, 66),
+                                            new Coord(12, 15))));
+                            slider.addElement(new DisplayUnitToggle(new Coord(-44, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                    new MoveScrollElementToggle<DisplayUnit>(scrollable, -1))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 66),
+                                            new Coord(12, 15))));
+                            slider.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 20),
+                                    VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(
+                                            slider), "Close"));
+                            return new ReplaceAction(slider, true);
+                        }
+                    }.init(displayList), "Display Editor"));
+
+            processActionResult(new ReplaceAction(menu, true), Optional.<DisplayUnit> absent());
         }
     }
 

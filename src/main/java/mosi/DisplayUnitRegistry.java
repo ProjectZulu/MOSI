@@ -4,9 +4,7 @@ import java.util.ArrayList;
 
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitItem;
-import mosi.display.units.DisplayUnitPotion;
-import mosi.display.units.DisplayUnitUnsortedPanel;
+import mosi.display.units.DisplayUnitSortedPanel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -66,8 +64,8 @@ public class DisplayUnitRegistry {
         // builder.add(new DisplayUnitItem());
         // builder.add(new DisplayUnitPotion());
         // builder.add(new DisplayUnitPotion());
-        displays.add(new DisplayUnitUnsortedPanel());
-        // builder.add(new DisplayUnitSortedPanel());
+        // displays.add(new DisplayUnitUnsortedPanel());
+         builder.add(new DisplayUnitSortedPanel());
 
         // Load implicitly saves changes due to errors/corrections appear i.e. a number that cannot be below zero is set
         // to zero and should be set as such in the config
