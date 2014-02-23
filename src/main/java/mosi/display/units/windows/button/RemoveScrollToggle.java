@@ -18,7 +18,9 @@ public class RemoveScrollToggle<T> implements Toggle {
     public void toggle() {
         Optional<ScrollableElement<T>> toRemove = container.getSelected();
         if (toRemove.isPresent()) {
-            container.removeElement(toRemove.get());
+            if (container.removeElement(toRemove.get())) {
+                container.setSelected(null);
+            }
         }
     }
 
