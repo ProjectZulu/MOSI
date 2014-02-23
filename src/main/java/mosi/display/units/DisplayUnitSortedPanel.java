@@ -102,7 +102,7 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
 
     @Override
     public DisplayUnit getPanelEditor() {
-        return new DisplayUnitButton(new Coord(0, 77), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+        return new DisplayUnitButton(new Coord(0, 122), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.CENTER_ABSO, new Clicker() {
                     private DisplayUnitPanel display;
                     private VerticalAlignment parentVert;

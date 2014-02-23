@@ -6,11 +6,19 @@ import mosi.Log;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.action.ReplaceAction;
+import mosi.display.units.windows.DisplayUnitTextBoard;
 import mosi.display.units.windows.DisplayUnitTextField;
+import mosi.display.units.windows.DisplayUnitTextField.Validator;
+import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
+import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.text.PositionTextValidator;
+import mosi.display.units.windows.text.RegularTextValidator;
+import mosi.display.units.windows.text.ValidatorBoundedInt;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
@@ -23,7 +31,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     // Frequency to determine how often the update loop is run
     private int updateFrequency = 20;
     private DisplayMode displayMode;
-
+    private String nickname;
     private int gridCols; // 0 == Unlimited
     private int gridRows; // 0 == Unlimited
     private Coord gridSpacing = new Coord(18, 24);
@@ -54,6 +62,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         showEmpty = true;
         vertAlign = VerticalAlignment.CENTER_ABSO;
         horizAlign = HorizontalAlignment.CENTER_ABSO;
+        nickname = "Nickname";
     }
 
     public DisplayUnitPanel(DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty) {
@@ -62,6 +71,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         this.gridRows = maxRows;
         this.gridCols = maxCols;
         this.showEmpty = showEmpty;
+        nickname = "Nickname";
     }
 
     @Override
@@ -206,32 +216,136 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
                     getVerticalAlignment());
+            /* Nickname textField */
+            menu.addElement(new DisplayUnitTextField(new Coord(0, 4), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 13, new RegularTextValidator() {
+                        private DisplayUnitPanel display;
+
+                        public RegularTextValidator init(DisplayUnitPanel display) {
+                            this.display = display;
+                            return this;
+                        }
+
+                        @Override
+                        public void setString(String text) {
+                            display.nickname = text;
+                        }
+
+                        @Override
+                        public String getString() {
+                            return display.nickname;
+                        }
+                    }.init(this)));
             /* Generic DisplayUnitEditable Settings */
-            menu.addElement(new DisplayUnitTextField(new Coord(-17, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitTextBoard(new Coord(0, 16), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Position").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitTextField(new Coord(-20, 29), new Coord(40, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
-            menu.addElement(new DisplayUnitTextField(new Coord(+18, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitTextField(new Coord(+23, 29), new Coord(40, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, false)));
 
-            menu.addElement(new DisplayUnitToggle(new Coord(-22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitTextBoard(new Coord(-20, 40), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Size").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitTextBoard(new Coord(24, 40), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Spacing").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitTextField(new Coord(-31, 54), new Coord(20, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, 20) {
+                        private DisplayUnitPanel panel;
+
+                        public Validator init(DisplayUnitPanel panel) {
+                            this.panel = panel;
+                            return this;
+                        }
+
+                        @Override
+                        public void setInt(int textValue) {
+                            panel.gridCols = textValue;
+                        }
+
+                        public int getValue() {
+                            return panel.gridCols;
+                        }
+                    }.init(this)));
+            menu.addElement(new DisplayUnitTextField(new Coord(-10, 54), new Coord(20, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, 20) {
+                        private DisplayUnitPanel panel;
+
+                        public Validator init(DisplayUnitPanel panel) {
+                            this.panel = panel;
+                            return this;
+                        }
+
+                        @Override
+                        public void setInt(int textValue) {
+                            panel.gridRows = textValue;
+                        }
+
+                        public int getValue() {
+                            return panel.gridRows;
+                        }
+
+                    }.init(this)));
+            menu.addElement(new DisplayUnitTextField(new Coord(+13, 54), new Coord(20, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, 20) {
+                        private DisplayUnitPanel panel;
+
+                        public Validator init(DisplayUnitPanel panel) {
+                            this.panel = panel;
+                            return this;
+                        }
+
+                        @Override
+                        public void setInt(int textValue) {
+                            panel.gridSpacing = new Coord(textValue, panel.gridSpacing.z);
+                        }
+
+                        public int getValue() {
+                            return panel.gridSpacing.x;
+                        }
+                    }.init(this)));
+            menu.addElement(new DisplayUnitTextField(new Coord(+34, 54), new Coord(20, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, 20) {
+                        private DisplayUnitPanel panel;
+
+                        public Validator init(DisplayUnitPanel panel) {
+                            this.panel = panel;
+                            return this;
+                        }
+
+                        @Override
+                        public void setInt(int textValue) {
+                            panel.gridSpacing = new Coord(panel.gridSpacing.x, textValue);
+                        }
+
+                        public int getValue() {
+                            return panel.gridSpacing.z;
+                        }
+                    }.init(this)));
+
+            menu.addElement(new DisplayUnitTextBoard(new Coord(0, 66), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Alignment").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 79), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(12, 16))));
-            menu.addElement(new DisplayUnitToggle(new Coord(+00, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 79), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(12, 16))));
-
-            menu.addElement(new DisplayUnitToggle(new Coord(+22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 79), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(12, 16))));
-            menu.addElement(new DisplayUnitToggle(new Coord(-22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 100), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(12, 16))));
 
-            menu.addElement(new DisplayUnitToggle(new Coord(+00, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 100), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(12, 16))));
-            menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 100), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
+
+            menu.addElement(new DisplayUnitButton(new Coord(0, 138), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             menu.addElement(getPanelEditor());
 
             return new ReplaceAction(menu, true);
