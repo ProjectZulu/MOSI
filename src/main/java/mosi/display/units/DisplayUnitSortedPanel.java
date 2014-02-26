@@ -68,7 +68,7 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
 
     public DisplayUnitSortedPanel() {
         super();
-        sortMode = SortMode.LOWHIGH;
+        sortMode = SortMode.NATURAL;
         childDisplays = new ArrayList<DisplayUnitCountable>();
         childDisplays.add(new DisplayUnitPotion(20, 1));
         childDisplays.add(new DisplayUnitPotion(20, 4));
@@ -81,11 +81,6 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
     @Override
     public String getType() {
         return DISPLAY_ID;
-    }
-
-    @Override
-    public Coord getSize() {
-        return new Coord(18, 18);
     }
 
     @Override
@@ -130,7 +125,7 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
                         ScrollableSubDisplays<DisplayUnitCountable> scrollable = new ScrollableSubDisplays<DisplayUnitCountable>(
                                 childDisplays);
                         DisplayWindowScrollList<DisplayUnitCountable> slider = new DisplayWindowScrollList<DisplayUnitCountable>(
-                                new Coord(90, 00), new Coord(90, 100), 25, parentVert, parentHorz, scrollable);
+                                new Coord(90, 00), new Coord(115, 160), 25, parentVert, parentHorz, scrollable);
                         // Add Element Buttons
                         slider.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
@@ -181,6 +176,8 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
     @Override
     public void saveCustomData(JsonObject jsonObject) {
         super.saveCustomData(jsonObject);
+        jsonObject.addProperty("SORT_MODE", sortMode.toString());
+
         JsonArray displayArray = new JsonArray();
         for (DisplayUnitCountable display : childDisplays) {
             JsonObject displayObject = new JsonObject();
@@ -194,6 +191,13 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
         super.loadCustomData(factory, customData);
+        String parsedSort = GsonHelper.getMemberOrDefault(customData, "SORT_MODE", "");
+        for (SortMode sortMode : SortMode.values()) {
+            if (parsedSort.trim().equalsIgnoreCase(sortMode.toString())) {
+                this.sortMode = sortMode;
+            }
+        }
+
         List<DisplayUnitCountable> childDisplays = new ArrayList<DisplayUnitCountable>();
         JsonArray displayArray = GsonHelper.getMemberOrDefault(customData, "SUB_DISPLAYS", new JsonArray());
         for (JsonElement jsonElement : displayArray) {
@@ -209,5 +213,6 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
                 }
             }
         }
+        this.childDisplays = childDisplays;
     }
 }

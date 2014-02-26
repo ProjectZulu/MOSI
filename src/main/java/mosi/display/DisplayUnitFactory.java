@@ -50,7 +50,6 @@ public class DisplayUnitFactory {
 
         if (!displayTypes.containsKey(displayUnit.getType())) {
             displayTypes.put(displayUnit.getType(), displayType);
-//            Log.log().log(Level.INFO, "Registered Type %s to %s", displayUnit.getType(), displayType);
             Log.log().debug(Level.INFO, "Registered Type %s to %s", displayUnit.getType(), displayType);
             return true;
         } else {

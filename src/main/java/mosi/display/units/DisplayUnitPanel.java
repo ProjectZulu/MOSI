@@ -389,7 +389,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
 
         gridCols = GsonHelper.getMemberOrDefault(customData, "GRID_COLS", gridCols);
         gridRows = GsonHelper.getMemberOrDefault(customData, "GRID_ROWS", gridRows);
-        gridSpacing = parseCoord(GsonHelper.getMemberOrDefault(customData, "GRID_SPACING", "0,0"), new Coord(0, 0));
+        gridSpacing = parseCoord(GsonHelper.getMemberOrDefault(customData, "GRID_SPACING", "18, 24"), new Coord(18, 24));
 
         String verAl = GsonHelper.getMemberOrDefault(customData, "VERTICAL_ALIGN", "").trim();
         for (VerticalAlignment verticalAlignment : VerticalAlignment.values()) {
@@ -412,6 +412,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
             try {
                 int xCoord = Integer.parseInt(parts[0]);
                 int zCoord = Integer.parseInt(parts[1]);
+                return new Coord(xCoord, zCoord);
             } catch (NumberFormatException e) {
                 Log.log().info("Error parsing coordinate string %s. Will be replaced by %s", stringForm, defaultCoord);
             }

@@ -19,6 +19,7 @@ import mosi.display.units.DisplayUnit.MouseAction;
 import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.DisplayUnitItem;
 import mosi.display.units.DisplayUnitPotion;
+import mosi.display.units.DisplayUnitSortedPanel;
 import mosi.display.units.DisplayUnitUnsortedPanel;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
@@ -251,7 +252,7 @@ public class DisplayScreen extends GuiScreen {
 
                                         @Override
                                         public void performScrollAddition(ScrollableSubDisplays<DisplayUnit> container) {
-                                            container.addElement(new DisplayUnitUnsortedPanel());
+                                            container.addElement(new DisplayUnitSortedPanel());
                                         }
                                     }).setIconImageResource(new GuiIconImageResource(new Coord(111, 66), new Coord(12,
                                     15))));

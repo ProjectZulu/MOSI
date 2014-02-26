@@ -87,13 +87,14 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
             try {
                 int xCoord = Integer.parseInt(parts[0]);
                 int zCoord = Integer.parseInt(parts[1]);
+                return new Coord(xCoord, zCoord);
             } catch (NumberFormatException e) {
                 Log.log().info("Error parsing coordinate string %s. Will be replaced by %s", stringForm, defaultCoord);
             }
         }
         return defaultCoord;
     }
-
+    
     @Override
     public void saveCustomData(JsonObject jsonObject) {
         jsonObject.addProperty("DISPLAY_OFFSET", offset.x + "," + offset.z);

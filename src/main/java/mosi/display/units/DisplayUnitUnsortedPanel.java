@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 
 import com.google.gson.JsonObject;
 
+//TODO: This Clas isn't really neccesary, Sorted fulfills its rolls well with the exception of nesting displays which is unlikely to be neccesary
 public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
     public static final String DISPLAY_ID = "DisplayUnitUnsortedPanel";
     private List<DisplayUnit> childDisplays;
