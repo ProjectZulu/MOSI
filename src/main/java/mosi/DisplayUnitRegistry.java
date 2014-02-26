@@ -12,6 +12,7 @@ import mosi.utilities.FileUtilities;
 import mosi.utilities.FileUtilities.OptionalCloseable;
 import mosi.utilities.GsonHelper;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.gson.Gson;
@@ -69,8 +70,20 @@ public class DisplayUnitRegistry {
     }
 
     public void loadFromConfig(File configDirectory) {
-        Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
-        builder.add(new DisplayUnitItem());
+        Type type = new TypeToken<ArrayList<DisplayUnit>>() {
+        }.getType();
+        Gson gson = GsonHelper.createGson(true, true, new Type[] { type }, new Object[] { new DisplayListSerializer(
+                displayFactory) });
+        File displayListFile = DisplayListSerializer.getFile(configDirectory);
+        Optional<ArrayList<DisplayUnit>> displayResult = GsonHelper.<ArrayList<DisplayUnit>> readFromGson(
+                FileUtilities.createReader(displayListFile, false), type, gson);
+        if (displayResult.isPresent()) {
+            displays = displayResult.get();
+        } else {
+            // TODO: Create array of default displays
+        }
+        // Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
+        // builder.add(new DisplayUnitItem());
         // builder.add(new DisplayUnitPotion());
         // builder.add(new DisplayUnitPotion());
         // displays.add(new DisplayUnitUnsortedPanel());

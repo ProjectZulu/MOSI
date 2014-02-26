@@ -220,7 +220,7 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
         JsonObject digitalObj = new JsonObject();
         digitalObj.addProperty("IS_ENABLED", displayNumericCounter);
         digitalObj.addProperty("OFFSET", digitalOffset.x + "," + digitalOffset.z);
-        jsonObject.add("DIGITAL_BAR", analogObj);
+        jsonObject.add("DIGITAL_BAR", digitalObj);
 
     }
 }

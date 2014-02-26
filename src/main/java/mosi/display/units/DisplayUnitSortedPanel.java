@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import mosi.Log;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.inventoryrules.ScrollableSubDisplays;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
@@ -18,9 +19,12 @@ import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.button.MoveScrollElementToggle;
 import mosi.display.units.windows.button.RemoveScrollToggle;
 import mosi.utilities.Coord;
+import mosi.utilities.GsonHelper;
 import net.minecraft.client.Minecraft;
 
 import com.google.common.base.Optional;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class DisplayUnitSortedPanel extends DisplayUnitPanel {
@@ -177,10 +181,33 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
     @Override
     public void saveCustomData(JsonObject jsonObject) {
         super.saveCustomData(jsonObject);
+        JsonArray displayArray = new JsonArray();
+        for (DisplayUnitCountable display : childDisplays) {
+            JsonObject displayObject = new JsonObject();
+            displayObject.addProperty("TYPE", display.getType());
+            display.saveCustomData(displayObject);
+            displayArray.add(displayObject);
+        }
+        jsonObject.add("SUB_DISPLAYS", displayArray);
     }
 
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
         super.loadCustomData(factory, customData);
+        List<DisplayUnitCountable> childDisplays = new ArrayList<DisplayUnitCountable>();
+        JsonArray displayArray = GsonHelper.getMemberOrDefault(customData, "SUB_DISPLAYS", new JsonArray());
+        for (JsonElement jsonElement : displayArray) {
+            JsonObject displayObject = GsonHelper.getAsJsonObject(jsonElement);
+            String displayType = GsonHelper.getMemberOrDefault(displayObject, "TYPE", "");
+            DisplayUnit displayUnit = factory.createDisplay(displayType, displayObject);
+            if (displayUnit != null) {
+                if (displayUnit instanceof DisplayUnitCountable) {
+                    childDisplays.add((DisplayUnitCountable) displayUnit);
+                } else {
+                    Log.log().severe("Panel attempted to load Non-Countable SubDisplay. {%s of %s}",
+                            displayUnit.getClass(), displayUnit);
+                }
+            }
+        }
     }
 }

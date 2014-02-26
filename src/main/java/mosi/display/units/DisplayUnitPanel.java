@@ -22,7 +22,9 @@ import mosi.display.units.windows.text.ValidatorBoundedInt;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
+import mosi.utilities.GsonHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.Item;
 
 import com.google.gson.JsonObject;
 
@@ -362,10 +364,58 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
 
     @Override
     public void saveCustomData(JsonObject jsonObject) {
+        jsonObject.addProperty("NICKNAME", nickname);
+        super.saveCustomData(jsonObject);
+        jsonObject.addProperty("DISPLAYMODE", displayMode.toString());
+        jsonObject.addProperty("UPDATE_FREQUENCY", updateFrequency);
+
+        jsonObject.addProperty("GRID_COLS", gridCols);
+        jsonObject.addProperty("GRID_ROWS", gridRows);
+        jsonObject.addProperty("GRID_SPACING", gridSpacing.x + "," + gridSpacing.z);
+
+        jsonObject.addProperty("VERTICAL_ALIGN", vertAlign.toString());
+        jsonObject.addProperty("HORIZONTAL_ALIGN", horizAlign.toString());
     }
 
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
-        
+        super.loadCustomData(factory, customData);
+        nickname = GsonHelper.getMemberOrDefault(customData, "NICKNAME", nickname);
+        String parsedDisplay = GsonHelper.getMemberOrDefault(customData, "DISPLAYMODE",
+                DisplayMode.COLUMN_GRID.toString());
+        displayMode = parsedDisplay.trim().equalsIgnoreCase(DisplayMode.COLUMN_GRID.toString()) ? DisplayMode.COLUMN_GRID
+                : DisplayMode.ROW_GRID;
+        updateFrequency = GsonHelper.getMemberOrDefault(customData, "UPDATE_FREQUENCY", updateFrequency);
+
+        gridCols = GsonHelper.getMemberOrDefault(customData, "GRID_COLS", gridCols);
+        gridRows = GsonHelper.getMemberOrDefault(customData, "GRID_ROWS", gridRows);
+        gridSpacing = parseCoord(GsonHelper.getMemberOrDefault(customData, "GRID_SPACING", "0,0"), new Coord(0, 0));
+
+        String verAl = GsonHelper.getMemberOrDefault(customData, "VERTICAL_ALIGN", "").trim();
+        for (VerticalAlignment verticalAlignment : VerticalAlignment.values()) {
+            if (verAl.trim().toUpperCase().equals(verticalAlignment.toString())) {
+                vertAlign = verticalAlignment;
+            }
+        }
+
+        String horAl = GsonHelper.getMemberOrDefault(customData, "HORIZONTAL_ALIGN", "").trim();
+        for (HorizontalAlignment horizontalAlignment : HorizontalAlignment.values()) {
+            if (horAl.trim().toUpperCase().equals(horizontalAlignment.toString())) {
+                horizAlign = horizontalAlignment;
+            }
+        }
+    }
+
+    private Coord parseCoord(String stringForm, Coord defaultCoord) {
+        String[] parts = stringForm.split(",");
+        if (parts.length == 2) {
+            try {
+                int xCoord = Integer.parseInt(parts[0]);
+                int zCoord = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                Log.log().info("Error parsing coordinate string %s. Will be replaced by %s", stringForm, defaultCoord);
+            }
+        }
+        return defaultCoord;
     }
 }
