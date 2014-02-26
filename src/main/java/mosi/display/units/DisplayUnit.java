@@ -156,7 +156,7 @@ public interface DisplayUnit {
 
     public ActionResult keyTyped(char eventCharacter, int eventKey);
 
-    public abstract JsonObject saveCustomData(JsonObject jsonObject);
+    public abstract void saveCustomData(JsonObject jsonObject);
 
     public abstract void loadCustomData(DisplayUnitFactory factory, JsonObject customData);
 }

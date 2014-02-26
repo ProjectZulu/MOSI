@@ -1,9 +1,14 @@
 package mosi.display.units;
 
+import mosi.Log;
 import mosi.display.DisplayHelper;
+import mosi.display.DisplayUnitFactory;
 import mosi.utilities.Coord;
+import mosi.utilities.GsonHelper;
 
 import org.lwjgl.input.Keyboard;
+
+import com.google.gson.JsonObject;
 
 public abstract class DisplayUnitMoveable implements DisplayUnit {
     protected Coord offset;
@@ -28,7 +33,7 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
         case CLICK:
             // actionData[0] == EventButton, 0 == Left-Click, 1 == Right-Click
             if (DisplayHelper.isCursorOverDisplay(localMouse, this)) {
-                if(actionData[0] == 0) {
+                if (actionData[0] == 0) {
                     clickedOn = true;
                     mousePosOnClick = localMouse;
                     offsetPosOnClick = offset;
@@ -69,5 +74,28 @@ public abstract class DisplayUnitMoveable implements DisplayUnit {
             }
         }
         return ActionResult.NOACTION;
+    }
+
+    @Override
+    public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
+        offset = parseCoord(GsonHelper.getMemberOrDefault(customData, "DISPLAY_OFFSET", ""), new Coord(0, 0));
+    }
+
+    private Coord parseCoord(String stringForm, Coord defaultCoord) {
+        String[] parts = stringForm.split(",");
+        if (parts.length == 2) {
+            try {
+                int xCoord = Integer.parseInt(parts[0]);
+                int zCoord = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                Log.log().info("Error parsing coordinate string %s. Will be replaced by %s", stringForm, defaultCoord);
+            }
+        }
+        return defaultCoord;
+    }
+
+    @Override
+    public void saveCustomData(JsonObject jsonObject) {
+        jsonObject.addProperty("DISPLAY_OFFSET", offset.x + "," + offset.z);
     }
 }

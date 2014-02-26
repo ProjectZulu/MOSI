@@ -72,6 +72,7 @@ public class DisplayUnitFactory implements JsonSerializer<ArrayList<DisplayUnit>
         } else {
             Log.log().warning("Type [%s] is not defined. Cannot create display.", type);
         }
+        displayTicker.loadCustomData(this, jsonObject);
         return displayTicker;
     }
 

@@ -28,10 +28,12 @@ import mosi.display.units.windows.toggle.ToggleDigitalCounter;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
+import mosi.utilities.GsonHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -51,15 +53,15 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
     private int updateFrequency = 20;
 
     // Display ItemStack used when counting rules do not find an ItemStack
-    private ItemStack missingDisplayStack;
+    private transient ItemStack missingDisplayStack;
     // Matching rules for Counting
     private InventoryRules countingRules;
     private HideExpression hidingRules;
     private TrackMode trackMode;
 
     // Information required to display
-    private DisplayStats displayStats;
-    private DisplayStats prevDisplayStat;
+    private transient DisplayStats displayStats;
+    private transient DisplayStats prevDisplayStat;
 
     private VerticalAlignment vertAlign = VerticalAlignment.CENTER_ABSO;
     private HorizontalAlignment horizAlign = HorizontalAlignment.CENTER_ABSO;
@@ -447,7 +449,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
                     new DigitalCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
-            
+
             menu.addElement(new DisplayUnitButton(new Coord(0, 147), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
 
@@ -463,13 +465,54 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
-        return null;
+    public void saveCustomData(JsonObject jsonObject) {
+        jsonObject.addProperty("NICKNAME", nickname);
+        super.saveCustomData(jsonObject);
+        jsonObject.addProperty("TRACKMODE", trackMode.toString());
+        jsonObject.addProperty("UPDATE_FREQUENCY", updateFrequency);
+        jsonObject.addProperty("VERTICAL_ALIGN", vertAlign.toString());
+        jsonObject.addProperty("HORIZONTAL_ALIGN", horizAlign.toString());
+        jsonObject.addProperty("HIDE_EXPRESSION", hidingRules.getExpression());
+        countingRules.saveCustomData(jsonObject);
+
+        JsonObject missingStackObject = new JsonObject();
+        missingStackObject.addProperty("NAME", Item.field_150901_e.func_148750_c(missingDisplayStack.getItem()));
+        missingStackObject.addProperty("DAMAGE", missingDisplayStack.getItemDamage());
+        jsonObject.add("MISSING_DISPLAY_STACK", missingStackObject);
     }
 
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
+        nickname = GsonHelper.getMemberOrDefault(customData, "NICKNAME", "");
+        super.loadCustomData(factory, customData);
+        String parsedTrack = GsonHelper.getMemberOrDefault(customData, "TRACKMODE", TrackMode.QUANTITY.toString())
+                .trim();
+        trackMode = TrackMode.QUANTITY.toString().equalsIgnoreCase(parsedTrack) ? TrackMode.QUANTITY
+                : TrackMode.DURABILITY;
+        updateFrequency = GsonHelper.getMemberOrDefault(customData, "UPDATE_FREQUENCY", 20);
 
+        String verAl = GsonHelper.getMemberOrDefault(customData, "VERTICAL_ALIGN", "").trim();
+        for (VerticalAlignment verticalAlignment : VerticalAlignment.values()) {
+            if (verAl.trim().toUpperCase().equals(verticalAlignment.toString())) {
+                vertAlign = verticalAlignment;
+            }
+        }
+
+        String horAl = GsonHelper.getMemberOrDefault(customData, "HORIZONTAL_ALIGN", "").trim();
+        for (HorizontalAlignment horizontalAlignment : HorizontalAlignment.values()) {
+            if (horAl.trim().toUpperCase().equals(horizontalAlignment.toString())) {
+                horizAlign = horizontalAlignment;
+            }
+        }
+        hidingRules.setExpression(GsonHelper.getMemberOrDefault(customData, "HIDE_EXPRESSION", ""));
+        countingRules.loadCustomData(customData);
+
+        JsonObject missingStackObject = customData.get("MISSING_DISPLAY_STACK").getAsJsonObject();
+        int damage = GsonHelper.getMemberOrDefault(customData, "DAMAGE", 0);
+        Item item = (Item) Item.field_150901_e.getObject(GsonHelper.getMemberOrDefault(customData, "NAME", ""));
+        if (item != null && damage >= 0) {
+            missingDisplayStack = new ItemStack(item, 1, damage);
+        }
     }
 
     @Override

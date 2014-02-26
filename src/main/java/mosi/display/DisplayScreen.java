@@ -7,6 +7,7 @@ import java.util.Queue;
 
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
+import mosi.MOSI;
 import mosi.display.inventoryrules.ScrollableSubDisplays;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.DisplayUnit;
@@ -32,6 +33,7 @@ import mosi.display.units.windows.button.MoveScrollElementToggle;
 import mosi.display.units.windows.button.RemoveScrollToggle;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 
@@ -344,6 +346,10 @@ public class DisplayScreen extends GuiScreen {
             if (processActionResult(displayUnit.keyTyped(eventCharacter, eventKey), displayUnit)) {
                 return;
             }
+        }
+        // If Hit ESC, GUI screen is closing and we should save
+        if (eventKey == 1) {
+            displayRegistry.saveToConfig(MOSI.getConfigDirectory());
         }
         super.keyTyped(eventCharacter, eventKey);
     }

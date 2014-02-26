@@ -333,8 +333,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
-        return null;
+    public void saveCustomData(JsonObject jsonObject) {
     }
 
     @Override

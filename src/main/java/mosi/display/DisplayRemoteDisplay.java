@@ -194,8 +194,7 @@ public class DisplayRemoteDisplay<T extends DisplayUnit> implements DisplayUnitS
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
-        return null;
+    public void saveCustomData(JsonObject jsonObject) {
     }
 
     @Override

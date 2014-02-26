@@ -225,8 +225,7 @@ public class DisplayUnitButton implements DisplayUnit {
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
-        return null;
+    public void saveCustomData(JsonObject jsonObject) {
     }
 
     @Override

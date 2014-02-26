@@ -33,15 +33,22 @@ public class MOSI {
         return displayFactory;
     }
 
+    private static File configDirectory;
+
+    public static File getConfigDirectory() {
+        return configDirectory;
+    }
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        configDirectory = event.getModConfigurationDirectory();
         Gson gson = GsonHelper.createGson(true);
         File loggingSettings = new File(event.getModConfigurationDirectory(), DefaultProps.MOD_DIR
                 + "LoggingProperties.cfg");
         Log jasLog = GsonHelper.readFromGson(FileUtilities.createReader(loggingSettings, false), Log.class, gson);
         Log.setLogger(jasLog);
         displayFactory = new DisplayUnitFactory();
-        displayRegistry = new DisplayUnitRegistry(displayFactory);
+        displayRegistry = new DisplayUnitRegistry(displayFactory, event.getModConfigurationDirectory());
         proxy.registerDisplayTicker(displayRegistry);
     }
 

@@ -1,6 +1,7 @@
 package mosi.display;
 
 import mosi.DisplayUnitRegistry;
+import mosi.Log;
 import mosi.MOSI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

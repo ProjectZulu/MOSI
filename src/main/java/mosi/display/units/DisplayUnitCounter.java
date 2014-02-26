@@ -1,11 +1,17 @@
 package mosi.display.units;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.ResourceLocation;
 import mosi.DefaultProps;
+import mosi.Log;
 import mosi.display.DisplayRenderHelper;
+import mosi.display.DisplayUnitFactory;
 import mosi.utilities.Coord;
+import mosi.utilities.GsonHelper;
 
 public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements DisplayUnitCountable {
     private static final ResourceLocation inventory = new ResourceLocation("textures/gui/container/inventory.png");
@@ -172,5 +178,49 @@ public abstract class DisplayUnitCounter extends DisplayUnitMoveable implements 
                     + offSet.x, centerOfDisplay.z - offSet.z, textDisplayColor);
             break;
         }
+    }
+
+    @Override
+    public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
+        super.loadCustomData(factory, customData);
+        textDisplayColor = customData.get("TEXT_COLOR").getAsInt();
+
+        JsonObject analogObj = GsonHelper.getMemberOrDefault(customData, "ANALOG_BAR", new JsonObject());
+        displayAnalogBar = GsonHelper.getMemberOrDefault(analogObj, "IS_ENABLED", true);
+        analogOffset = parseCoord(GsonHelper.getMemberOrDefault(analogObj, "OFFSET", ""), new Coord(0, 0));
+
+        JsonObject digitalObj = GsonHelper.getMemberOrDefault(customData, "DIGITAL_BAR", new JsonObject());
+        displayNumericCounter = GsonHelper.getMemberOrDefault(digitalObj, "IS_ENABLED", true);
+        digitalOffset = parseCoord(GsonHelper.getMemberOrDefault(digitalObj, "OFFSET", ""), new Coord(0, 8));
+    }
+
+    private Coord parseCoord(String stringForm, Coord defaultCoord) {
+        String[] parts = stringForm.split(",");
+        if (parts.length == 2) {
+            try {
+                int xCoord = Integer.parseInt(parts[0]);
+                int zCoord = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                Log.log().info("Error parsing coordinate string %s. Will be replaced by %s", stringForm, defaultCoord);
+            }
+        }
+        return defaultCoord;
+    }
+
+    @Override
+    public void saveCustomData(JsonObject jsonObject) {
+        super.saveCustomData(jsonObject);
+
+        jsonObject.addProperty("TEXT_COLOR", textDisplayColor);
+        JsonObject analogObj = new JsonObject();
+        analogObj.addProperty("IS_ENABLED", displayAnalogBar);
+        analogObj.addProperty("OFFSET", analogOffset.x + "," + analogOffset.z);
+        jsonObject.add("ANALOG_BAR", analogObj);
+
+        JsonObject digitalObj = new JsonObject();
+        digitalObj.addProperty("IS_ENABLED", displayNumericCounter);
+        digitalObj.addProperty("OFFSET", digitalOffset.x + "," + digitalOffset.z);
+        jsonObject.add("DIGITAL_BAR", analogObj);
+
     }
 }

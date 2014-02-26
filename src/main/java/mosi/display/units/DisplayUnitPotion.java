@@ -6,6 +6,9 @@ import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideExpression;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnitItem.TrackMode;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
@@ -25,8 +28,11 @@ import mosi.display.units.windows.toggle.ToggleDigitalCounter;
 import mosi.display.units.windows.toggle.ToggleHorizAlign;
 import mosi.display.units.windows.toggle.ToggleVertAlign;
 import mosi.utilities.Coord;
+import mosi.utilities.GsonHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
@@ -384,12 +390,39 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
-        return null;
+    public void saveCustomData(JsonObject jsonObject) {
+        jsonObject.addProperty("NICKNAME", nickname);
+        super.saveCustomData(jsonObject);
+        jsonObject.addProperty("TRACKED_POTION", trackedPotion);
+        jsonObject.addProperty("UPDATE_FREQUENCY", updateFrequency);
+        jsonObject.addProperty("MAX_ANALOG_TICKS", maxAnalogDuration);
+        jsonObject.addProperty("VERTICAL_ALIGN", vertAlign.toString());
+        jsonObject.addProperty("HORIZONTAL_ALIGN", horizAlign.toString());
+        jsonObject.addProperty("HIDE_EXPRESSION", hidingRules.getExpression());
     }
 
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
+        nickname = GsonHelper.getMemberOrDefault(customData, "NICKNAME", "");
+        super.loadCustomData(factory, customData);
+        trackedPotion = GsonHelper.getMemberOrDefault(customData, "TRACKED_POTION", 1);
+        updateFrequency = GsonHelper.getMemberOrDefault(customData, "UPDATE_FREQUENCY", 20);
+        maxAnalogDuration = GsonHelper.getMemberOrDefault(customData, "MAX_ANALOG_TICKS", 60 * 20);
+
+        String verAl = GsonHelper.getMemberOrDefault(customData, "VERTICAL_ALIGN", "").trim();
+        for (VerticalAlignment verticalAlignment : VerticalAlignment.values()) {
+            if (verAl.trim().toUpperCase().equals(verticalAlignment.toString())) {
+                vertAlign = verticalAlignment;
+            }
+        }
+
+        String horAl = GsonHelper.getMemberOrDefault(customData, "HORIZONTAL_ALIGN", "").trim();
+        for (HorizontalAlignment horizontalAlignment : HorizontalAlignment.values()) {
+            if (horAl.trim().toUpperCase().equals(horizontalAlignment.toString())) {
+                horizAlign = horizontalAlignment;
+            }
+        }
+        hidingRules.setExpression(GsonHelper.getMemberOrDefault(customData, "HIDE_EXPRESSION", ""));
     }
 
     @Override

@@ -136,9 +136,8 @@ public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
+    public void saveCustomData(JsonObject jsonObject) {
         super.saveCustomData(jsonObject);
-        return null;
     }
 
     @Override

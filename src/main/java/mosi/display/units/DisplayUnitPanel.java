@@ -361,12 +361,11 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     }
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
-        return null;
+    public void saveCustomData(JsonObject jsonObject) {
     }
 
     @Override
     public void loadCustomData(DisplayUnitFactory factory, JsonObject customData) {
-
+        
     }
 }

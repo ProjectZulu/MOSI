@@ -1,13 +1,22 @@
 package mosi;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import mosi.display.DisplayUnitFactory;
 import mosi.display.units.DisplayUnit;
-import mosi.display.units.DisplayUnitSortedPanel;
+import mosi.display.units.DisplayUnitItem;
+import mosi.utilities.FileUtilities;
+import mosi.utilities.FileUtilities.OptionalCloseable;
+import mosi.utilities.GsonHelper;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 public class DisplayUnitRegistry {
 
@@ -54,25 +63,30 @@ public class DisplayUnitRegistry {
         }
     }
 
-    public DisplayUnitRegistry(DisplayUnitFactory displayFactory) {
+    public DisplayUnitRegistry(DisplayUnitFactory displayFactory, File configDirectory) {
         this.displayFactory = displayFactory;
-        loadFromConfig();
+        loadFromConfig(configDirectory);
     }
 
-    public void loadFromConfig() {
+    public void loadFromConfig(File configDirectory) {
         Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
-        // builder.add(new DisplayUnitItem());
+        builder.add(new DisplayUnitItem());
         // builder.add(new DisplayUnitPotion());
         // builder.add(new DisplayUnitPotion());
         // displays.add(new DisplayUnitUnsortedPanel());
-         builder.add(new DisplayUnitSortedPanel());
+        // builder.add(new DisplayUnitSortedPanel());
 
         // Load implicitly saves changes due to errors/corrections appear i.e. a number that cannot be below zero is set
         // to zero and should be set as such in the config
-        saveToConfig();
+        saveToConfig(configDirectory);
     }
 
-    public void saveToConfig() {
-
+    public void saveToConfig(File configDirectory) {
+        Type type = new TypeToken<ArrayList<DisplayUnit>>() {
+        }.getType();
+        Gson gson = GsonHelper.createGson(true, true, new Type[] { type }, new Object[] { new DisplayListSerializer(
+                displayFactory) });
+        File displayListFile = DisplayListSerializer.getFile(configDirectory);
+        GsonHelper.writeToGson(FileUtilities.createWriter(displayListFile, true), currentDisplays(), type, gson);
     }
 }

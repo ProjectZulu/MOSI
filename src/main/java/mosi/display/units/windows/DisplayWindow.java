@@ -138,7 +138,7 @@ public abstract class DisplayWindow extends DisplayUnitMoveable {
     public abstract void renderSubDisplay(Minecraft mc, Coord position);
 
     @Override
-    public JsonObject saveCustomData(JsonObject jsonObject) {
+    public void saveCustomData(JsonObject jsonObject) {
         throw new UnsupportedOperationException("DisplayWindows do not have memory");
     }
 
