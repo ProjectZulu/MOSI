@@ -220,24 +220,24 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
 
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+00, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(13, 16))));
 
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(13, 16))));
 
             menu.addElement(new DisplayUnitToggle(new Coord(+00, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(13, 16))));
 
             /* Potion Tracking Setting */
             menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 80), VerticalAlignment.TOP_ABSO,
@@ -361,7 +361,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
             /* Analog Bar Settings */
             menu.addElement(new DisplayUnitToggle(new Coord(-24, 110), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(13, 16))));
             menu.addElement(new DisplayUnitTextField(new Coord(-2, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(21, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
@@ -370,7 +370,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
             /* Digital Counter Settings */
             menu.addElement(new DisplayUnitToggle(new Coord(22, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(13, 16))));
             menu.addElement(new DisplayUnitTextField(new Coord(-23, 131), new Coord(22, 15),
                     VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
                     new DigitalCounterPositionValidator(this, true)));

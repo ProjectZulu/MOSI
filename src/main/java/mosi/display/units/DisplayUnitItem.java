@@ -6,7 +6,10 @@ import mosi.display.DisplayUnitFactory;
 import mosi.display.hiderules.HideExpression;
 import mosi.display.inventoryrules.InventoryRule;
 import mosi.display.inventoryrules.InventoryRules;
+import mosi.display.inventoryrules.ItemHandMatch;
 import mosi.display.inventoryrules.ItemIdMatch;
+import mosi.display.inventoryrules.ItemMetaMatch;
+import mosi.display.inventoryrules.ItemSlotMatch;
 import mosi.display.inventoryrules.ScrollableInventoryRules;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.action.ReplaceAction;
@@ -17,7 +20,9 @@ import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
+import mosi.display.units.windows.button.AddScrollClick;
 import mosi.display.units.windows.button.CloseClick;
+import mosi.display.units.windows.button.MoveScrollElementToggle;
 import mosi.display.units.windows.button.SetHideExpressionClick;
 import mosi.display.units.windows.text.AnalogCounterPositionValidator;
 import mosi.display.units.windows.text.DigitalCounterPositionValidator;
@@ -299,24 +304,24 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
 
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+00, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(13, 16))));
 
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(13, 16))));
 
             menu.addElement(new DisplayUnitToggle(new Coord(+00, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(13, 16))));
             /* Open Inventory Editor */
             menu.addElement(new DisplayUnitButton(new Coord(0, 77), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
@@ -339,9 +344,59 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
 
                         @Override
                         public ActionResult onRelease() {
+                            ScrollableInventoryRules scrollable = new ScrollableInventoryRules(rules);
                             DisplayWindowScrollList<InventoryRule> scrollList = new DisplayWindowScrollList<InventoryRule>(
-                                    new Coord(0, 0), new Coord(140, 200), 25, parentVert, parentHorz,
-                                    new ScrollableInventoryRules(rules));
+                                    new Coord(0, 0), new Coord(140, 200), 25, parentVert, parentHorz, scrollable);
+                            // Add InventoryRules
+                            scrollList.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<InventoryRule, ScrollableInventoryRules>(scrollable) {
+                                        @Override
+                                        public void performScrollAddition(ScrollableInventoryRules container) {
+                                            container.addElement(new ItemHandMatch());
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(183, 65), new Coord(13,
+                                    16))));
+                            scrollList.addElement(new DisplayUnitButton(new Coord(23, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<InventoryRule, ScrollableInventoryRules>(scrollable) {
+                                        @Override
+                                        public void performScrollAddition(ScrollableInventoryRules container) {
+                                            container.addElement(new ItemIdMatch("grass", true));
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(201, 65), new Coord(13,
+                                    16))));
+                            scrollList.addElement(new DisplayUnitButton(new Coord(44, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<InventoryRule, ScrollableInventoryRules>(scrollable) {
+                                        @Override
+                                        public void performScrollAddition(ScrollableInventoryRules container) {
+                                            container.addElement(new ItemMetaMatch("grass", 0, true));
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(219, 65), new Coord(13,
+                                    16))));
+                            scrollList.addElement(new DisplayUnitButton(new Coord(65, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
+                                    new AddScrollClick<InventoryRule, ScrollableInventoryRules>(scrollable) {
+                                        @Override
+                                        public void performScrollAddition(ScrollableInventoryRules container) {
+                                            container.addElement(new ItemSlotMatch(0, false));
+                                        }
+                                    }).setIconImageResource(new GuiIconImageResource(new Coord(111, 87), new Coord(13,
+                                    16))));
+
+                            // Move Up/Down buttons
+                            scrollList.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                    new MoveScrollElementToggle<InventoryRule>(scrollable, 1))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(165, 66),
+                                            new Coord(12, 15))));
+                            scrollList.addElement(new DisplayUnitToggle(new Coord(-23, 2), new Coord(20, 20),
+                                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
+                                    new MoveScrollElementToggle<InventoryRule>(scrollable, -1))
+                                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 66),
+                                            new Coord(12, 15))));
+                            // Close Button
                             scrollList.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(50, 20),
                                     VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(
                                             scrollList), "Close"));
@@ -438,7 +493,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             /* Analog Bar Settings */
             menu.addElement(new DisplayUnitToggle(new Coord(-24, 110), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(13, 16))));
             menu.addElement(new DisplayUnitTextField(new Coord(-2, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(21, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
@@ -447,7 +502,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             /* Digital Counter Settings */
             menu.addElement(new DisplayUnitToggle(new Coord(22, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(13, 16))));
             menu.addElement(new DisplayUnitTextField(new Coord(-23, 131), new Coord(22, 15),
                     VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
                     new DigitalCounterPositionValidator(this, true)));

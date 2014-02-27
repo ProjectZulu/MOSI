@@ -70,8 +70,8 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(12, 16))));
-        size = new Coord(105, 22);
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
+        size = new Coord(139, 24);
         this.container = container;
         this.source = inventoryRule;
     }
@@ -79,17 +79,17 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     public DisplayUnitInventoryRule(ItemIdMatch inventoryRule, Scrollable<InventoryRule> container) {
         ruleId = RULEID.ID;
         // Add TextBox to set string id --> will eventually be scroll list
-        addElement(new DisplayUnitTextField(new Coord(22, 2), new Coord(60, 20), VerticalAlignment.TOP_ABSO,
+        addElement(new DisplayUnitTextField(new Coord(22, 2), new Coord(60, 16), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, 30, new ItemIdTextField(inventoryRule)));
         // Add Toggle to set multipleMatches
         addElement(new DisplayUnitToggle(new Coord(83, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ToggleMultipleMatches(inventoryRule))
-                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(13, 16))));
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
                 .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
-        size = new Coord(140, 24);
+        size = new Coord(139, 24);
         this.container = container;
         this.source = inventoryRule;
     }
@@ -97,10 +97,10 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
     public DisplayUnitInventoryRule(final ItemMetaMatch inventoryRule, Scrollable<InventoryRule> container) {
         ruleId = RULEID.IDMETA;
         // Add TextBox to set string id --> will eventually be scroll list
-        addElement(new DisplayUnitTextField(new Coord(2, 23), new Coord(60, 20), VerticalAlignment.TOP_ABSO,
+        addElement(new DisplayUnitTextField(new Coord(2, 24), new Coord(60, 16), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, 30, new ItemIdTextField(inventoryRule)));
         // Add TextBox to set min string damage (--> eventually scroll list that selects id + damage?)
-        addElement(new DisplayUnitTextField(new Coord(63, 23), new Coord(30, 20), VerticalAlignment.TOP_ABSO,
+        addElement(new DisplayUnitTextField(new Coord(63, 24), new Coord(30, 16), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, 5, new ValidatorBoundedInt(0, 65535) {
 
                     @Override
@@ -113,7 +113,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                     }
                 }));
         // Add TextBox to set max string damage (--> eventually scroll list that selects id + damage?)
-        addElement(new DisplayUnitTextField(new Coord(94, 23), new Coord(30, 20), VerticalAlignment.TOP_ABSO,
+        addElement(new DisplayUnitTextField(new Coord(94, 24), new Coord(30, 16), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, 5, new ValidatorBoundedInt(0, 65535) {
 
                     @Override
@@ -128,12 +128,12 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         // Add Toggle to set multipleMatches
         addElement(new DisplayUnitToggle(new Coord(83, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ToggleMultipleMatches(inventoryRule))
-                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(13, 16))));
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(12, 16))));
-        size = new Coord(140, 44);
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
+        size = new Coord(139, 42);
         this.container = container;
         this.source = inventoryRule;
     }
@@ -142,7 +142,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         ruleId = RULEID.SLOT;
         // Add TextBox to set string slotId --> will eventually be scroll list
         // Add TextBox to set string armorSlot (--> eventually scroll list that selected id + damage?)
-        addElement(new DisplayUnitTextField(new Coord(52, 2), new Coord(30, 20), VerticalAlignment.TOP_ABSO,
+        addElement(new DisplayUnitTextField(new Coord(52, 2), new Coord(30, 16), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, 2, new ValidatorInt() {
 
                     @Override
@@ -186,12 +186,12 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
                     public boolean isToggled() {
                         return inventoryRule.armorSlot;
                     }
-                }).setIconImageResource(new GuiIconImageResource(new Coord(202, 23), new Coord(12, 16))));
+                }).setIconImageResource(new GuiIconImageResource(new Coord(202, 23), new Coord(13, 16))));
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(12, 16))));
-        size = new Coord(105, 22);
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
+        size = new Coord(139, 24);
         this.container = container;
         this.source = inventoryRule;
     }
@@ -296,8 +296,8 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         OpenGlHelper.func_148821_a(770, 771, 1, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         if (isMouseOver) {
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(), new Coord(000,
-                    000), new Coord(127, 127));
+            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                    new Coord(000, 000), new Coord(127, 127));
         } else {
             // DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -5.0f, position, getSize(), new
             // Coord(000,

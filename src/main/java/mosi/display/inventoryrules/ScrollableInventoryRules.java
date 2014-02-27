@@ -21,19 +21,23 @@ public class ScrollableInventoryRules implements Scrollable<InventoryRule> {
     public ScrollableInventoryRules(InventoryRules rules) {
         this.rules = rules;
         scrollableList = new ArrayList<ScrollableElement<InventoryRule>>();
-        // TODO: This is beyond ugly, something should be done... eventually
         for (InventoryRule inventoryRule : rules) {
-            if (inventoryRule instanceof ItemHandMatch) {
-                scrollableList.add(new DisplayUnitInventoryRule((ItemHandMatch) inventoryRule, this));
-            } else if (inventoryRule instanceof ItemIdMatch) {
-                scrollableList.add(new DisplayUnitInventoryRule((ItemIdMatch) inventoryRule, this));
-            } else if (inventoryRule instanceof ItemMetaMatch) {
-                scrollableList.add(new DisplayUnitInventoryRule((ItemMetaMatch) inventoryRule, this));
-            } else if (inventoryRule instanceof ItemSlotMatch) {
-                scrollableList.add(new DisplayUnitInventoryRule((ItemSlotMatch) inventoryRule, this));
-            } else {
-                throw new IllegalArgumentException("Unknown InventoryRule type " + inventoryRule);
-            }
+            scrollableList.add(inventoryRuleToScrollable(inventoryRule));
+        }
+    }
+
+    private ScrollableElement<InventoryRule> inventoryRuleToScrollable(InventoryRule inventoryRule) {
+        // TODO: This is beyond ugly, something should be done... eventually
+        if (inventoryRule instanceof ItemHandMatch) {
+            return new DisplayUnitInventoryRule((ItemHandMatch) inventoryRule, this);
+        } else if (inventoryRule instanceof ItemMetaMatch) {
+            return new DisplayUnitInventoryRule((ItemMetaMatch) inventoryRule, this);
+        } else if (inventoryRule instanceof ItemIdMatch) {
+            return new DisplayUnitInventoryRule((ItemIdMatch) inventoryRule, this);
+        } else if (inventoryRule instanceof ItemSlotMatch) {
+            return new DisplayUnitInventoryRule((ItemSlotMatch) inventoryRule, this);
+        } else {
+            throw new IllegalArgumentException("Unknown InventoryRule type " + inventoryRule);
         }
     }
 
@@ -54,6 +58,11 @@ public class ScrollableInventoryRules implements Scrollable<InventoryRule> {
         return scrollableList.add(element);
     }
 
+    public boolean addElement(InventoryRule element) {
+        rules.add(element);
+        return scrollableList.add(inventoryRuleToScrollable(element));
+    }
+
     @Override
     public void moveElement(ScrollableElement<InventoryRule> element, int unitstoMove) {
         int scrollIndex = scrollableList.indexOf(element);
@@ -65,8 +74,8 @@ public class ScrollableInventoryRules implements Scrollable<InventoryRule> {
     }
 
     private <K> boolean isSwapValid(List<K> list, int index, int indexToMove) {
-        if (index > 0 && index < list.size()) {
-            if (index + indexToMove > 0 && index + indexToMove < list.size()) {
+        if (index >= 0 && index < list.size()) {
+            if (index + indexToMove >= 0 && index + indexToMove < list.size()) {
                 return true;
             }
         }

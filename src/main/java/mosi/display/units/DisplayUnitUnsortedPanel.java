@@ -94,7 +94,7 @@ public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
                                         container.addElement(new DisplayUnitPotion());
                                     }
                                 })
-                                .setIconImageResource(new GuiIconImageResource(new Coord(147, 44), new Coord(12, 16))));
+                                .setIconImageResource(new GuiIconImageResource(new Coord(147, 44), new Coord(13, 16))));
                         slider.addElement(new DisplayUnitButton(new Coord(23, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
                                 new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {
@@ -104,7 +104,7 @@ public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
                                         container.addElement(new DisplayUnitItem());
                                     }
                                 })
-                                .setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(12, 16))));
+                                .setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(13, 16))));
                         slider.addElement(new DisplayUnitButton(new Coord(44, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
                                 new AddScrollClick<DisplayUnit, ScrollableSubDisplays<DisplayUnit>>(scrollable) {

@@ -328,23 +328,23 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
                     HorizontalAlignment.CENTER_ABSO, "Alignment").setBackgroundImage(null));
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 79), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+00, 79), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 79), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 100), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(13, 16))));
 
             menu.addElement(new DisplayUnitToggle(new Coord(+00, 100), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(13, 16))));
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 100), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(12, 16))));
+                    .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(13, 16))));
 
             menu.addElement(new DisplayUnitButton(new Coord(0, 138), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
