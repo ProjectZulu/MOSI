@@ -339,9 +339,13 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
 
                         @Override
                         public ActionResult onRelease() {
-                            return new ReplaceAction(new DisplayWindowScrollList<InventoryRule>(new Coord(0, 0),
-                                    new Coord(140, 200), 25, parentVert, parentHorz,
-                                    new ScrollableInventoryRules(rules)), true);
+                            DisplayWindowScrollList<InventoryRule> scrollList = new DisplayWindowScrollList<InventoryRule>(
+                                    new Coord(0, 0), new Coord(140, 200), 25, parentVert, parentHorz,
+                                    new ScrollableInventoryRules(rules));
+                            scrollList.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(50, 20),
+                                    VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(
+                                            scrollList), "Close"));
+                            return new ReplaceAction(scrollList, true);
                         }
                     }.init(countingRules, getVerticalAlignment(), getHorizontalAlignment()), "Count Rules"));
             /* Open HideRules Editor */
