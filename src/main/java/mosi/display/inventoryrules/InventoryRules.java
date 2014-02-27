@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import mosi.Log;
+import mosi.utilities.GsonHelper;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -72,34 +75,34 @@ public class InventoryRules implements Iterable<InventoryRule> {
 
     public void loadCustomData(JsonObject customData) {
         List<InventoryRule> rules = new ArrayList<InventoryRule>();
-        JsonArray array = customData.get(RULES_KEY).getAsJsonArray();
+        JsonArray array = GsonHelper.getMemberOrDefault(customData, RULES_KEY, new JsonArray());
         for (JsonElement jsonElement : array) {
-            JsonObject ruleObject = jsonElement.getAsJsonObject();
-            String ruleType = ruleObject.get(TYPE_KEY).getAsString();
+            JsonObject ruleObject = GsonHelper.getAsJsonObject(jsonElement);
+
+            String ruleType = GsonHelper.getMemberOrDefault(ruleObject, TYPE_KEY, "ABSENT_KEY");
             if (HAND_KEY.equals(ruleType)) {
                 rules.add(new ItemHandMatch());
             } else if (ID_KEY.equals(ruleType)) {
-                String itemId = ruleObject.get("ITEMID").getAsString();
-                boolean multipleMatches = ruleObject.get("MULTIPLEMATCHES").getAsBoolean();
+                String itemId = GsonHelper.getMemberOrDefault(ruleObject, "ITEMID", "grass");
+                boolean multipleMatches = GsonHelper.getMemberOrDefault(ruleObject, "MULTIPLEMATCHES", true);
                 rules.add(new ItemIdMatch(itemId, multipleMatches));
             } else if (META_KEY.equals(ruleType)) {
-                String itemId = ruleObject.get("ITEMID").getAsString();
-                boolean multipleMatches = ruleObject.get("MULTIPLEMATCHES").getAsBoolean();
-                int minItemDamage = ruleObject.get("DAMAGEMIN").getAsInt();
-                int maxItemDamage = ruleObject.get("DAMAGEMAX").getAsInt();
+                String itemId = GsonHelper.getMemberOrDefault(ruleObject, "ITEMID", "grass");
+                boolean multipleMatches = GsonHelper.getMemberOrDefault(ruleObject, "MULTIPLEMATCHES", true);
+                int minItemDamage = GsonHelper.getMemberOrDefault(ruleObject, "DAMAGEMIN", 0);
+                int maxItemDamage = GsonHelper.getMemberOrDefault(ruleObject, "DAMAGEMAX", 15);
                 rules.add(new ItemMetaMatch(itemId, minItemDamage, maxItemDamage, multipleMatches));
             } else if (SLOT_KEY.equals(ruleType)) {
-                boolean armorSlot = ruleObject.get("ISARMORSLOT").getAsBoolean();
-                int slotId = ruleObject.get("SLOTID").getAsInt();
+                boolean armorSlot = GsonHelper.getMemberOrDefault(ruleObject, "ISARMORSLOT", false);
+                int slotId = GsonHelper.getMemberOrDefault(ruleObject, "SLOTID", 0);
                 rules.add(new ItemSlotMatch(slotId, armorSlot));
             } else {
-                if (ruleType == null) {
+                if (ruleType == null || "ABSENT_KEY".equals(ruleType)) {
                     throw new IllegalStateException("InventoryRule type absent when loading.");
                 } else {
                     throw new IllegalStateException("Unknown Rule type on loading. Type " + ruleType + " is not known");
                 }
             }
-
         }
     }
 
