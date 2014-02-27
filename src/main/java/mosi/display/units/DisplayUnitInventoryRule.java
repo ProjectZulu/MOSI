@@ -70,7 +70,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(12, 16))));
         size = new Coord(105, 22);
         this.container = container;
         this.source = inventoryRule;
@@ -88,7 +88,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
         size = new Coord(140, 24);
         this.container = container;
         this.source = inventoryRule;
@@ -132,7 +132,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(12, 16))));
         size = new Coord(140, 44);
         this.container = container;
         this.source = inventoryRule;
@@ -190,7 +190,7 @@ public class DisplayUnitInventoryRule extends DisplayWindow implements Scrollabl
         // Add button to remove rule
         addElement(new DisplayUnitButton(new Coord(104, 2), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                 HorizontalAlignment.LEFT_ABSO, new ScrobbleElementRemoveButton<InventoryRule>(this, container))
-                .setIconImageResource(new GuiIconImageResource(new Coord(183, 23), new Coord(12, 16))));
+                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(12, 16))));
         size = new Coord(105, 22);
         this.container = container;
         this.source = inventoryRule;
