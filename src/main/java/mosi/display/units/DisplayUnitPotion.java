@@ -193,6 +193,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
         if (action == MouseAction.CLICK && actionData[0] == 1 && DisplayHelper.isCursorOverDisplay(localMouse, this)) {
             DisplayWindowMenu menu = new DisplayWindowMenu(getOffset(), getHorizontalAlignment(),
                     getVerticalAlignment());
+            // Nickname
             menu.addElement(new DisplayUnitTextField(new Coord(0, 4), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 13, new RegularTextValidator() {
                         private DisplayUnitPotion display;
@@ -212,38 +213,63 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                             return display.nickname;
                         }
                     }.init(this)));
-
-            menu.addElement(new DisplayUnitTextField(new Coord(-17, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+            /* Generic DisplayUnitEditable Settings */
+            menu.addElement(new DisplayUnitTextBoard(new Coord(0, 16), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Position").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitTextField(new Coord(-17, 29), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, true)));
-            menu.addElement(new DisplayUnitTextField(new Coord(+18, 19), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitTextField(new Coord(+18, 29), new Coord(32, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 5, new PositionTextValidator(this, false)));
 
-            menu.addElement(new DisplayUnitToggle(new Coord(-22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            /* Alignment Setting */
+            menu.addElement(new DisplayUnitTextBoard(new Coord(0, 55), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Alignment").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 68), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.LEFT_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 2), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitToggle(new Coord(+00, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 68), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.CENTER_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(129, 2), new Coord(13, 16))));
-
-            menu.addElement(new DisplayUnitToggle(new Coord(+22, 34), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 68), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitToggle(new Coord(-22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+
+            menu.addElement(new DisplayUnitToggle(new Coord(-22, 89), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(13, 16))));
-
-            menu.addElement(new DisplayUnitToggle(new Coord(+00, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+00, 89), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.CENTER_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(129, 23), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitToggle(new Coord(+22, 55), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitToggle(new Coord(+22, 89), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(13, 16))));
 
-            /* Potion Tracking Setting */
-            menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 80), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, "Track ID:").setBackgroundImage(null));
+            /* Analog Bar Settings */
+            menu.addElement(new DisplayUnitTextBoard(new Coord(8, 93+13), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Analog").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitToggle(new Coord(-24, 100+13), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(13, 16))));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 106+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(21, 106+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, false)));
 
-            menu.addElement(new DisplayUnitTextField(new Coord(23, 80), new Coord(18, 15), VerticalAlignment.TOP_ABSO,
+            /* Digital Counter Settings */
+            menu.addElement(new DisplayUnitTextBoard(new Coord(8, 118+13), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Digital").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitToggle(new Coord(-24, 125+13), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
+                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(13, 16))));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 131+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(21, 131+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
+
+            /* Potion Tracking Setting */
+            menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 44), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, "Track PID:").setBackgroundImage(null));
+            menu.addElement(new DisplayUnitTextField(new Coord(26, 44), new Coord(18, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 2, new ValidatorBoundedInt(0, Potion.potionTypes.length - 1) {
 
                         private DisplayUnitPotion display;
@@ -272,7 +298,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                     }.init(this)));
 
             /* Open HideRules Editor */
-            menu.addElement(new DisplayUnitButton(new Coord(0, 95), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitButton(new Coord(0, 160), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
                         private HideExpression rules;
                         private VerticalAlignment parentVert;
@@ -358,26 +384,7 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                         }
                     }.init(hidingRules, getVerticalAlignment(), getHorizontalAlignment()), "Hide Rules"));
 
-            /* Analog Bar Settings */
-            menu.addElement(new DisplayUnitToggle(new Coord(-24, 110), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitTextField(new Coord(-2, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
-            menu.addElement(new DisplayUnitTextField(new Coord(21, 110), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, false)));
-
-            /* Digital Counter Settings */
-            menu.addElement(new DisplayUnitToggle(new Coord(22, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
-                    .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitTextField(new Coord(-23, 131), new Coord(22, 15),
-                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
-                    new DigitalCounterPositionValidator(this, true)));
-            menu.addElement(new DisplayUnitTextField(new Coord(0, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
-
-            menu.addElement(new DisplayUnitButton(new Coord(0, 147), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitButton(new Coord(0, 176), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             return new ReplaceAction(menu, true);
         }
