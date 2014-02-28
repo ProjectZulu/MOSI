@@ -209,9 +209,11 @@ public class DisplayScreen extends GuiScreen {
             menu.addElement(new DisplayUnitButton(new Coord(0, 20), new Coord(90, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new Clicker() {
                         private ArrayList<DisplayUnit> displayList;
+                        private DisplayUnit parent;
 
-                        public Clicker init(ArrayList<DisplayUnit> displayList) {
+                        public Clicker init(ArrayList<DisplayUnit> displayList, DisplayUnit parent) {
                             this.displayList = displayList;
+                            this.parent = parent;
                             return this;
                         }
 
@@ -225,8 +227,8 @@ public class DisplayScreen extends GuiScreen {
                             ScrollableSubDisplays<DisplayUnit> scrollable = new ScrollableSubDisplays<DisplayUnit>(
                                     displayList);
                             DisplayWindowScrollList<DisplayUnit> slider = new DisplayWindowScrollList<DisplayUnit>(
-                                    new Coord(90, 00), new Coord(140, 200), 25, VerticalAlignment.TOP_ABSO,
-                                    HorizontalAlignment.LEFT_ABSO, scrollable);
+                                    new Coord(0, 0), new Coord(140, 200), 25, parent.getVerticalAlignment(), parent
+                                            .getHorizontalAlignment(), scrollable);
                             // Add Element Buttons
                             slider.addElement(new DisplayUnitButton(new Coord(2, 2), new Coord(20, 20),
                                     VerticalAlignment.TOP_ABSO, HorizontalAlignment.LEFT_ABSO,
@@ -277,7 +279,7 @@ public class DisplayScreen extends GuiScreen {
                                             slider), "Close"));
                             return new ReplaceAction(slider, true);
                         }
-                    }.init(displayList), "Display Editor"));
+                    }.init(displayList, menu), "Display Editor"));
             menu.addElement(new DisplayUnitButton(new Coord(0, 50), new Coord(50, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             processActionResult(new ReplaceAction(menu, true), Optional.<DisplayUnit> absent());
