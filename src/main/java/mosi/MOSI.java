@@ -18,7 +18,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = DefaultProps.MOD_ID, name = DefaultProps.MOD_NAME, version = DefaultProps.VERSION)
+@Mod(modid = DefaultProps.MOD_ID, name = DefaultProps.MOD_NAME, useMetadata = true)
 public class MOSI {
     @Instance(DefaultProps.MOD_ID)
     public static MOSI modInstance;
