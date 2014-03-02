@@ -8,6 +8,8 @@ import java.util.List;
 import mosi.Log;
 import mosi.display.DisplayUnitFactory;
 import mosi.display.inventoryrules.ScrollableSubDisplays;
+import mosi.display.resource.DualSimpleImageResource;
+import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
@@ -153,18 +155,27 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
                                 .setIconImageResource(new GuiIconImageResource(new Coord(165, 44), new Coord(13, 16))));
 
                         // List interactive Buttons - Remove, MoveUp, MoveDown
+                        DualSimpleImageResource elementUnToggle = new DualSimpleImageResource(
+                                new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127)),
+                                new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127)));
+                        DualSimpleImageResource elementToggle = new DualSimpleImageResource(
+                                new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127)),
+                                new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127)));
                         slider.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
                                 new RemoveScrollToggle<DisplayUnitCountable>(scrollable))
-                                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16))));
+                                .setIconImageResource(new GuiIconImageResource(new Coord(201, 44), new Coord(13, 16)))
+                                .setDefaultImages(elementUnToggle).setToggledImages(elementToggle));
                         slider.addElement(new DisplayUnitToggle(new Coord(-23, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
                                 new MoveScrollElementToggle<DisplayUnitCountable>(scrollable, 1))
-                                .setIconImageResource(new GuiIconImageResource(new Coord(165, 66), new Coord(12, 15))));
+                                .setIconImageResource(new GuiIconImageResource(new Coord(165, 66), new Coord(12, 15)))
+                                .setDefaultImages(elementUnToggle).setToggledImages(elementToggle));
                         slider.addElement(new DisplayUnitToggle(new Coord(-44, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
                                 new MoveScrollElementToggle<DisplayUnitCountable>(scrollable, -1))
-                                .setIconImageResource(new GuiIconImageResource(new Coord(147, 66), new Coord(12, 15))));
+                                .setIconImageResource(new GuiIconImageResource(new Coord(147, 66), new Coord(12, 15)))
+                                .setDefaultImages(elementUnToggle).setToggledImages(elementToggle));
                         slider.addElement(new DisplayUnitButton(new Coord(0, -2), new Coord(60, 20),
                                 VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, new CloseClick(slider),
                                 "Close"));
