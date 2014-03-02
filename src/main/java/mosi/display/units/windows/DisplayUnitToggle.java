@@ -3,6 +3,8 @@ package mosi.display.units.windows;
 import mosi.display.DisplayHelper;
 import mosi.display.DisplayRenderHelper;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.resource.DualImageResource;
+import mosi.display.resource.DualSimpleImageResource;
 import mosi.display.resource.ImageResource;
 import mosi.display.resource.SimpleImageResource;
 import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
@@ -36,9 +38,9 @@ public class DisplayUnitToggle implements DisplayUnit {
     private Optional<? extends ImageResource> iconImage;
     private Optional<String> displayText;
 
-    private ImageResource mouseOverImage;
-    private ImageResource toggledImage;
-    private ImageResource defaultImage;
+    // Seconary Image is MouseOver
+    private DualImageResource toggledImages;
+    private DualImageResource defaultImages;
 
     public static interface Toggle {
         /* Toggles the internal value */
@@ -66,9 +68,11 @@ public class DisplayUnitToggle implements DisplayUnit {
     }
 
     private final void setDefaultImageResource() {
-        toggledImage = new GuiButtonImageResource(new Coord(129, 129), new Coord(127, 127));
-        mouseOverImage = new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127));
-        defaultImage = new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127));
+        toggledImages = new DualSimpleImageResource(
+                new GuiButtonImageResource(new Coord(129, 129), new Coord(127, 127)));
+        defaultImages = new DualSimpleImageResource(
+                new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127)), new GuiButtonImageResource(
+                        new Coord(000, 000), new Coord(127, 127)));
     }
 
     public final DisplayUnitToggle setIconImageResource(ImageResource resource) {
@@ -76,18 +80,13 @@ public class DisplayUnitToggle implements DisplayUnit {
         return this;
     }
 
-    public final DisplayUnitToggle setToggledImage(ImageResource resource) {
-        toggledImage = resource;
+    public final DisplayUnitToggle setToggledImages(DualImageResource resource) {
+        toggledImages = resource;
         return this;
     }
 
-    public final DisplayUnitToggle setMouseOverImage(ImageResource resource) {
-        mouseOverImage = resource;
-        return this;
-    }
-
-    public final DisplayUnitToggle setDefaultImage(ImageResource resource) {
-        defaultImage = resource;
+    public final DisplayUnitToggle setDefaultImages(DualImageResource resource) {
+        defaultImages = resource;
         return this;
     }
 
@@ -138,20 +137,26 @@ public class DisplayUnitToggle implements DisplayUnit {
         // 12, 16);
 
         /* Background */
-        // TODO: The Background Texture and Coords for Toggled/UnToggled/Hover need to be configurable via a setter, BUT
-        // the default is set during the constructor
         if (toggle.isToggled()) {
-            mc.getTextureManager().bindTexture(toggledImage.getImageToBind());
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
-                    toggledImage.getImageUV(), toggledImage.getImageSize());
-        } else if (isMouseOver) {
-            mc.getTextureManager().bindTexture(mouseOverImage.getImageToBind());
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
-                    mouseOverImage.getImageUV(), mouseOverImage.getImageSize());
+            if (isMouseOver) {
+                mc.getTextureManager().bindTexture(toggledImages.getSecondaryToBind());
+                DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                        toggledImages.getSecondaryUV(), toggledImages.getSecondarySize());
+            } else {
+                mc.getTextureManager().bindTexture(toggledImages.getImageToBind());
+                DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                        toggledImages.getImageUV(), toggledImages.getImageSize());
+            }
         } else {
-            mc.getTextureManager().bindTexture(defaultImage.getImageToBind());
-            DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -0.1f, position, getSize(),
-                    defaultImage.getImageUV(), defaultImage.getImageSize());
+            if (isMouseOver) {
+                mc.getTextureManager().bindTexture(defaultImages.getSecondaryToBind());
+                DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                        defaultImages.getSecondaryUV(), defaultImages.getSecondarySize());
+            } else {
+                mc.getTextureManager().bindTexture(defaultImages.getImageToBind());
+                DisplayRenderHelper.drawTexture4Quadrants(Tessellator.instance, -1.0f, position, getSize(),
+                        defaultImages.getImageUV(), defaultImages.getImageSize());
+            }
         }
 
         // TODO: GuiIcons should be a passable parameter
