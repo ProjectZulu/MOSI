@@ -132,7 +132,7 @@ public interface DisplayUnit {
 
             @Override
             public final List<DisplayUnit> screensToClose() {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             @Override
@@ -142,7 +142,7 @@ public interface DisplayUnit {
 
             @Override
             public final List<DisplayUnit> screensToOpen() {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             @Override
