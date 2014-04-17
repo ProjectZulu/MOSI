@@ -49,7 +49,7 @@ public class Properties {
     public void loadFromConfig() {
         File file = new File(configDirectory, DefaultProps.MOD_DIR + "Properties.cfg");
         Gson gson = GsonHelper.createGson(true);
-        JsonObject saveSettings = GsonHelper.readFromGson(FileUtilities.createReader(file, false), JsonObject.class,
+        JsonObject saveSettings = GsonHelper.readOrCreateFromGson(FileUtilities.createReader(file, false), JsonObject.class,
                 gson);
         int keyCode = GsonHelper.getMemberOrDefault(saveSettings, GUI_KEYBIND_KEY, Keyboard.KEY_Y);
         openGuiKeyBind.func_151462_b(keyCode);

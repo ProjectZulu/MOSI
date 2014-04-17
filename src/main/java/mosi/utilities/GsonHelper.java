@@ -2,9 +2,9 @@ package mosi.utilities;
 
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
-import mosi.Log;
 import mosi.utilities.FileUtilities.OptionalCloseable;
 
 import com.google.common.base.Optional;
@@ -44,7 +44,8 @@ public class GsonHelper {
         return builder.create();
     }
 
-    public static <T> T readFromGson(OptionalCloseable<FileReader> reader, Class<T> object, Gson gson) {
+    public static <T> T readOrCreateFromGson(OptionalCloseable<FileReader> reader, Class<T> object, Gson gson,
+            Object... creationArgs) {
         if (reader.isPresent()) {
             T instance = gson.fromJson(reader.get(), object);
             reader.close();
@@ -53,12 +54,29 @@ public class GsonHelper {
             }
         }
         try {
-            return object.newInstance();
+            Class<?>[] classes = new Class<?>[creationArgs.length];
+            for (int i = 0; i < classes.length; i++) {
+                classes[i] = creationArgs[i].getClass();
+            }
+            Constructor<T> constructor = object.getDeclaredConstructor(classes);
+            constructor.setAccessible(true);
+            return constructor.newInstance(creationArgs);
         } catch (Exception e) {
-            Log.log().severe("This should never be possible. Failed to instantiate class %s.", object);
             e.printStackTrace();
-            return null;
+            throw new IllegalArgumentException(String.format(
+                    "This should never be possible. Failed to instantiate class %s.", object));
         }
+    }
+    
+    public static <T> Optional<T> readFromGson(OptionalCloseable<FileReader> reader, Class<T> object, Gson gson) {
+        if (reader.isPresent()) {
+            T instance = gson.fromJson(reader.get(), object);
+            reader.close();
+            if (instance != null) {
+                return Optional.of(instance);
+            }
+        }
+        return Optional.<T> absent();
     }
 
     public static <T> Optional<T> readFromGson(OptionalCloseable<FileReader> reader, Type type, Gson gson) {
@@ -90,10 +108,27 @@ public class GsonHelper {
      * Helper for unwrapping JsonElements, returns empty JSON is provided element is not a JsonObject
      */
     public static JsonObject getAsJsonObject(JsonElement element) {
+        return getAsOrDefault(element, new JsonObject());
+    }
+
+    /**
+     * Helper for unwrapping JsonObject members, returns default value if element is absent or an invalid type
+     */
+    public static JsonObject getAsOrDefault(JsonElement element, JsonObject defaultValue) {
         if (element != null && element.isJsonObject()) {
             return element.getAsJsonObject();
         }
-        return new JsonObject();
+        return defaultValue;
+    }
+
+    /**
+     * Helper for unwrapping JsonObject members, returns default value if element is absent or an invalid type
+     */
+    public static int getAsOrDefault(JsonElement element, int defaultValue) {
+        if (element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            return element.getAsJsonPrimitive().getAsInt();
+        }
+        return defaultValue;
     }
 
     /**

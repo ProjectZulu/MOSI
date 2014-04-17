@@ -46,7 +46,8 @@ public class MOSI {
         Gson gson = GsonHelper.createGson(true);
         File loggingSettings = new File(event.getModConfigurationDirectory(), DefaultProps.MOD_DIR
                 + "LoggingProperties.cfg");
-        Log jasLog = GsonHelper.readFromGson(FileUtilities.createReader(loggingSettings, false), Log.class, gson);
+        Log jasLog = GsonHelper.readOrCreateFromGson(FileUtilities.createReader(loggingSettings, false), Log.class,
+                gson);
         Log.setLogger(jasLog);
         GsonHelper.writeToGson(FileUtilities.createWriter(loggingSettings, true), jasLog, gson);
 
