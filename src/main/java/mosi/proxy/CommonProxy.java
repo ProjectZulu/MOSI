@@ -7,6 +7,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import mosi.DisplayUnitRegistry;
 import mosi.MOSI;
+import mosi.Properties;
 import mosi.display.GuiHandler;
 
 public class CommonProxy {
@@ -14,6 +15,6 @@ public class CommonProxy {
     public void registerDisplayTicker(DisplayUnitRegistry displayRegistry) {
     }
 
-    public void registerGuiHandling(DisplayUnitRegistry displayRegistry) {
+    public void registerGuiHandling(DisplayUnitRegistry displayRegistry, Properties properties) {
     }
 }

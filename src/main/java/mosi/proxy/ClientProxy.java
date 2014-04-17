@@ -7,6 +7,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import mosi.DisplayUnitRegistry;
 import mosi.MOSI;
+import mosi.Properties;
 import mosi.display.DisplayTicker;
 import mosi.display.GuiHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,8 +21,8 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public void registerGuiHandling(DisplayUnitRegistry displayRegistry) {
-        GuiHandler guiHandler = new GuiHandler(displayRegistry);
+    public void registerGuiHandling(DisplayUnitRegistry displayRegistry, Properties properties) {
+        GuiHandler guiHandler = new GuiHandler(displayRegistry, properties);
         NetworkRegistry.INSTANCE.registerGuiHandler(MOSI.modInstance, guiHandler);
         FMLCommonHandler.instance().bus().register(guiHandler);
     }

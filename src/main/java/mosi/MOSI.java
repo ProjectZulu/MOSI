@@ -6,8 +6,6 @@ import mosi.display.DisplayUnitFactory;
 import mosi.proxy.CommonProxy;
 import mosi.utilities.FileUtilities;
 import mosi.utilities.GsonHelper;
-import net.sourceforge.jeval.EvaluationException;
-import net.sourceforge.jeval.Evaluator;
 
 import com.google.gson.Gson;
 
@@ -39,14 +37,24 @@ public class MOSI {
         return configDirectory;
     }
 
+    private static Properties properties;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         configDirectory = event.getModConfigurationDirectory();
+        /** Configure Logging */
         Gson gson = GsonHelper.createGson(true);
         File loggingSettings = new File(event.getModConfigurationDirectory(), DefaultProps.MOD_DIR
                 + "LoggingProperties.cfg");
         Log jasLog = GsonHelper.readFromGson(FileUtilities.createReader(loggingSettings, false), Log.class, gson);
         Log.setLogger(jasLog);
+        GsonHelper.writeToGson(FileUtilities.createWriter(loggingSettings, true), jasLog, gson);
+
+        /** Configure Generic Settings */
+        properties = new Properties(event.getModConfigurationDirectory());
+        properties.loadFromConfig();
+
+        /** Configure Displays */
         displayFactory = new DisplayUnitFactory();
         displayRegistry = new DisplayUnitRegistry(displayFactory, event.getModConfigurationDirectory());
         proxy.registerDisplayTicker(displayRegistry);
@@ -54,6 +62,6 @@ public class MOSI {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        proxy.registerGuiHandling(displayRegistry);
+        proxy.registerGuiHandling(displayRegistry, properties);
     }
 }

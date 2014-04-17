@@ -8,6 +8,7 @@ import java.util.Queue;
 import mosi.DisplayUnitRegistry;
 import mosi.Log;
 import mosi.MOSI;
+import mosi.Properties;
 import mosi.display.inventoryrules.ScrollableSubDisplays;
 import mosi.display.resource.DualSimpleImageResource;
 import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
@@ -22,11 +23,11 @@ import mosi.display.units.DisplayUnit.VerticalAlignment;
 import mosi.display.units.DisplayUnitItem;
 import mosi.display.units.DisplayUnitPotion;
 import mosi.display.units.DisplayUnitSortedPanel;
-import mosi.display.units.DisplayUnitUnsortedPanel;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
 import mosi.display.units.windows.DisplayUnitTextBoard;
+import mosi.display.units.windows.DisplayUnitTextField;
 import mosi.display.units.windows.DisplayUnitToggle;
 import mosi.display.units.windows.DisplayWindowMenu;
 import mosi.display.units.windows.DisplayWindowScrollList;
@@ -34,9 +35,9 @@ import mosi.display.units.windows.button.AddScrollClick;
 import mosi.display.units.windows.button.CloseClick;
 import mosi.display.units.windows.button.MoveScrollElementToggle;
 import mosi.display.units.windows.button.RemoveScrollToggle;
+import mosi.display.units.windows.text.ValidatorInt;
 import mosi.utilities.Coord;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 
@@ -44,13 +45,13 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Screen responsible for interaction with Displays. See displayTicker for DisplayUnit rendering
  */
 public class DisplayScreen extends GuiScreen {
     private DisplayUnitRegistry displayRegistry;
+    private Properties properties;
     private int ticks = 0;
 
     // Menu/Subscreen created by clicking/hotkey, global such to ensure only one menu/s
@@ -84,9 +85,10 @@ public class DisplayScreen extends GuiScreen {
         return new Coord(scaledResolition.getScaledWidth(), scaledResolition.getScaledHeight());
     }
 
-    public DisplayScreen(DisplayUnitRegistry displayRegistry) {
+    public DisplayScreen(DisplayUnitRegistry displayRegistry, Properties properties) {
         super();
         this.displayRegistry = displayRegistry;
+        this.properties = properties;
         windows = new ArrayList<DisplayUnit>();
         priority = new ArrayDeque<DisplayUnit>();
         windowsToBeRemoved = new ArrayList<DisplayUnit>();
@@ -291,7 +293,7 @@ public class DisplayScreen extends GuiScreen {
                             return new ReplaceAction(slider, true);
                         }
                     }.init(displayList, menu), "Display Editor"));
-            menu.addElement(new DisplayUnitButton(new Coord(0, 50), new Coord(50, 15), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitButton(new Coord(0, 55), new Coord(50, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
             processActionResult(new ReplaceAction(menu, true), Optional.<DisplayUnit> absent());
         }
