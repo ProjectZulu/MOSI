@@ -84,6 +84,22 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
         missingDisplayStack = new ItemStack(Blocks.dirt);
     }
 
+    public DisplayUnitItem(Coord position, TrackMode mode, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
+            String hideExpression, InventoryRule[] inventoryRules, ItemStack... missingDisplayStack) {
+        super(position, true, true);
+        displayOnHud = true;
+        nickname = "";
+        trackMode = mode;
+        countingRules = new InventoryRules();
+        for (InventoryRule rule : inventoryRules) {
+            countingRules.add(rule);
+        }
+        this.vertAlign = vertAlign;
+        this.horizAlign = horizAlign;
+        this.hidingRules = new HideExpression().setExpression(hideExpression);
+        this.missingDisplayStack = missingDisplayStack.length > 0 ? missingDisplayStack[0] : new ItemStack(Blocks.dirt);
+    }
+
     /* Changes the quality that is being counted */
     public enum TrackMode {
         DURABILITY, QUANTITY, DURATION; // Duration not needed as PotionDisplayUnit will need to be seperate?
@@ -316,7 +332,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 54), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleHorizAlign(this, HorizontalAlignment.RIGHT_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 2), new Coord(13, 16))));
-            
+
             menu.addElement(new DisplayUnitToggle(new Coord(-22, 75), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.TOP_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 23), new Coord(13, 16))));
@@ -326,7 +342,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             menu.addElement(new DisplayUnitToggle(new Coord(+22, 75), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleVertAlign(this, VerticalAlignment.BOTTOM_ABSO))
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(13, 16))));
-            
+
             /* Analog Bar Settings */
             menu.addElement(new DisplayUnitTextBoard(new Coord(8, 93), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, "Analog").setBackgroundImage(null));
@@ -344,9 +360,8 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
             menu.addElement(new DisplayUnitToggle(new Coord(-24, 125), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitTextField(new Coord(-2, 131), new Coord(22, 15),
-                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
-                    new DigitalCounterPositionValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
+                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, true)));
             menu.addElement(new DisplayUnitTextField(new Coord(21, 131), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
 
@@ -516,7 +531,7 @@ public class DisplayUnitItem extends DisplayUnitCounter implements DisplayUnitCo
                                     new CloseClick(menu), "Close"));
                             return new ReplaceAction(menu, true);
                         }
-                    }.init(hidingRules, getVerticalAlignment(), getHorizontalAlignment()), "Hide Rules"));            
+                    }.init(hidingRules, getVerticalAlignment(), getHorizontalAlignment()), "Hide Rules"));
             menu.addElement(new DisplayUnitButton(new Coord(0, 180), new Coord(80, 15), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, new CloseClick(menu), "Close"));
 

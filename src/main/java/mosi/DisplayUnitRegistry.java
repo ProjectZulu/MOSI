@@ -1,16 +1,29 @@
 package mosi;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
 import mosi.display.DisplayUnitFactory;
+import mosi.display.inventoryrules.InventoryRule;
+import mosi.display.inventoryrules.ItemSlotMatch;
 import mosi.display.units.DisplayUnit;
+import mosi.display.units.DisplayUnitItem;
+import mosi.display.units.DisplayUnitPotion;
+import mosi.display.units.DisplayUnitSortedPanel;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnitItem.TrackMode;
+import mosi.display.units.DisplayUnitPanel.DisplayMode;
+import mosi.display.units.DisplayUnitSortedPanel.SortMode;
+import mosi.utilities.Coord;
 import mosi.utilities.FileUtilities;
 import mosi.utilities.GsonHelper;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class DisplayUnitRegistry {
 
@@ -71,15 +84,63 @@ public class DisplayUnitRegistry {
         if (displayResult.getDisplays().isPresent()) {
             displays = new ArrayList<DisplayUnit>(displayResult.getDisplays().get());
         } else {
-            // TODO: Create array of default displays
+            ArrayList<DisplayUnit> defaultDisplays = new ArrayList<DisplayUnit>();
+            {
+                DisplayUnitItem headArmorDisplay = new DisplayUnitItem(new Coord(-99, 2), TrackMode.DURABILITY,
+                        VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, "",
+                        new InventoryRule[] { new ItemSlotMatch(2, true) });
+                headArmorDisplay.enableDigitalCounter(false);
+                headArmorDisplay.setAnalogOffset(new Coord(0, 16));
+                defaultDisplays.add(headArmorDisplay);
+
+                DisplayUnitItem chestArmorDisplay = new DisplayUnitItem(new Coord(-99, -16), TrackMode.DURABILITY,
+                        VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, "",
+                        new InventoryRule[] { new ItemSlotMatch(3, true) });
+                chestArmorDisplay.enableDigitalCounter(false);
+                chestArmorDisplay.setAnalogOffset(new Coord(0, 16));
+                defaultDisplays.add(chestArmorDisplay);
+
+                DisplayUnitItem legsDisplay = new DisplayUnitItem(new Coord(101, -16), TrackMode.DURABILITY,
+                        VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, "",
+                        new InventoryRule[] { new ItemSlotMatch(1, true) });
+                legsDisplay.enableDigitalCounter(false);
+                legsDisplay.setAnalogOffset(new Coord(0, 16));
+                defaultDisplays.add(legsDisplay);
+
+                DisplayUnitItem feetDisplay = new DisplayUnitItem(new Coord(101, 2), TrackMode.DURABILITY,
+                        VerticalAlignment.BOTTOM_ABSO, HorizontalAlignment.CENTER_ABSO, "",
+                        new InventoryRule[] { new ItemSlotMatch(0, true) });
+                feetDisplay.enableDigitalCounter(false);
+                feetDisplay.setAnalogOffset(new Coord(0, 16));
+                defaultDisplays.add(feetDisplay);
+
+                ArrayList<DisplayUnitPotion> goodEffectPotions = new ArrayList<DisplayUnitPotion>();
+                ArrayList<DisplayUnitPotion> badEffectPotions = new ArrayList<DisplayUnitPotion>();
+                for (int i = 0; i < Potion.potionTypes.length; i++) {
+                    Potion potion = Potion.potionTypes[i];
+                    if (potion != null) {
+                        DisplayUnitPotion potionDisplay = new DisplayUnitPotion(new Coord(0, 0), 20, i, "#{count}==0");
+                        if (potion.isBadEffect()) {
+                            badEffectPotions.add(potionDisplay);
+                        } else {
+                            goodEffectPotions.add(potionDisplay);
+                        }
+                    }
+                }
+                DisplayUnitSortedPanel buffBarDisplay = new DisplayUnitSortedPanel(new Coord(0, 2), SortMode.LOWHIGH,
+                        DisplayMode.COLUMN_GRID, new Coord(5, 2), false, VerticalAlignment.BOTTOM_ABSO,
+                        HorizontalAlignment.LEFT_ABSO,
+                        goodEffectPotions.toArray(new DisplayUnitPotion[goodEffectPotions.size()]));
+                defaultDisplays.add(buffBarDisplay);
+                DisplayUnitSortedPanel debuffBarDisplay = new DisplayUnitSortedPanel(new Coord(0, 2), SortMode.LOWHIGH,
+                        DisplayMode.COLUMN_GRID, new Coord(5, 2), false, VerticalAlignment.BOTTOM_ABSO,
+                        HorizontalAlignment.RIGHT_ABSO, badEffectPotions.toArray(new DisplayUnitPotion[badEffectPotions
+                                .size()]));
+                defaultDisplays.add(debuffBarDisplay);
+            }
+            this.displays = defaultDisplays;
 
         }
-        // Builder<DisplayUnit> builder = ImmutableList.<DisplayUnit> builder();
-        // builder.add(new DisplayUnitItem());
-        // builder.add(new DisplayUnitPotion());
-        // builder.add(new DisplayUnitPotion());
-        // displays.add(new DisplayUnitUnsortedPanel());
-        // builder.add(new DisplayUnitSortedPanel());
 
         // Load implicitly saves changes due to errors/corrections appear i.e. a number that cannot be below zero is set
         // to zero and should be set as such in the config

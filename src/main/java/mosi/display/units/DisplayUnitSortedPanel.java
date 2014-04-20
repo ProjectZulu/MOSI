@@ -11,6 +11,9 @@ import mosi.display.inventoryrules.ScrollableSubDisplays;
 import mosi.display.resource.DualSimpleImageResource;
 import mosi.display.resource.SimpleImageResource.GuiButtonImageResource;
 import mosi.display.resource.SimpleImageResource.GuiIconImageResource;
+import mosi.display.units.DisplayUnit.HorizontalAlignment;
+import mosi.display.units.DisplayUnit.VerticalAlignment;
+import mosi.display.units.DisplayUnitPanel.DisplayMode;
 import mosi.display.units.action.ReplaceAction;
 import mosi.display.units.windows.DisplayUnitButton;
 import mosi.display.units.windows.DisplayUnitButton.Clicker;
@@ -72,12 +75,23 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
         super();
         sortMode = SortMode.NATURAL;
         childDisplays = new ArrayList<DisplayUnitCountable>();
-        childDisplays.add(new DisplayUnitPotion(20, 1));
-        childDisplays.add(new DisplayUnitPotion(20, 4));
-        childDisplays.add(new DisplayUnitPotion(20, 8));
-        childDisplays.add(new DisplayUnitPotion(20, 11));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 1, ""));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 4, ""));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 8, ""));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 11, ""));
         childDisplays.add(new DisplayUnitItem());
-        childDisplays.add(new DisplayUnitPotion(20, 14));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 14, ""));
+    }
+
+    public DisplayUnitSortedPanel(Coord offset, SortMode sortMode, DisplayMode displayMode, Coord gridSize,
+            boolean showEmpty, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
+            DisplayUnitCountable... countDisplays) {
+        super(offset, displayMode, gridSize.x, gridSize.z, showEmpty, vertAlign, horizAlign);
+        this.sortMode = sortMode;
+        childDisplays = new ArrayList<DisplayUnitCountable>();
+        for (DisplayUnitCountable countable : countDisplays) {
+            childDisplays.add(countable);
+        }
     }
 
     @Override
@@ -158,9 +172,9 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
                         DualSimpleImageResource elementUnToggle = new DualSimpleImageResource(
                                 new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127)),
                                 new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127)));
-                        DualSimpleImageResource elementToggle = new DualSimpleImageResource(
-                                new GuiButtonImageResource(new Coord(129, 000), new Coord(127, 127)),
-                                new GuiButtonImageResource(new Coord(000, 000), new Coord(127, 127)));
+                        DualSimpleImageResource elementToggle = new DualSimpleImageResource(new GuiButtonImageResource(
+                                new Coord(129, 000), new Coord(127, 127)), new GuiButtonImageResource(new Coord(000,
+                                000), new Coord(127, 127)));
                         slider.addElement(new DisplayUnitToggle(new Coord(-2, 2), new Coord(20, 20),
                                 VerticalAlignment.TOP_ABSO, HorizontalAlignment.RIGHT_ABSO,
                                 new RemoveScrollToggle<DisplayUnitCountable>(scrollable))

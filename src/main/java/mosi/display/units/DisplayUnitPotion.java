@@ -74,12 +74,12 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
         this.hidingRules = new HideExpression();
     }
 
-    public DisplayUnitPotion(int updateFrequency, int trackedPotion) {
-        super(new Coord(0, 0), true, false);
+    public DisplayUnitPotion(Coord offset, int updateFrequency, int trackedPotion, String hidingRules) {
+        super(offset, true, false);
         this.updateFrequency = updateFrequency;
         this.trackedPotion = trackedPotion;
         this.maxAnalogDuration = 60 * 20;
-        this.hidingRules = new HideExpression();
+        this.hidingRules = new HideExpression().setExpression(hidingRules);
     }
 
     @Override
@@ -245,26 +245,30 @@ public class DisplayUnitPotion extends DisplayUnitCounter implements DisplayUnit
                     .setIconImageResource(new GuiIconImageResource(new Coord(147, 23), new Coord(13, 16))));
 
             /* Analog Bar Settings */
-            menu.addElement(new DisplayUnitTextBoard(new Coord(8, 93+13), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitTextBoard(new Coord(8, 93 + 13), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, "Analog").setBackgroundImage(null));
-            menu.addElement(new DisplayUnitToggle(new Coord(-24, 100+13), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
+            menu.addElement(new DisplayUnitToggle(new Coord(-24, 100 + 13), new Coord(20, 20),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new ToggleAnalogCounter(this))
                     .setIconImageResource(new GuiIconImageResource(new Coord(129, 44), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitTextField(new Coord(-2, 106+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, true)));
-            menu.addElement(new DisplayUnitTextField(new Coord(21, 106+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(this, false)));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 106 + 13), new Coord(22, 15),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(
+                            this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(21, 106 + 13), new Coord(22, 15),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3, new AnalogCounterPositionValidator(
+                            this, false)));
 
             /* Digital Counter Settings */
-            menu.addElement(new DisplayUnitTextBoard(new Coord(8, 118+13), VerticalAlignment.TOP_ABSO,
+            menu.addElement(new DisplayUnitTextBoard(new Coord(8, 118 + 13), VerticalAlignment.TOP_ABSO,
                     HorizontalAlignment.CENTER_ABSO, "Digital").setBackgroundImage(null));
-            menu.addElement(new DisplayUnitToggle(new Coord(-24, 125+13), new Coord(20, 20), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
+            menu.addElement(new DisplayUnitToggle(new Coord(-24, 125 + 13), new Coord(20, 20),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, new ToggleDigitalCounter(this))
                     .setIconImageResource(new GuiIconImageResource(new Coord(111, 44), new Coord(13, 16))));
-            menu.addElement(new DisplayUnitTextField(new Coord(-2, 131+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, true)));
-            menu.addElement(new DisplayUnitTextField(new Coord(21, 131+13), new Coord(22, 15), VerticalAlignment.TOP_ABSO,
-                    HorizontalAlignment.CENTER_ABSO, 3, new DigitalCounterPositionValidator(this, false)));
+            menu.addElement(new DisplayUnitTextField(new Coord(-2, 131 + 13), new Coord(22, 15),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
+                    new DigitalCounterPositionValidator(this, true)));
+            menu.addElement(new DisplayUnitTextField(new Coord(21, 131 + 13), new Coord(22, 15),
+                    VerticalAlignment.TOP_ABSO, HorizontalAlignment.CENTER_ABSO, 3,
+                    new DigitalCounterPositionValidator(this, false)));
 
             /* Potion Tracking Setting */
             menu.addElement(new DisplayUnitTextBoard(new Coord(-10, 44), VerticalAlignment.TOP_ABSO,

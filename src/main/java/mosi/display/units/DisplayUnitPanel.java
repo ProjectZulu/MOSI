@@ -67,12 +67,15 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         nickname = "Nickname";
     }
 
-    public DisplayUnitPanel(DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty) {
-        super(new Coord(0, 0));
+    public DisplayUnitPanel(Coord offset, DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty,
+            VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
+        super(offset);
         this.displayMode = displayMode;
         this.gridRows = maxRows;
         this.gridCols = maxCols;
         this.showEmpty = showEmpty;
+        this.vertAlign = vertAlign;
+        this.horizAlign = horizAlign;
         nickname = "Nickname";
     }
 

@@ -32,12 +32,12 @@ public class DisplayUnitUnsortedPanel extends DisplayUnitPanel {
         super();
         childDisplays = new ArrayList<DisplayUnit>();
         // MOSI.getDisplayFactory().createDisplay(type, jsonObject)
-        childDisplays.add(new DisplayUnitPotion(20, 1));
-        childDisplays.add(new DisplayUnitPotion(20, 4));
-        childDisplays.add(new DisplayUnitPotion(20, 8));
-        childDisplays.add(new DisplayUnitPotion(20, 11));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 1, ""));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 4, ""));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 8, ""));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 11, ""));
         childDisplays.add(new DisplayUnitItem());
-        childDisplays.add(new DisplayUnitPotion(20, 14));
+        childDisplays.add(new DisplayUnitPotion(new Coord(0, 0), 20, 14, ""));
     }
 
     @Override
