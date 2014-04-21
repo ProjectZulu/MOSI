@@ -128,12 +128,12 @@ public class DisplayUnitRegistry {
                     }
                 }
                 DisplayUnitSortedPanel buffBarDisplay = new DisplayUnitSortedPanel(new Coord(0, 2), SortMode.LOWHIGH,
-                        DisplayMode.COLUMN_GRID, new Coord(5, 2), false, VerticalAlignment.BOTTOM_ABSO,
+                        DisplayMode.COLUMN_GRID, new Coord(5, 2), false, false, VerticalAlignment.BOTTOM_ABSO,
                         HorizontalAlignment.LEFT_ABSO,
                         goodEffectPotions.toArray(new DisplayUnitPotion[goodEffectPotions.size()]));
                 defaultDisplays.add(buffBarDisplay);
                 DisplayUnitSortedPanel debuffBarDisplay = new DisplayUnitSortedPanel(new Coord(0, 2), SortMode.LOWHIGH,
-                        DisplayMode.COLUMN_GRID, new Coord(5, 2), false, VerticalAlignment.BOTTOM_ABSO,
+                        DisplayMode.COLUMN_GRID, new Coord(5, 2), false, false, VerticalAlignment.BOTTOM_ABSO,
                         HorizontalAlignment.RIGHT_ABSO, badEffectPotions.toArray(new DisplayUnitPotion[badEffectPotions
                                 .size()]));
                 defaultDisplays.add(debuffBarDisplay);

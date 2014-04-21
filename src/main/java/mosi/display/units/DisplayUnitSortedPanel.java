@@ -84,9 +84,9 @@ public class DisplayUnitSortedPanel extends DisplayUnitPanel {
     }
 
     public DisplayUnitSortedPanel(Coord offset, SortMode sortMode, DisplayMode displayMode, Coord gridSize,
-            boolean showEmpty, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
+            boolean showEmpty, boolean fixedGrid, VerticalAlignment vertAlign, HorizontalAlignment horizAlign,
             DisplayUnitCountable... countDisplays) {
-        super(offset, displayMode, gridSize.x, gridSize.z, showEmpty, vertAlign, horizAlign);
+        super(offset, displayMode, gridSize.x, gridSize.z, showEmpty, fixedGrid, vertAlign, horizAlign);
         this.sortMode = sortMode;
         childDisplays = new ArrayList<DisplayUnitCountable>();
         for (DisplayUnitCountable countable : countDisplays) {

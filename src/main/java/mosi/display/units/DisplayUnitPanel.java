@@ -38,6 +38,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     private int gridRows; // 0 == Unlimited
     private Coord gridSpacing = new Coord(18, 24);
     private boolean showEmpty;
+    private boolean fixedGrid;
     // This is a cache of the previous number of displays that were actually rendered
     private transient int previousDisplaySize = 0;
 
@@ -52,8 +53,10 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         // Uses the display units own offset for placement
         // TODO: Unimplemented, This should be different class probably parent of this one? Rename dsiplayPanel to
         // DisplayGrid?
+
         FREE;
         // POSSIBLE FIXED: Provide positions for children? Pephaps seperate display
+        // POSSIBLE CIRCLE_GRID: Auto position within specified radius
     }
 
     public DisplayUnitPanel() {
@@ -65,10 +68,11 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         vertAlign = VerticalAlignment.CENTER_ABSO;
         horizAlign = HorizontalAlignment.CENTER_ABSO;
         nickname = "Nickname";
+        fixedGrid = false;
     }
 
     public DisplayUnitPanel(Coord offset, DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty,
-            VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
+            boolean fixedGrid, VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
         super(offset);
         this.displayMode = displayMode;
         this.gridRows = maxRows;
@@ -77,6 +81,7 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
         nickname = "Nickname";
+        this.fixedGrid = fixedGrid;
     }
 
     @Override
@@ -86,12 +91,12 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
             if (gridCols == 0) {
                 return new Coord(gridCols * gridSpacing.x, gridSpacing.z);
             } else {
-                if (gridRows == 0 || gridCols * gridRows < previousDisplaySize) {
+                if (gridRows == 0 || (previousDisplaySize < gridCols * gridRows && !fixedGrid)) {
                     // -1 because Size is not 0 indexed
                     int displayRow = (int) Math.floor((previousDisplaySize - 1) / gridCols);
                     int displayCol = ((previousDisplaySize - 1) % gridCols);
                     int highestColReached = previousDisplaySize <= gridCols ? (displayCol + 1) : gridCols;
-                    return new Coord((displayCol + 1) * gridSpacing.x, highestColReached * gridSpacing.z);
+                    return new Coord((highestColReached) * gridSpacing.x, (displayRow + 1) * gridSpacing.z);
                 } else {
                     return new Coord(gridCols * gridSpacing.x, gridRows * gridSpacing.z);
                 }
@@ -100,12 +105,12 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
             if (gridRows == 0) {
                 return new Coord(gridSpacing.x, gridRows * gridSpacing.z);
             } else {
-                if (gridCols == 0 || previousDisplaySize < gridCols * gridRows) {
+                if (gridCols == 0 || (previousDisplaySize < gridCols * gridRows && !fixedGrid)) {
                     // -1 because Size is not 0 indexed
                     int displayRow = ((previousDisplaySize - 1) % gridRows);
                     int displayCol = (int) Math.floor((previousDisplaySize - 1) / gridRows);
                     int highestRowReached = previousDisplaySize <= gridRows ? (displayRow + 1) : gridRows;
-                    return new Coord((displayCol + 1) * gridSpacing.x, highestRowReached * gridSpacing.z);
+                    return new Coord((displayCol + 1) * gridSpacing.x, (highestRowReached) * gridSpacing.z);
                 } else {
                     return new Coord(gridCols * gridSpacing.x, gridRows * gridSpacing.z);
                 }
