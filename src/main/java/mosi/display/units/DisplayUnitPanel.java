@@ -37,7 +37,6 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
     private int gridCols; // 0 == Unlimited
     private int gridRows; // 0 == Unlimited
     private Coord gridSpacing = new Coord(18, 24);
-    private boolean showEmpty;
     private boolean fixedGrid;
     // This is a cache of the previous number of displays that were actually rendered
     private transient int previousDisplaySize = 0;
@@ -64,20 +63,18 @@ public abstract class DisplayUnitPanel extends DisplayUnitMoveable implements Di
         displayMode = DisplayMode.ROW_GRID;
         gridRows = 3;
         gridCols = 2;
-        showEmpty = true;
         vertAlign = VerticalAlignment.CENTER_ABSO;
         horizAlign = HorizontalAlignment.CENTER_ABSO;
         nickname = "Nickname";
         fixedGrid = false;
     }
 
-    public DisplayUnitPanel(Coord offset, DisplayMode displayMode, int maxCols, int maxRows, boolean showEmpty,
-            boolean fixedGrid, VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
+    public DisplayUnitPanel(Coord offset, DisplayMode displayMode, int maxCols, int maxRows, boolean fixedGrid,
+            VerticalAlignment vertAlign, HorizontalAlignment horizAlign) {
         super(offset);
         this.displayMode = displayMode;
         this.gridRows = maxRows;
         this.gridCols = maxCols;
-        this.showEmpty = showEmpty;
         this.vertAlign = vertAlign;
         this.horizAlign = horizAlign;
         nickname = "Nickname";
